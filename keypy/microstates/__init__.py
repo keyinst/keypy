@@ -13,8 +13,10 @@ microstates_helper : functions
     Contains helper functions for microstate computation.
 modelmaps : functions
     Computes four "mean" (principal component) modelmaps for the specified input microstate maps.
+sortmaps : functions
+    Sorts the modelmaps based on user-defined modelmaps or the modelmaps of a particular level.		
 """
 
 #############################################################################
 
-__all__ = ["configuration", "data_provider", "microstates", "microstates_helper"]
+__all__ = ["configuration", "data_provider", "microstates", "microstates_helper", "modelmaps", "sormaps"]

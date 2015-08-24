@@ -202,7 +202,7 @@ run_microstates(confobj, eeg_info_study_obj, inputhdf5, microstate_input, micros
 
 #--------------------------------------------------------------------------------------------------------------------------------------------
 
-'''
+
 #################
 # 7.) #Run Modelmaps (run_modelmaps_for_modelmap_types computes modelmaps for all types selected)
 #################
@@ -256,4 +256,51 @@ for series in series_versions:
     run_model_maps_series(series, inputfolder, outputfolder, first_input, confobj)
 
 #--------------------------------------------------------------------------------------------------------------------------------------------
-'''
+
+#################
+# 7.) #Run Sortmaps (run_sortmaps_for_sortmap_types computes sortmaps for all types selected)
+#################
+
+##Series 3 complete processing
+
+#Step 1
+inputhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_groups.hdf')
+sortbyhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_conds.hdf')
+outputhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_groups{0}.hdf' .format('_sorted') )
+inputdataset = 'modelmap'
+sortbydataset = 'modelmap'
+outputdatset = 'sorted_modelmap'
+sortdata_provider = SortGroupsByAllDataProvider1(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdatset)
+
+#Step 2
+inputhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_pts.hdf')
+sortbyhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_groups_sorted.hdf')
+outputhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_pts{0}.hdf' .format('_sorted') )
+inputdataset = 'modelmap'
+sortbydataset = 'modelmap'
+outputdatset = 'sorted_modelmap'
+sortdata_provider = SortGroupCondByGroupDataProvider1(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdatset)
+
+#Step 3
+inputhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_pts.hdf')
+sortbyhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_groups_sorted.hdf')
+outputhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_pts{0}.hdf' .format('_sorted') )
+inputdataset = 'modelmap'
+sortbydataset = 'sorted_modelmap'
+outputdatset = 'sorted_modelmap'
+sortdata_provider = SortGroupCondByCondDataProvider1(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdatset)
+
+#Step 4
+inputhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_runs.hdf')
+sortbyhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_pts_sorted.hdf')
+outputhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_runs{0}.hdf' .format('_sorted') )
+inputdataset = 'modelmap'
+sortbydataset = 'sorted_modelmap'
+outputdatset = 'sorted_modelmap'
+
+sortdata_provider = SortGroupPtCondByGroupCondDataProvider1(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdatset)
+
+confobj = MstConfiguration()
+
+run_sort_maps(sortdata_provider, find_model_maps, confobj)
+
