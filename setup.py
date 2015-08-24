@@ -4,7 +4,7 @@ from distutils.core import setup
 
 setup(name='keypy',
       version='1.0',
-      description='KEY Institute for Brain-Mind Research - EEG Analysis Toolbox',
+      description='The KEY Institute for Brain-Mind Research - EEG Analysis Toolbox',
       author='Patricia Milz',
       author_email='patricia.milz@key.uzh.ch',
       url='https://github.com/keyinst/keypy',

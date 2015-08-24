@@ -17,4 +17,4 @@ modelmaps : functions
 
 #############################################################################
 
-__all__ = ["configuration", "data_provider", "microstates", "microstates_helper", "modelmaps"]
+__all__ = ["configuration", "data_provider", "microstates", "microstates_helper"]
