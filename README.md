@@ -38,10 +38,11 @@ Developer
 
 Acknowledgement
 ---------------
-* Pascal L Faber
+* Christian Oberholzer
 * Stephan Gerhard
+* Pascal L Faber
 * Thomas Koenig
 * Dietrich Lehmann
-* Christian Oberholzer
+
 
 
