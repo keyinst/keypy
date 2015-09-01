@@ -6,7 +6,7 @@
     <ProjectGuid>{87ef2577-4fcb-4edc-acb5-69564f1770e1}</ProjectGuid>
     <ProjectHome />
     <StartupFile>E:\Programming\DEVELOPMENT\keypy_public\keypy</StartupFile>
-    <SearchPath>..\</SearchPath>
+    <SearchPath>.</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

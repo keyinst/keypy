@@ -23,7 +23,7 @@ from keypy.microstates.configuration import *
 # Please adapt the following parameters to your data or run through as is to see the processing of the example input.
 
 # enter number of channels
-nch = 64
+nch = 61
 
 # enter number of time frames for each segment
 tf = 512
@@ -32,7 +32,7 @@ tf = 512
 sf = 256
 
 # enter your channel list in the same order as in your files
-chlist = ['FP1','AF7','AF3','FP1','AF7','AF3','F1','F3','F5','F7','FT7','FC5','FC3','FC1','C1','C3','C5','T7','TP7','CP5','CP3','CP1','P1','P3','P5','P7','PO7','PO3','O1','Oz','POz','Pz','CPz','FPz','FP2','AF8','AF4','AFz','Fz','F2','F4','F6','F8','FT8','FC6','FC4','FC2','FCz','Cz','C2','C4','C6','T8','TP8','CP6','CP4','CP2','P2','P4','P6','P8','PO8','PO4','O2']
+chlist=['FP1','AF7','AF3','F1','F3','F5','F7','FT7','FC5','FC3','FC1','C1','C3','C5','T7','TP7','CP5','CP3','CP1','P1','P3','P5','P7','PO7','PO3','O1','Oz','POz','Pz','CPz','FPz','FP2','AF8','AF4','AFz','Fz','F2','F4','F6','F8','FT8','FC6','FC4','FC2','FCz','Cz','C2','C4','C6','T8','TP8','CP6','CP4','CP2','P2','P4','P6','P8','PO8','PO4','O2']
 
 # the folder path to the raw EEG data
 library_path = os.path.dirname(os.path.abspath(__file__))
@@ -179,8 +179,8 @@ confobj = MstConfiguration(
                         use_fancy_peaks = False,
                         method_GFPpeak = 'GFPL1',
                         original_nr_of_maps = 4,
-                        seed_number = 10,
-                        max_number_of_iterations = 10,
+                        seed_number = 50,
+                        max_number_of_iterations = 100,
                         ERP = False,
                         correspondance_cutoff = 0.00)
 
