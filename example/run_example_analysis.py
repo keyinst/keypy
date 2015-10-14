@@ -13,8 +13,8 @@ from keypy.preprocessing.helper_functions import *
 
 from keypy.microstates.microstates import * 
 from keypy.microstates.configuration import *
-#from keypy.microstates.modelmaps import *
-#from keypy.microstates.sortmaps import *
+from keypy.microstates.modelmaps import *
+from keypy.microstates.sortmaps import *
 #--------------------------------------------------------------------------------------------------------------------------------------------
 
 ###################################
@@ -192,7 +192,7 @@ confobj = MstConfiguration(
 ######
 ###Define input processing stage and output hdf5 file group
 ######
-
+'''
 microstate_input = 'mstate1'
 microstate_output = 'microstate'
 
@@ -254,7 +254,7 @@ for series in series_versions:
         os.makedirs(outputfolder)
 
     run_model_maps_series(series, inputfolder, outputfolder, first_input, confobj)
-
+'''
 #--------------------------------------------------------------------------------------------------------------------------------------------
 
 #################
@@ -272,6 +272,7 @@ sortbydataset = 'modelmap'
 outputdatset = 'sorted_modelmap'
 sortdata_provider = SortGroupsByAllDataProvider1(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdatset)
 
+'''
 #Step 2
 inputhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_pts.hdf')
 sortbyhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_groups_sorted.hdf')
@@ -282,15 +283,6 @@ outputdatset = 'sorted_modelmap'
 sortdata_provider = SortGroupCondByGroupDataProvider1(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdatset)
 
 #Step 3
-inputhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_pts.hdf')
-sortbyhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_groups_sorted.hdf')
-outputhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_pts{0}.hdf' .format('_sorted') )
-inputdataset = 'modelmap'
-sortbydataset = 'sorted_modelmap'
-outputdatset = 'sorted_modelmap'
-sortdata_provider = SortGroupCondByCondDataProvider1(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdatset)
-
-#Step 4
 inputhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_runs.hdf')
 sortbyhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_pts_sorted.hdf')
 outputhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_runs{0}.hdf' .format('_sorted') )
@@ -299,6 +291,8 @@ sortbydataset = 'sorted_modelmap'
 outputdatset = 'sorted_modelmap'
 
 sortdata_provider = SortGroupPtCondByGroupCondDataProvider1(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdatset)
+
+'''
 
 confobj = MstConfiguration()
 
