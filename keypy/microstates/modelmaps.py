@@ -302,7 +302,7 @@ def find_model_maps(confobj, model_maps_foundation):
         delta_attribution_matrix=1
     
         # create an empty list for iteration iii and add the best found maps
-        best_results[iii] = []
+        best_results[iii] = {}
                 
         # intitialize model_maps_mean array
         model_maps_mean=numpy.zeros( (original_nr_of_maps, nch) )
@@ -324,10 +324,22 @@ def find_model_maps(confobj, model_maps_foundation):
 
         randmap=numpy.zeros((original_nr_of_maps, nch))
         #selects from array: model_maps_foundation, the EEG of original_nr_of_maps random keys and random maps
-        for i in range(original_nr_of_maps):
+
+        if iii <= 10:
+            #Take all maps of one participant as seed
             random_vp= random.choice(range(len(model_maps_foundation)))
-            random_map= randrange(original_nr_of_maps)
-            randmap[i,:]=model_maps_foundation[random_vp][random_map,:]
+            for i in range(original_nr_of_maps):
+                randmap[i,:]=model_maps_foundation[random_vp][i,:]
+
+                print 'seed', iii, 'random_vp', random_vp, 'random_map', i
+        else:
+            #Completely random
+            for i in range(original_nr_of_maps):
+                random_vp= random.choice(range(len(model_maps_foundation)))
+                random_map= randrange(original_nr_of_maps)
+                randmap[i,:]=model_maps_foundation[random_vp][random_map,:]
+
+                print 'seed', iii, 'random_vp', random_vp, 'random_map', random_map
         
         if number_of_basic_maps < original_nr_of_maps:
             print 'Attention, you have only', number_of_basic_maps ,'participants/conditions/runs to select your', original_nr_of_maps ,'random maps from'
@@ -338,7 +350,8 @@ def find_model_maps(confobj, model_maps_foundation):
         #########  
   
         while (ii < max_number_of_iterations) and abs(delta_correlation) > 0.0002:
-            print 'iteration:', ii            
+            print 'iteration:', ii
+            best_results[iii][ii] = []       
             #intitialize attribution_matrix
             #attribution_matrix=numpy.zeros( (number_of_basic_maps ,original_nr_of_maps) )
             attribution_matrix= dict.fromkeys(range(len(model_maps_foundation)))  
@@ -385,7 +398,6 @@ def find_model_maps(confobj, model_maps_foundation):
                     vpindex=list(attribution_matrix[vpi]).index(i)                   
                     b[vpnr,:]=model_maps_foundation[vpi][vpindex,:]
                 best_fit[i]=b
-      
             
             # for each key you have an array where you have to compute the first PC across participants                      
             # extract the first principal component of the array across participants
@@ -404,14 +416,19 @@ def find_model_maps(confobj, model_maps_foundation):
                                 
                 # set randmap to GFP=1
                 randmap[ri,:] = randmap[ri]/normalization_factor_for_randmap
-            
+
+
+            #assert that randmaps all have GFP = 1
+            if not compute_gfp(randmap).all() == 1:
+                raise AssertionError('Problem with GFP normalization of randmap.')
+
             #compute delta_correlation compared to last iteration     
             list_bestcorr_values= list(bestcorr.values())
             bc_v_arr = numpy.asarray(list_bestcorr_values)
             bc_v_arr_mean=bc_v_arr[~numpy.isnan(bc_v_arr)].mean()
 
             delta_correlation=bc_v_arr_mean-mean_correlation   
-            
+
             #Update attribution matrix
             attribution_matrix_old=attribution_matrix
             
@@ -420,44 +437,46 @@ def find_model_maps(confobj, model_maps_foundation):
                 #print 'delta correlation bigger than zero, append to best result'
                 #update mean_correlation of current iteration
                 mean_correlation=numpy.mean(bestcorr.values())
-                best_results[iii].append( (mean_correlation, randmap, attribution_matrix) )
-                                
-            
+                best_results[iii][ii]=[mean_correlation, randmap, attribution_matrix]     
                 
             ii += 1
-           
-        #extract the best randmap and attribution_matrix for each seed
-    
-        for k,value in best_results.items():
-            if len(value) == 0:
-                print 'value is zero'
-                continue
-            idx = numpy.argmax( [c for c,v,d in value] )
-            #print 'max index', idx
-            corr, resmm, attrmatrix = value[idx]
-            #print 'current best', best_mean_correlation, ' current corr', corr
-            if corr > best_mean_correlation :
-                found_best = True
-                best_mean_correlation = corr
-                bestresmm = resmm
-                bestattr_matrix = attrmatrix
-        
-        if found_best:
-            if confobj.debug:
-                #print 'best of all resmm and attr matrix', bestresmm.shape, bestattr_matrix
-                #print 'best of all correlations', best_mean_correlation
-                #print 'for condition', ci
-                pass
-        else:
-            if confobj.debug:
-                print 'for SEED', iii, 'not found best'
-            
-                
-        iii += 1
 
+        iii += 1
+           
+                  
+    #extract the best randmap and attribution_matrix for each seed   
+    
+    best_mean_correlation = 0.1
+
+    for seednr in best_results.keys():
+        for iterationnr in best_results[seednr].keys():
+
+            if len(best_results[seednr][iterationnr]) == 0:
+                print 'value is zero'
+            
+            else:
+                corr, resmm, attrmatrix = best_results[seednr][iterationnr]
+                      
+                #print 'current best', best_mean_correlation, ' current corr', corr
+                if corr > best_mean_correlation :
+                    found_best = True
+                    best_mean_correlation = corr
+                    bestresmm = resmm
+                    bestattr_matrix = attrmatrix              
+
+    if found_best:
+        if confobj.debug:
+            #print 'best of all resmm and attr matrix', bestresmm.shape, bestattr_matrix
+            #print 'best of all correlations', best_mean_correlation
+            #print 'for condition', ci
+            pass
+    else:
+        if confobj.debug:
+            print 'for SEED', iii, 'not found best'
     #save attributes in dictionary
     attributes_dict = {}
     attributes_dict['Mean Correlation'] = best_mean_correlation
+
     return bestresmm, attributes_dict
 
 ####--------------------------------------------------------------------------####
@@ -506,7 +525,7 @@ def run_model_maps_series(series, inputfolder, outputfolder, first_input, confob
         'Series_2' : (1) means across pts for each group cond run, (2) means across runs for each group cond
         'Series_3' : (1) means across runs for each group pt cond, (2) means across pts for each group cond, (3) means across groups for each cond, (4) means across conds
         'Series_4' : (1) means across runs for each group pt cond, (2) means across conds for each group pt, (3) means across pts for each group, (4) means across groups       
-        'Series_5' : (1) means across runs for each group pt cond, (2) means across conds for each group pt , (3) means across groups for each pt, (4) means across groups
+        'Series_5' : (1) means across runs for each group pt cond, (2) means across conds for each group pt , (3) means across groups for each pt, (4) means across pts
     inputfolder : str
         path to folder that contains the input hdf5 file
     outputfolder : str

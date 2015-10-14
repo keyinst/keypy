@@ -520,6 +520,242 @@ def sort_maps(confobj, input, sortby):
 ####--------------------------------------------------------------------------####
 ####--------------------------------------------------------------------------####
 
+def get_io_sortmap_for_series(series, iteration, inputfolder, outputfolder, first_input):
+    """
+    Gets inputs and outputs of modelmaps for the series of modelmap computations specified.
+ 
+    Parameters
+    ----------
+    series : {Series_1, Series_2, ...}
+		Type of modelmap computation, e.g. 'Series_1' (means across runs for each group pt cond)
+    iteration : int
+		number of iterations for which different seeds are used
+    inputfolder:
+		folder of input hdf5
+    outputfolder:
+		folder of output hd5
+    first_input:
+		name of dataset of input hdf5 for first model map computation (e.g. 'microstate' or 'modelmaps')
+
+    Returns
+    ----------
+	inputhdf5 : str
+		input hdf5 path
+	outputhdf5 : str
+		output hdf5 path
+	modelmap_input : str
+		dataset name of input
+	modelmap_output : str
+		dataset name of output
+	computation_version : str
+		type of computation to be performed
+	stop : bool
+		parameter that stops series when it is done
+
+    """
+
+    stop = False
+    inputhdf5 = False
+    outputhdf5 = False
+    modelmap_input= False
+    modelmap_output= False
+    computation_version= False
+
+    if series == 'Series_1':
+        if iteration == 0:
+            ######
+            ##means across runs for each group pt cond
+            ######
+            inputhdf5 = os.path.join( inputfolder, 'all_recordings.hdf')
+            outputhdf5 = os.path.join( outputfolder, 'modelmaps_across_runs.hdf')
+            modelmap_input = first_input
+            modelmap_output = 'modelmap'
+            computation_version ='means across runs for each group pt cond'
+        elif iteration == 1:
+            ######
+            ##means across conds for each group pt
+            ######
+            inputhdf5 = os.path.join( outputfolder, 'modelmaps_across_runs.hdf')
+            outputhdf5 = os.path.join( outputfolder, 'modelmaps_across_conds.hdf')
+            modelmap_input = 'modelmap'
+            modelmap_output = 'modelmap'
+            computation_version ='means across conds for each group pt'
+        elif iteration == 2:
+            ######
+            ##means across pts for each group
+            ######
+            inputhdf5 = os.path.join( outputfolder, 'modelmaps_across_conds.hdf')
+            outputhdf5 = os.path.join( outputfolder, 'modelmaps_across_pts.hdf')
+            modelmap_input = 'modelmap'
+            modelmap_output = 'modelmap'
+            computation_version ='means across pts for each group'
+        elif iteration == 3:
+            ######
+            ##means across groups
+            ######
+            inputhdf5 = os.path.join( outputfolder, 'modelmaps_across_pts.hdf')
+            outputhdf5 = os.path.join( outputfolder, 'modelmaps_across_groups.hdf')
+            modelmap_input = 'modelmap'
+            modelmap_output = 'modelmap'
+            computation_version ='means across groups'
+        else:
+            stop = True
+
+    elif series == 'Series_2':
+        if iteration == 0:
+            ######
+            ##means across pts for each group cond run
+            ######
+            inputhdf5 = os.path.join( inputfolder, 'all_recordings.hdf')
+            outputhdf5 = os.path.join( outputfolder, 'modelmaps_across_pts.hdf')
+            modelmap_input = first_input
+            modelmap_output = 'modelmap'
+            computation_version ='means across pts for each group cond run'
+        elif iteration == 1:
+            ######
+            ##means across runs for each group cond
+            ######
+            inputhdf5 = os.path.join( outputfolder, 'modelmaps_across_pts.hdf')
+            outputhdf5 = os.path.join( outputfolder, 'modelmaps_across_runs.hdf')
+            modelmap_input = 'modelmap'
+            modelmap_output = 'modelmap'
+            computation_version ='means across runs for each group cond'
+        else:
+            stop = True
+
+    elif series == 'Series_3':
+        if iteration == 0:
+            ######
+            ##sort modelmaps_across_groups by modelmaps_across_conds
+            ######
+            inputhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_groups.hdf')
+            sortbyhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_conds.hdf')
+            outputhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_groups{0}.hdf' .format('_sorted') )
+            inputdataset = 'modelmap'
+            sortbydataset = 'modelmap'
+            outputdatset = 'sorted_modelmap'
+        elif iteration == 1:
+            ######
+            ##sort modelmaps_across_pts by modelmaps_across_groups_sorted
+            ######
+            inputhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_pts.hdf')
+            sortbyhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_groups_sorted.hdf')
+            outputhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_pts{0}.hdf' .format('_sorted') )
+            inputdataset = 'modelmap'
+            sortbydataset = 'modelmap'
+            outputdatset = 'sorted_modelmap'
+            sortdata_provider = SortGroupCondByGroupDataProvider1(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdatset)
+        elif iteration == 2:
+            ######
+            ##sort modelmaps_across_pts by modelmaps_across_groups_sorted
+            ######
+            inputhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_pts.hdf')
+            sortbyhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_groups_sorted.hdf')
+            outputhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_pts{0}.hdf' .format('_sorted') )
+            inputdataset = 'modelmap'
+            sortbydataset = 'sorted_modelmap'
+            outputdatset = 'sorted_modelmap'
+            sortdata_provider = SortGroupCondByCondDataProvider1(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdatset)
+        elif iteration == 3:
+            ######
+            ##sort modelmaps_across_runs by modelmaps_across_pts_sorted
+            ######
+            inputhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_runs.hdf')
+            sortbyhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_pts_sorted.hdf')
+            outputhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_runs{0}.hdf' .format('_sorted') )
+            inputdataset = 'modelmap'
+            sortbydataset = 'sorted_modelmap'
+            outputdatset = 'sorted_modelmap'
+            sortdata_provider = SortGroupPtCondByGroupCondDataProvider1(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdatset)
+        else:
+            stop = True
+
+    elif series == 'Series_4':
+        if iteration == 0:
+            ######
+            ##means across runs for each group pt cond
+            ######
+            inputhdf5 = os.path.join( inputfolder, 'all_recordings.hdf')
+            outputhdf5 = os.path.join( outputfolder, 'modelmaps_across_runs.hdf')
+            modelmap_input = first_input
+            modelmap_output = 'modelmap'
+            computation_version ='means across runs for each group pt cond'
+        elif iteration == 1:
+            ######
+            ##means across conds for each group pt
+            ######
+            inputhdf5 = os.path.join( outputfolder, 'modelmaps_across_runs.hdf')
+            outputhdf5 = os.path.join( outputfolder, 'modelmaps_across_conds.hdf')
+            modelmap_input = 'modelmap'
+            modelmap_output = 'modelmap'
+            computation_version ='means across conds for each group pt'
+        elif iteration == 2:
+            ######
+            ##means across pts for each group
+            ######
+            inputhdf5 = os.path.join( outputfolder, 'modelmaps_across_conds.hdf')
+            outputhdf5 = os.path.join( outputfolder, 'modelmaps_across_pts.hdf')
+            modelmap_input = 'modelmap'
+            modelmap_output = 'modelmap'
+            computation_version ='means across pts for each group'
+        elif iteration == 3:
+            ######
+            ##means across groups
+            ######
+            inputhdf5 = os.path.join( outputfolder, 'modelmaps_across_pts.hdf')
+            outputhdf5 = os.path.join( outputfolder, 'modelmaps_across_groups.hdf')
+            modelmap_input = 'modelmap'
+            modelmap_output = 'modelmap'
+            computation_version ='means across groups'
+        else:
+            stop = True
+
+    elif series == 'Series_5':
+        if iteration == 0:
+            ######
+            ##means across runs for each group pt cond
+            ######
+            inputhdf5 = os.path.join( inputfolder, 'all_recordings.hdf')
+            outputhdf5 = os.path.join( outputfolder, 'modelmaps_across_runs.hdf')
+            modelmap_input = first_input
+            modelmap_output = 'modelmap'
+            computation_version ='means across runs for each group pt cond'
+        elif iteration == 1:
+            ######
+            ##means across conds for each group pt
+            ######
+            inputhdf5 = os.path.join( outputfolder, 'modelmaps_across_runs.hdf')
+            outputhdf5 = os.path.join( outputfolder, 'modelmaps_across_conds.hdf')
+            modelmap_input = 'modelmap'
+            modelmap_output = 'modelmap'
+            computation_version ='means across conds for each group pt'
+        elif iteration == 2:
+            ######
+            ##means across groups for each pt
+            ######
+            inputhdf5 = os.path.join( outputfolder, 'modelmaps_across_conds.hdf')
+            outputhdf5 = os.path.join( outputfolder, 'modelmaps_across_groups.hdf')
+            modelmap_input = 'modelmap'
+            modelmap_output = 'modelmap'
+            computation_version ='means across groups for each pt'
+        elif iteration == 3:
+            ######
+            ##means across groups
+            ######
+            inputhdf5 = os.path.join( outputfolder, 'modelmaps_across_groups.hdf')
+            outputhdf5 = os.path.join( outputfolder, 'modelmaps_across_pts.hdf')
+            modelmap_input = 'modelmap'
+            modelmap_output = 'modelmap'
+            computation_version ='means across groups'
+        else:
+            stop = True
+    else:
+        print 'series not defined:', series
+
+
+    sortdata_provider = SortGroupsByAllDataProvider1(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdatset)
+
+    return sortdata_provider, stop
 
 
 def run_sort_maps(data_provider, find_model_maps, confobj):
@@ -529,3 +765,38 @@ def run_sort_maps(data_provider, find_model_maps, confobj):
         output_data, output_attributes = sort_maps(confobj, input, sortby)     
         if not output_data == []:
             data_provider.write_output_data(output_path, output_data, output_attributes)
+
+
+def run_sort_maps_series(series, inputfolder, outputfolder, first_input, confobj):
+    """
+    Runs run_model_maps for each input of the series.
+ 
+    Parameters
+    ----------
+    series : {'Series_1', .... 'Series_5'}
+        Defines the order of modelmap sorting.
+        'Series_1' : (1) , (2)  , (3) , (4) 
+        'Series_2' : (1) , (2)  , (3) , (4) 
+        'Series_3' : (1) , (2)  , (3) , (4) 
+        'Series_4' : (1) , (2)  , (3) , (4) 
+        'Series_5' : (1) , (2)  , (3) , (4) 
+    inputfolder : str
+        path to folder that contains the input hdf5 file
+    outputfolder : str
+        path to folder that will contain the output hdf5 file
+    first_input : str
+        dataset name that contains the N microstates for each run that the modelmap computation should be based on, e.g. 'microstate'.
+    confobj : object of type MstConfiguration
+         Contains the parameters used for microstate computation and visualization. 
+    """
+
+    stop = False
+    iteration = 0
+    while True:
+        sortdata_provider, stop = get_io_sortmap_for_series(series, iteration, inputfolder, outputfolder, first_input)
+        if stop:
+            break
+
+        run_sort_maps(sortdata_provider, find_model_maps, confobj)
+
+        iteration = iteration + 1

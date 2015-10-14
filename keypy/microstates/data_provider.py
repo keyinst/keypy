@@ -6,6 +6,7 @@
 
 from contextlib import closing
 import h5py
+from sets import Set
 
 ##########################
 #######  Classes  ########
@@ -27,6 +28,11 @@ class ConditionPath(object):
         self.pt = pt
         self.cond = cond
 
+    def __hash__(self):
+        return hash((self.group, self.pt, self.cond))
+
+    def __eq__(self, other):
+        return self.group == other.group and self.pt == other.pt and self.cond == other.cond
 
 class PtPath(object):
     """
@@ -39,6 +45,11 @@ class PtPath(object):
         self.group = group
         self.cond = cond
 
+    def __hash__(self):
+        return hash((self.group, self.cond))
+
+    def __eq__(self, other):
+        return self.group == other.group and self.cond == other.cond
 
 class PtPath2(object):
     """
@@ -51,6 +62,11 @@ class PtPath2(object):
         self.group = group
         self.pt = pt
 
+    def __hash__(self):
+        return hash((self.group, self.pt))
+
+    def __eq__(self, other):
+        return self.group == other.group and self.pt == other.pt
 
 class GroupPath(object):
     """
@@ -62,6 +78,11 @@ class GroupPath(object):
     def __init__(self, group):
         self.group = group
 
+    def __hash__(self):
+        return hash((self.group))
+
+    def __eq__(self, other):
+        return self.group == other.group
 
 class AllPath(object):
     """
@@ -73,6 +94,11 @@ class AllPath(object):
     def __init__(self, all):
         self.all = all
 
+    def __hash__(self):
+        return hash((self.all))
+
+    def __eq__(self, other):
+        return self.all == other.all
 
 class RunPath(object):
     """
@@ -86,6 +112,12 @@ class RunPath(object):
         self.cond = cond
         self.run = run
 
+    def __hash__(self):
+        return hash((self.group, self.cond, self.run))
+
+    def __eq__(self, other):
+        return self.group == other.group and self.cond == other.cond and self.run == other.run
+
 
 class ConditionPath2(object):
     """
@@ -98,6 +130,11 @@ class ConditionPath2(object):
         self.group = group
         self.cond = cond
 
+    def __hash__(self):
+        return hash((self.group, self.cond))
+
+    def __eq__(self, other):
+        return self.group == other.group and self.cond == other.cond
 
 class ConditionPath3(object):
     """
@@ -109,6 +146,11 @@ class ConditionPath3(object):
     def __init__(self, cond):
         self.cond = cond
 
+    def __hash__(self):
+        return hash((self.cond))
+
+    def __eq__(self, other):
+        return self.cond == other.cond
 
 ####--------------------------------------------------------------------------####
 
@@ -159,16 +201,15 @@ class CondDataProvider1(DataProvider):
 
     #call it once to get a list of objects which contain the paths needed each to create one output
     def get_outputs(self):
-        out_paths = []
+        out_paths_set = Set()
         with closing( h5py.File(self._file, 'r') ) as f:
             for current_group in f['/'].keys():
                 group_group = f['/{0}' .format(current_group)]
                 for current_pt in group_group.keys():
                     pt_group = f['/{0}/{1}' .format(current_group, current_pt)]
                     for current_cond in pt_group.keys():
-                        cond_path = ConditionPath(current_group, current_pt, current_cond)
-                        out_paths.append(cond_path)
-        return out_paths
+                        out_paths_set.add(ConditionPath(current_group, current_pt, current_cond)) 
+        return list(out_paths_set)
     
     #call it once per output, to get a list of modelmaps which are to be "averaged"
     def get_input_data(self, output_path):
@@ -221,14 +262,13 @@ class PtDataProvider1(DataProvider):
         DataProvider.__init__(self, inputhdf5, outputhdf5, inputdataset, outputdataset)
 
     def get_outputs(self):
-        out_paths = []
+        out_paths_set = Set()
         with closing( h5py.File(self._file, 'r') ) as f:
             for current_group in f['/'].keys():
                 group_group = f['/{0}' .format(current_group)]
                 for current_pt in group_group.keys():
-                    pt_path = PtPath2(current_group, current_pt)
-                    out_paths.append(pt_path)
-        return out_paths
+                    out_paths_set.add(PtPath2(current_group, current_pt))
+        return list(out_paths_set)
     
     def get_input_data(self, output_path):
         model_maps_all = []
@@ -281,12 +321,11 @@ class GroupDataProvider1(DataProvider):
         DataProvider.__init__(self, inputhdf5, outputhdf5, inputdataset, outputdataset)
 
     def get_outputs(self):
-        out_paths = []
+        out_paths_set = Set()
         with closing( h5py.File(self._file, 'r') ) as f:
             for current_group in f['/'].keys():
-                group_path = GroupPath(current_group)
-                out_paths.append(group_path)
-        return out_paths
+                out_paths_set.add(GroupPath(current_group)) 
+        return list(out_paths_set)
     
     def get_input_data(self, output_path):
         model_maps_all = []
@@ -330,10 +369,9 @@ class AllDataProvider1(DataProvider):
         DataProvider.__init__(self, inputhdf5, outputhdf5, inputdataset, outputdataset)
 
     def get_outputs(self):
-        out_paths = []
-        all_path = AllPath('all')
-        out_paths.append(all_path)
-        return out_paths
+        out_paths_set = Set()
+        out_paths_set.add(AllPath('all')) 
+        return list(out_paths_set)
 
     def get_input_data(self, output_path):
         model_maps_all = []
@@ -375,8 +413,8 @@ class RunDataProvider1(DataProvider):
     def __init__(self, inputhdf5, outputhdf5, inputdataset, outputdataset):
         DataProvider.__init__(self, inputhdf5, outputhdf5, inputdataset, outputdataset)
 
-    def get_outputs(self):
-        out_paths = []
+    def get_outputs(self):      
+        out_paths_set = Set()
         with closing( h5py.File(self._file, 'r') ) as f:
             for current_group in f['/'].keys():
                 group_group = f['/{0}' .format(current_group)]
@@ -385,9 +423,8 @@ class RunDataProvider1(DataProvider):
                     for current_cond in pt_group.keys():
                         cond_group = f['/{0}/{1}/{2}' .format(current_group, current_pt, current_cond)]
                         for current_run in cond_group.keys():
-                            run_path = RunPath(current_group, current_cond, current_run)
-                            out_paths.append(run_path)
-        return out_paths
+                            out_paths_set.add(RunPath(current_group, current_cond, current_run)) 
+        return list(out_paths_set)
     
     def get_input_data(self, output_path):
         model_maps_all = []
@@ -444,14 +481,13 @@ class CondDataProvider5(DataProvider):
         DataProvider.__init__(self, inputhdf5, outputhdf5, inputdataset, outputdataset)
 
     def get_outputs(self):
-        out_paths = []
+        out_paths_set = Set()
         with closing( h5py.File(self._file, 'r') ) as f:
             for current_group in f['/'].keys():
                 group_group = f['/{0}' .format(current_group)]
                 for current_cond in group_group.keys():
-                    cond_path = ConditionPath2(current_group, current_cond)
-                    out_paths.append(cond_path)
-        return out_paths
+                    out_paths_set.add(ConditionPath2(current_group, current_cond)) 
+        return list(out_paths_set)
     
     def get_input_data(self, output_path):
         model_maps_all = []
@@ -500,16 +536,15 @@ class CondDataProvider2(DataProvider):
         DataProvider.__init__(self, inputhdf5, outputhdf5, inputdataset, outputdataset)
 
     def get_outputs(self):
-        out_paths = []
+        out_paths_set = Set()
         with closing( h5py.File(self._file, 'r') ) as f:
             for current_group in f['/'].keys():
                 group_group = f['/{0}' .format(current_group)]
                 for current_pt in group_group.keys():
                     pt_group = f['/{0}/{1}' .format(current_group, current_pt)]
                     for current_cond in pt_group.keys():
-                        cond_path = ConditionPath2(current_group, current_cond)
-                        out_paths.append(cond_path)
-        return out_paths
+                       out_paths_set.add(ConditionPath2(current_group, current_cond))
+        return list(out_paths_set)
     
     def get_input_data(self, output_path):
         model_maps_all = []
@@ -560,14 +595,13 @@ class CondDataProvider3(DataProvider):
         DataProvider.__init__(self, inputhdf5, outputhdf5, inputdataset, outputdataset)
 
     def get_outputs(self):
-        out_paths = []
+        out_paths_set = Set()
         with closing( h5py.File(self._file, 'r') ) as f:
             for current_group in f['/'].keys():
                 group_group = f['/{0}' .format(current_group)]
                 for current_cond in group_group.keys():
-                    cond_path = ConditionPath3(current_cond)
-                    out_paths.append(cond_path)
-        return out_paths
+                    out_paths_set.add(ConditionPath3(current_cond)) 
+        return list(out_paths_set)
     
     def get_input_data(self, output_path):
         model_maps_all = []
