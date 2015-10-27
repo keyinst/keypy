@@ -106,7 +106,7 @@ filename_folder_obj = FilenameFolderDescription(has_group, has_participant, has_
 ###Load Data to HDF 5###
 ########################
 
-loaddata(inputfolder, outputhdf5, loaddata_output, file_name_obj, folder_structure_obj, filename_folder_obj, eeg_info_study_obj)
+#loaddata(inputfolder, outputhdf5, loaddata_output, file_name_obj, folder_structure_obj, filename_folder_obj, eeg_info_study_obj)
 
 ########################
 ###Compute Avg Ref   ###
@@ -117,7 +117,7 @@ inputhdf5 = os.path.join( outputfolder, hdf5_filename)
 average_input = 'rawdata'
 average_output = 'avg_ref'
 
-averageref(inputhdf5, average_input, average_output )
+#averageref(inputhdf5, average_input, average_output )
 
 #################################
 ###  Filter for microstates   ###
@@ -159,7 +159,7 @@ filter_output = filter_settings
 
 inputhdf5 = os.path.join( outputfolder, 'all_recordings.hdf')
 
-boxkeyfilter(inputhdf5, eeg_info_study_obj, filter_input, filter_settings, enable_detrending = False)
+#boxkeyfilter(inputhdf5, eeg_info_study_obj, filter_input, filter_settings, enable_detrending = False)
 
 #--------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -179,12 +179,12 @@ confobj = MstConfiguration(
                         use_fancy_peaks = False,
                         method_GFPpeak = 'GFPL1',
                         original_nr_of_maps = 4,
-                        seed_number = 50,
-                        max_number_of_iterations = 100,
+                        seed_number = 5,
+                        max_number_of_iterations = 10,
                         ERP = False,
                         correspondance_cutoff = 0.00)
 
-
+'''
 #################
 # 6.) #Run Microstates (computes 1 microstate for each dataset in inputfile)
 #################
@@ -198,7 +198,7 @@ microstate_output = 'microstate'
 
 #fixed_seed = 100
 
-run_microstates(confobj, eeg_info_study_obj, inputhdf5, microstate_input, microstate_output)
+#run_microstates(confobj, eeg_info_study_obj, inputhdf5, microstate_input, microstate_output)
 
 #--------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -238,6 +238,10 @@ run_microstates(confobj, eeg_info_study_obj, inputhdf5, microstate_input, micros
 #means across conds for each group pt
 #means across groups for each pt
 #means across groups
+'''
+
+
+#fix problem that it only computes for one series at a time!
 
 series_versions = ['Series_3']
 
@@ -255,6 +259,7 @@ for series in series_versions:
 
     run_model_maps_series(series, inputfolder, outputfolder, first_input, confobj)
 '''
+
 #--------------------------------------------------------------------------------------------------------------------------------------------
 
 #################
@@ -262,7 +267,7 @@ for series in series_versions:
 #################
 
 ##Series 3 complete processing
-
+'''
 #Step 1
 inputhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_groups.hdf')
 sortbyhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_conds.hdf')
@@ -272,7 +277,7 @@ sortbydataset = 'modelmap'
 outputdatset = 'sorted_modelmap'
 sortdata_provider = SortGroupsByAllDataProvider1(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdatset)
 
-'''
+
 #Step 2
 inputhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_pts.hdf')
 sortbyhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_groups_sorted.hdf')
@@ -296,5 +301,18 @@ sortdata_provider = SortGroupPtCondByGroupCondDataProvider1(inputhdf5, sortbyhdf
 
 confobj = MstConfiguration()
 
-run_sort_maps(sortdata_provider, find_model_maps, confobj)
 
+##only one particular sorting
+#run_sort_maps(sortdata_provider, find_model_maps, confobj)
+
+series = 'Series_2'
+
+series_versions = ['Series_1', 'Series_5']
+
+first_input = 'microstate'
+
+sortbyfolder = os.path.join(library_path,"data","sortby")
+
+
+for series in series_versions:
+    run_sort_maps_series(series, inputfolder, sortbyfolder, outputfolder, first_input, confobj)

@@ -13,6 +13,7 @@ from scipy.stats import pearsonr
 from contextlib import closing
 
 import h5py
+from sets import Set
 
 
 
@@ -24,39 +25,753 @@ class RunPath(object):
         self.cond = cond
         self.run = run
 
+    def __hash__(self):
+        return hash((self.group, self.pt, self.cond))
+
+    def __eq__(self, other):
+        return self.group == other.group and self.pt == other.pt and self.cond == other.cond
+
 class Levels1Path(object):
-    def __init__(self, level1):
-        self.level1 = level1
+    def __init__(self, level0):
+        self.level0 = level0
+
+    def __hash__(self):
+        return hash((self.level0))
+
+    def __eq__(self, other):
+        return self.level0 == other.level0
 
 class Levels2Path(object):
-    def __init__(self, level1, level2):
+    def __init__(self, level0, level1):
+        self.level0 = level0
+        self.level1 = level1
+
+    def __hash__(self):
+        return hash((self.level0, self.level1))
+
+    def __eq__(self, other):
+        return self.level0 == other.level0, self.level1 == other.level1
+
+class Levels3Path(object):
+    def __init__(self, level0, level1, level2):
+        self.level0 = level0
         self.level1 = level1
         self.level2 = level2
 
-class Levels3Path(object):
-    def __init__(self, level1, level2, level3):
+    def __hash__(self):
+        return hash((self.level0, self.level1, self.level2))
+
+    def __eq__(self, other):
+        return self.level0 == other.level0, self.level1 == other.level1, self.level2 == other.level2
+
+class Levels4Path(object):
+    def __init__(self, level0, level1, level2, level3):
+        self.level0 = level0
         self.level1 = level1
         self.level2 = level2
         self.level3 = level3
+
+    def __hash__(self):
+        return hash((self.level0, self.level1, self.level2, self.level3))
+
+    def __eq__(self, other):
+        return self.level0 == other.level0, self.level1 == other.level1, self.level2 == other.level2, self.level3 == other.level3
 
 ###-----------------------
 
 ####Abstract Class SortDataProvider
 
 class SortDataProvider(object):
-    def __init__(self, inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdatset):
+    def __init__(self, inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset):
         self._file = inputhdf5
         self._sortbyfile = sortbyhdf5
         self._outputfile = outputhdf5
         self._inputdataset = inputdataset
         self._sortbydataset = sortbydataset
-        self._outputdataset = outputdatset
+        self._outputdataset = outputdataset
 
 ####Sub Class CondDataProvider --> umbenennen
 
+###Sort All by Norm Data Provider 1
+
+class SortAllByNormDataProvider1(SortDataProvider):
+    def __init__(self, inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset):
+        SortDataProvider.__init__(self, inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset)
+
+    #call it once to get a list of objects which contain the paths needed each to create one output
+    def get_outputs(self):
+        out_paths_set = Set()
+        with closing( h5py.File(self._file, 'r') ) as f:
+            for current_level0 in f['/'].keys():
+                out_paths_set.add(Levels1Path(current_level0))                     
+        return list(out_paths_set)
+    
+    ### group pt cond run
+    #ein Aufruf pro Output, gets a list of all modelmaps which are to be sorted
+    def get_input_data(self, output_path):
+        with closing( h5py.File(self._file, 'r') ) as g:            
+            path = '{0}' .format(output_path.level0)
+            microstate_run_value = g['/{0}/{1}' .format(path, self._inputdataset)] 
+            if all(microstate_run_value[0,:] == 0):
+                print 'Error!', path, 'has all zeros', 'group, pt, cond ignored.'    
+            else:
+                model_map=microstate_run_value[:]
+        return model_map
+
+    ### group pt cond
+    #ein Aufruf pro Output, gets a list of all modelmaps which are to be sorted by
+    def get_sortby_data(self, output_path):
+        microstate_run_value = np.loadtxt(self._sortbyfile)
+
+        if all(microstate_run_value[0,:] == 0):
+            print 'Error!', sortbyhdf5, 'has all zeros', 'group, pt, cond ignored.'    
+        else:
+            model_map=microstate_run_value[:]
+        return model_map
+       
+    #writes output into new hdf5 at correct location
+    def write_output_data(self, output_path, output_data, output_attributes):
+        with closing( h5py.File(self._outputfile, 'a') ) as k:
+            print 'output_paths used for output', output_path.level0
+
+            if output_path.level0 in k['/'].keys():
+                all_group = k['{0}' .format(output_path.level0)]
+            else:
+                all_group = k['/'].create_group( '{0}' .format(output_path.level0)  ) 
+
+            #Save best mean correlation as attribute to group and modelmaps as dataset
+            for key, value in output_attributes.iteritems():
+                all_group.attrs['{0}' .format(key)] = value
+
+            if self._outputdataset in all_group.keys():
+                print 'group, participant, condition already in outputfile, not recomputed', all_group, output_path.level0
+            else:
+                all_group.create_dataset('{0}' .format(self._outputdataset), data = output_data)
+
+
+                
+###Sort Group by All Data Provider 1
+
+class SortGroupByAllDataProvider1(SortDataProvider):
+    def __init__(self, inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset):
+        SortDataProvider.__init__(self, inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset)
+
+    #call it once to get a list of objects which contain the paths needed each to create one output
+    def get_outputs(self):
+        out_paths_set = Set()
+        with closing( h5py.File(self._file, 'r') ) as f:
+            for current_level0 in f['/'].keys():                 
+                for current_level1 in f['/{0}'.format(current_level0)].keys():  
+                    out_paths_set.add(Levels1Path(current_level0))
+        return list(out_paths_set)
+    
+    ### group pt cond run
+    #ein Aufruf pro Output, gets a list of all modelmaps which are to be sorted
+    def get_input_data(self, output_path):
+        with closing( h5py.File(self._file, 'r') ) as g:            
+            path = '{0}' .format(output_path.level0)
+            microstate_run_value = g['/{0}/{1}' .format(path, self._inputdataset)] 
+            if all(microstate_run_value[0,:] == 0):
+                print 'Error!', path, 'has all zeros', 'group, pt, cond ignored.'    
+            else:
+                model_map=microstate_run_value[:]
+        return model_map
+
+    ### group pt cond
+    #ein Aufruf pro Output, gets a list of all modelmaps which are to be sorted by
+    def get_sortby_data(self, output_path):
+        with closing( h5py.File(self._sortbyfile, 'r') ) as h:
+            microstate_run_value = h['/{0}/{1}' .format('all', self._sortbydataset)] 
+
+            if all(microstate_run_value[0,:] == 0):
+                print 'Error!', sortbyhdf5, 'has all zeros', 'group, pt, cond ignored.'    
+            else:
+                model_map=microstate_run_value[:]
+        return model_map
+       
+    #writes output into new hdf5 at correct location
+    def write_output_data(self, output_path, output_data, output_attributes):
+        with closing( h5py.File(self._outputfile, 'a') ) as k:
+            print 'output_paths used for output', output_path.level0
+
+            if output_path.level0 in k['/'].keys():
+                group_group = k['{0}' .format(output_path.level0)]
+            else:
+                group_group = k['/'].create_group( '{0}' .format(output_path.level0)  ) 
+
+            #Save best mean correlation as attribute to group and modelmaps as dataset
+            for key, value in output_attributes.iteritems():
+                group_group.attrs['{0}' .format(key)] = value
+
+            if self._outputdataset in group_group.keys():
+                print 'group, participant, condition already in outputfile, not recomputed', group_group, output_path.level0
+            else:
+                group_group.create_dataset('{0}' .format(self._outputdataset), data = output_data)
+
+###Sort Pt by Group Data Provider 1
+
+class SortPtByGroupDataProvider1(SortDataProvider):
+    def __init__(self, inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset):
+        SortDataProvider.__init__(self, inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset)
+
+    #call it once to get a list of objects which contain the paths needed each to create one output
+    def get_outputs(self):
+        out_paths_set = Set()
+        with closing( h5py.File(self._file, 'r') ) as f:
+            for current_level0 in f['/'].keys():                 
+                for current_level1 in f['/{0}'.format(current_level0)].keys():  
+                    out_paths_set.add(Levels2Path(current_level0, current_level1))
+        return list(out_paths_set)
+    
+    ### group pt cond run
+    #ein Aufruf pro Output, gets a list of all modelmaps which are to be sorted
+    def get_input_data(self, output_path):
+        with closing( h5py.File(self._file, 'r') ) as g:            
+            path = '{0}/{1}' .format(output_path.level0, output_path.level1)
+            microstate_run_value = g['/{0}/{1}' .format(path, self._inputdataset)] 
+            if all(microstate_run_value[0,:] == 0):
+                print 'Error!', path, 'has all zeros', 'group, pt, cond ignored.'    
+            else:
+                model_map=microstate_run_value[:]
+        return model_map
+
+    ### group pt cond
+    #ein Aufruf pro Output, gets a list of all modelmaps which are to be sorted by
+    def get_sortby_data(self, output_path):
+        with closing( h5py.File(self._sortbyfile, 'r') ) as h:
+            microstate_run_value = h['/{0}/{1}' .format(output_path.level0, self._sortbydataset)] 
+
+            if all(microstate_run_value[0,:] == 0):
+                print 'Error!', sortbyhdf5, 'has all zeros', 'group, pt, cond ignored.'    
+            else:
+                model_map=microstate_run_value[:]
+        return model_map
+       
+    #writes output into new hdf5 at correct location
+    def write_output_data(self, output_path, output_data, output_attributes):
+        with closing( h5py.File(self._outputfile, 'a') ) as k:
+            print 'output_paths used for output', output_path.level0
+
+            if output_path.level0 in k['/'].keys():
+                group_group = k['{0}' .format(output_path.level0)]
+            else:
+                group_group = k['/'].create_group( '{0}' .format(output_path.level0)  ) 
+
+            if output_path.level1 in group_group.keys():
+                pt_group = k['/{0}/{1}' .format(output_path.level0, output_path.level1)]
+            else:
+                pt_group = group_group.create_group( '{0}' .format(output_path.level1)  )  
+
+
+
+            #Save best mean correlation as attribute to group and modelmaps as dataset
+            for key, value in output_attributes.iteritems():
+                pt_group.attrs['{0}' .format(key)] = value
+
+            if self._outputdataset in pt_group.keys():
+                print 'group, participant, condition already in outputfile, not recomputed', pt_group, output_path.level0, output_path.level1
+            else:
+                pt_group.create_dataset('{0}' .format(self._outputdataset), data = output_data)
+
+
+###Sort Cond by Pt Data Provider 1
+
+class SortCondByPtDataProvider1(SortDataProvider):
+    def __init__(self, inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset):
+        SortDataProvider.__init__(self, inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset)
+
+    #call it once to get a list of objects which contain the paths needed each to create one output
+    def get_outputs(self):
+        out_paths_set = Set()
+        with closing( h5py.File(self._file, 'r') ) as f:
+            for current_level0 in f['/'].keys():                 
+                for current_level1 in f['/{0}'.format(current_level0)].keys():  
+                    for current_level2 in f['/{0}/{1}'.format(current_level0, current_level1)].keys():  
+                        out_paths_set.add(Levels3Path(current_level0, current_level1, current_level2))
+        return list(out_paths_set)
+    
+    ### group pt cond run
+    #ein Aufruf pro Output, gets a list of all modelmaps which are to be sorted
+    def get_input_data(self, output_path):
+        with closing( h5py.File(self._file, 'r') ) as g:            
+            path = '{0}/{1}/{2}' .format(output_path.level0, output_path.level1, output_path.level2)
+            microstate_run_value = g['/{0}/{1}' .format(path, self._inputdataset)] 
+            if all(microstate_run_value[0,:] == 0):
+                print 'Error!', path, 'has all zeros', 'group, pt, cond ignored.'    
+            else:
+                model_map=microstate_run_value[:]
+        return model_map
+
+    ### group pt cond
+    #ein Aufruf pro Output, gets a list of all modelmaps which are to be sorted by
+    def get_sortby_data(self, output_path):
+        with closing( h5py.File(self._sortbyfile, 'r') ) as h:
+            microstate_run_value = h['/{0}/{1}/{2}' .format(output_path.level0, output_path.level1, self._sortbydataset)] 
+
+            if all(microstate_run_value[0,:] == 0):
+                print 'Error!', sortbyhdf5, 'has all zeros', 'group, pt, cond ignored.'    
+            else:
+                model_map=microstate_run_value[:]
+        return model_map
+       
+    #writes output into new hdf5 at correct location
+    def write_output_data(self, output_path, output_data, output_attributes):
+        with closing( h5py.File(self._outputfile, 'a') ) as k:
+            print 'output_paths used for output', output_path.level0
+
+            if output_path.level0 in k['/'].keys():
+                group_group = k['{0}' .format(output_path.level0)]
+            else:
+                group_group = k['/'].create_group( '{0}' .format(output_path.level0)  ) 
+
+            if output_path.level1 in group_group.keys():
+                pt_group = k['/{0}/{1}' .format(output_path.level0, output_path.level1)]
+            else:
+                pt_group = group_group.create_group( '{0}' .format(output_path.level1)  )  
+
+            if output_path.level2 in pt_group.keys():
+                cond_group = k['/{0}/{1}/{2}' .format(output_path.level0, output_path.level1, output_path.level2)]
+            else:
+                cond_group = pt_group.create_group( '{0}' .format(output_path.level2)  )  
+
+            #Save best mean correlation as attribute to group and modelmaps as dataset
+            for key, value in output_attributes.iteritems():
+                cond_group.attrs['{0}' .format(key)] = value
+
+            if self._outputdataset in cond_group.keys():
+                print 'group, participant, condition already in outputfile, not recomputed', pt_group, output_path.level0, output_path.level1, output_path.level2
+            else:
+                cond_group.create_dataset('{0}' .format(self._outputdataset), data = output_data)
+
+
+
+
+###Sort Run by Cond Data Provider 1
+
+class SortRunByCondDataProvider1(SortDataProvider):
+    def __init__(self, inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset):
+        SortDataProvider.__init__(self, inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset)
+
+    #call it once to get a list of objects which contain the paths needed each to create one output
+    def get_outputs(self):
+        out_paths_set = Set()
+        with closing( h5py.File(self._file, 'r') ) as f:
+            for current_level0 in f['/'].keys():                 
+                for current_level1 in f['/{0}'.format(current_level0)].keys():  
+                    for current_level2 in f['/{0}/{1}'.format(current_level0, current_level1)].keys():
+                        for current_level3 in f['/{0}/{1}/{2}'.format(current_level0, current_level1, current_level2)].keys():
+                            out_paths_set.add(Levels4Path(current_level0, current_level1, current_level2, current_level3))                        
+        return list(out_paths_set)
+    
+    ### group pt cond run
+    #ein Aufruf pro Output, gets a list of all modelmaps which are to be sorted
+    def get_input_data(self, output_path):
+        with closing( h5py.File(self._file, 'r') ) as g:            
+            path = '{0}/{1}/{2}/{3}' .format(output_path.level0, output_path.level1, output_path.level2, output_path.level3)
+            microstate_run_value = g['/{0}/{1}' .format(path, self._inputdataset)] 
+            if all(microstate_run_value[0,:] == 0):
+                print 'Error!', path, 'has all zeros', 'group, pt, cond ignored.'    
+            else:
+                model_map=microstate_run_value[:]
+        return model_map
+
+    ### group pt cond
+    #ein Aufruf pro Output, gets a list of all modelmaps which are to be sorted by
+    def get_sortby_data(self, output_path):
+        with closing( h5py.File(self._sortbyfile, 'r') ) as h:
+            microstate_run_value = h['/{0}/{1}/{2}/{3}' .format(output_path.level0, output_path.level1, output_path.level2, self._sortbydataset)] 
+
+            if all(microstate_run_value[0,:] == 0):
+                print 'Error!', sortbyhdf5, 'has all zeros', 'group, pt, cond ignored.'    
+            else:
+                model_map=microstate_run_value[:]
+        return model_map
+       
+    #writes output into new hdf5 at correct location
+    def write_output_data(self, output_path, output_data, output_attributes):
+        with closing( h5py.File(self._outputfile, 'a') ) as k:
+            print 'output_paths used for output', output_path.level0
+
+            if output_path.level0 in k['/'].keys():
+                group_group = k['{0}' .format(output_path.level0)]
+            else:
+                group_group = k['/'].create_group( '{0}' .format(output_path.level0)  ) 
+
+            if output_path.level1 in group_group.keys():
+                pt_group = k['/{0}/{1}' .format(output_path.level0, output_path.level1)]
+            else:
+                pt_group = group_group.create_group( '{0}' .format(output_path.level1)  )  
+
+            if output_path.level2 in pt_group.keys():
+                cond_group = k['/{0}/{1}/{2}' .format(output_path.level0, output_path.level1, output_path.level2)]
+            else:
+                cond_group = pt_group.create_group( '{0}' .format(output_path.level2)  )  
+
+            if output_path.level3 in cond_group.keys():
+                run_group = k['/{0}/{1}/{2}/{3}' .format(output_path.level0, output_path.level1, output_path.level2, output_path.level3)]
+            else:
+                run_group = cond_group.create_group( '{0}' .format(output_path.level3)  )  
+
+            #Save best mean correlation as attribute to group and modelmaps as dataset
+            for key, value in output_attributes.iteritems():
+                run_group.attrs['{0}' .format(key)] = value
+
+            if self._outputdataset in run_group.keys():
+                print 'group, participant, condition already in outputfile, not recomputed', pt_group, output_path.level0, output_path.level1, output_path.level2, output_path.level3
+            else:
+                run_group.create_dataset('{0}' .format(self._outputdataset), data = output_data)
+
+###Sort Pt by Group Data Provider 2
+
+class SortPtByGroupDataProvider2(SortDataProvider):
+    def __init__(self, inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset):
+        SortDataProvider.__init__(self, inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset)
+
+    #call it once to get a list of objects which contain the paths needed each to create one output
+    def get_outputs(self):
+        out_paths_set = Set()
+        with closing( h5py.File(self._file, 'r') ) as f:
+            for current_level0 in f['/'].keys():                 
+                for current_level1 in f['/{0}'.format(current_level0)].keys():  
+                    out_paths_set.add(Levels2Path(current_level0, current_level1))
+        return list(out_paths_set)
+    
+    ### group pt cond run
+    #ein Aufruf pro Output, gets a list of all modelmaps which are to be sorted
+    def get_input_data(self, output_path):
+        with closing( h5py.File(self._file, 'r') ) as g:            
+            path = '{0}/{1}' .format(output_path.level0, output_path.level1)
+            microstate_run_value = g['/{0}/{1}' .format(path, self._inputdataset)] 
+            if all(microstate_run_value[0,:] == 0):
+                print 'Error!', path, 'has all zeros', 'group, pt, cond ignored.'    
+            else:
+                model_map=microstate_run_value[:]
+        return model_map
+
+    ### group pt cond
+    #ein Aufruf pro Output, gets a list of all modelmaps which are to be sorted by
+    def get_sortby_data(self, output_path):
+        with closing( h5py.File(self._sortbyfile, 'r') ) as h:
+            microstate_run_value = h['/{0}/{1}' .format(output_path.level0, self._sortbydataset)] 
+
+            if all(microstate_run_value[0,:] == 0):
+                print 'Error!', sortbyhdf5, 'has all zeros', 'group, pt, cond ignored.'    
+            else:
+                model_map=microstate_run_value[:]
+        return model_map
+       
+    #writes output into new hdf5 at correct location
+    def write_output_data(self, output_path, output_data, output_attributes):
+        with closing( h5py.File(self._outputfile, 'a') ) as k:
+            print 'output_paths used for output', output_path.level0
+
+            if output_path.level0 in k['/'].keys():
+                group_group = k['{0}' .format(output_path.level0)]
+            else:
+                group_group = k['/'].create_group( '{0}' .format(output_path.level0)  ) 
+
+            if output_path.level1 in group_group.keys():
+                pt_group = k['/{0}/{1}' .format(output_path.level0, output_path.level1)]
+            else:
+                pt_group = group_group.create_group( '{0}' .format(output_path.level1)  )  
+
+
+
+            #Save best mean correlation as attribute to group and modelmaps as dataset
+            for key, value in output_attributes.iteritems():
+                pt_group.attrs['{0}' .format(key)] = value
+
+            if self._outputdataset in pt_group.keys():
+                print 'group, participant, condition already in outputfile, not recomputed', pt_group, output_path.level0, output_path.level1
+            else:
+                pt_group.create_dataset('{0}' .format(self._outputdataset), data = output_data)
+
+
+###Sort Cond by Pt Data Provider 2
+
+class SortCondByPtDataProvider2(SortDataProvider):
+    def __init__(self, inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset):
+        SortDataProvider.__init__(self, inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset)
+
+    #call it once to get a list of objects which contain the paths needed each to create one output
+    def get_outputs(self):
+        out_paths_set = Set()
+        with closing( h5py.File(self._file, 'r') ) as f:
+            for current_level0 in f['/'].keys():                 
+                for current_level1 in f['/{0}'.format(current_level0)].keys():  
+                    for current_level2 in f['/{0}/{1}'.format(current_level0, current_level1)].keys():  
+                        out_paths_set.add(Levels3Path(current_level0, current_level1, current_level2))
+        return list(out_paths_set)
+    
+    ### group pt cond run
+    #ein Aufruf pro Output, gets a list of all modelmaps which are to be sorted
+    def get_input_data(self, output_path):
+        with closing( h5py.File(self._file, 'r') ) as g:            
+            path = '{0}/{1}/{2}' .format(output_path.level0, output_path.level1, output_path.level2)
+            microstate_run_value = g['/{0}/{1}' .format(path, self._inputdataset)] 
+            if all(microstate_run_value[0,:] == 0):
+                print 'Error!', path, 'has all zeros', 'group, pt, cond ignored.'    
+            else:
+                model_map=microstate_run_value[:]
+        return model_map
+
+    ### group pt cond
+    #ein Aufruf pro Output, gets a list of all modelmaps which are to be sorted by
+    def get_sortby_data(self, output_path):
+        with closing( h5py.File(self._sortbyfile, 'r') ) as h:
+            microstate_run_value = h['/{0}/{1}/{2}' .format(output_path.level0, output_path.level2, self._sortbydataset)] 
+
+            if all(microstate_run_value[0,:] == 0):
+                print 'Error!', sortbyhdf5, 'has all zeros', 'group, pt, cond ignored.'    
+            else:
+                model_map=microstate_run_value[:]
+        return model_map
+       
+    #writes output into new hdf5 at correct location
+    def write_output_data(self, output_path, output_data, output_attributes):
+        with closing( h5py.File(self._outputfile, 'a') ) as k:
+            print 'output_paths used for output', output_path.level0
+
+            if output_path.level0 in k['/'].keys():
+                group_group = k['{0}' .format(output_path.level0)]
+            else:
+                group_group = k['/'].create_group( '{0}' .format(output_path.level0)  ) 
+
+            if output_path.level1 in group_group.keys():
+                pt_group = k['/{0}/{1}' .format(output_path.level0, output_path.level1)]
+            else:
+                pt_group = group_group.create_group( '{0}' .format(output_path.level1)  )  
+
+            if output_path.level2 in pt_group.keys():
+                cond_group = k['/{0}/{1}/{2}' .format(output_path.level0, output_path.level1, output_path.level2)]
+            else:
+                cond_group = pt_group.create_group( '{0}' .format(output_path.level2)  )  
+
+            #Save best mean correlation as attribute to group and modelmaps as dataset
+            for key, value in output_attributes.iteritems():
+                cond_group.attrs['{0}' .format(key)] = value
+
+            if self._outputdataset in cond_group.keys():
+                print 'group, participant, condition already in outputfile, not recomputed', pt_group, output_path.level0, output_path.level1, output_path.level2
+            else:
+                cond_group.create_dataset('{0}' .format(self._outputdataset), data = output_data)
+
+###Sort All by Norm Data Provider 2
+
+class SortAllByNormDataProvider2(SortDataProvider):
+    def __init__(self, inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset):
+        SortDataProvider.__init__(self, inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset)
+
+    #call it once to get a list of objects which contain the paths needed each to create one output
+    def get_outputs(self):
+        out_paths_set = Set()
+        with closing( h5py.File(self._file, 'r') ) as f:
+            for current_level0 in f['/'].keys():
+                for current_level1 in f['/{0}'.format(current_level0)].keys():  
+                    out_paths_set.add(Levels2Path(current_level0, current_level1))                 
+        return list(out_paths_set)
+     
+    ### group pt cond run
+    #ein Aufruf pro Output, gets a list of all modelmaps which are to be sorted
+    def get_input_data(self, output_path):
+        with closing( h5py.File(self._file, 'r') ) as g:            
+            path = '{0}/{1}' .format(output_path.level0, output_path.level1)
+            microstate_run_value = g['/{0}/{1}' .format(path, self._inputdataset)] 
+            if all(microstate_run_value[0,:] == 0):
+                print 'Error!', path, 'has all zeros', 'group, pt, cond ignored.'    
+            else:
+                model_map=microstate_run_value[:]
+        return model_map
+
+    ### group pt cond
+    #ein Aufruf pro Output, gets a list of all modelmaps which are to be sorted by
+    def get_sortby_data(self, output_path):
+        microstate_run_value = np.loadtxt(self._sortbyfile)
+
+        if all(microstate_run_value[0,:] == 0):
+            print 'Error!', sortbyhdf5, 'has all zeros', 'group, pt, cond ignored.'    
+        else:
+            model_map=microstate_run_value[:]
+        return model_map
+       
+    #writes output into new hdf5 at correct location
+    def write_output_data(self, output_path, output_data, output_attributes):
+        with closing( h5py.File(self._outputfile, 'a') ) as k:
+            print 'output_paths used for output', output_path.level0
+
+            if output_path.level0 in k['/'].keys():
+                group_group = k['{0}' .format(output_path.level0)]
+            else:
+                group_group = k['/'].create_group( '{0}' .format(output_path.level0)  ) 
+
+            if output_path.level1 in group_group.keys():
+                pt_group = k['/{0}/{1}' .format(output_path.level0, output_path.level1)]
+            else:
+                pt_group = group_group.create_group( '{0}' .format(output_path.level1)  )  
+
+
+
+            #Save best mean correlation as attribute to group and modelmaps as dataset
+            for key, value in output_attributes.iteritems():
+                pt_group.attrs['{0}' .format(key)] = value
+
+            if self._outputdataset in pt_group.keys():
+                print 'group, participant, condition already in outputfile, not recomputed', pt_group, output_path.level0, output_path.level1
+            else:
+                pt_group.create_dataset('{0}' .format(self._outputdataset), data = output_data)
+
+###Sort Run by Cond Data Provider 1
+
+class SortRunByCondDataProvider2(SortDataProvider):
+    def __init__(self, inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset):
+        SortDataProvider.__init__(self, inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset)
+
+    #call it once to get a list of objects which contain the paths needed each to create one output
+    def get_outputs(self):
+        out_paths_set = Set()
+        with closing( h5py.File(self._file, 'r') ) as f:
+            for current_level0 in f['/'].keys():                 
+                for current_level1 in f['/{0}'.format(current_level0)].keys():  
+                    for current_level2 in f['/{0}/{1}'.format(current_level0, current_level1)].keys():
+                        for current_level3 in f['/{0}/{1}/{2}'.format(current_level0, current_level1, current_level2)].keys():
+                            out_paths_set.add(Levels4Path(current_level0, current_level1, current_level2, current_level3))                        
+        return list(out_paths_set)
+    
+    ### group pt cond run
+    #ein Aufruf pro Output, gets a list of all modelmaps which are to be sorted
+    def get_input_data(self, output_path):
+        with closing( h5py.File(self._file, 'r') ) as g:            
+            path = '{0}/{1}/{2}/{3}' .format(output_path.level0, output_path.level1, output_path.level2, output_path.level3)
+            microstate_run_value = g['/{0}/{1}' .format(path, self._inputdataset)] 
+            if all(microstate_run_value[0,:] == 0):
+                print 'Error!', path, 'has all zeros', 'group, pt, cond ignored.'    
+            else:
+                model_map=microstate_run_value[:]
+        return model_map
+
+    ### group pt cond
+    #ein Aufruf pro Output, gets a list of all modelmaps which are to be sorted by
+    def get_sortby_data(self, output_path):
+        with closing( h5py.File(self._sortbyfile, 'r') ) as h:
+            microstate_run_value = h['/{0}/{1}/{2}/{3}' .format(output_path.level0, output_path.level2, output_path.level3, self._sortbydataset)] 
+
+            if all(microstate_run_value[0,:] == 0):
+                print 'Error!', sortbyhdf5, 'has all zeros', 'group, pt, cond ignored.'    
+            else:
+                model_map=microstate_run_value[:]
+        return model_map
+       
+    #writes output into new hdf5 at correct location
+    def write_output_data(self, output_path, output_data, output_attributes):
+        with closing( h5py.File(self._outputfile, 'a') ) as k:
+            print 'output_paths used for output', output_path.level0
+
+            if output_path.level0 in k['/'].keys():
+                group_group = k['{0}' .format(output_path.level0)]
+            else:
+                group_group = k['/'].create_group( '{0}' .format(output_path.level0)  ) 
+
+            if output_path.level1 in group_group.keys():
+                pt_group = k['/{0}/{1}' .format(output_path.level0, output_path.level1)]
+            else:
+                pt_group = group_group.create_group( '{0}' .format(output_path.level1)  )  
+
+            if output_path.level2 in pt_group.keys():
+                cond_group = k['/{0}/{1}/{2}' .format(output_path.level0, output_path.level1, output_path.level2)]
+            else:
+                cond_group = pt_group.create_group( '{0}' .format(output_path.level2)  )  
+
+            if output_path.level3 in cond_group.keys():
+                run_group = k['/{0}/{1}/{2}/{3}' .format(output_path.level0, output_path.level1, output_path.level2, output_path.level3)]
+            else:
+                run_group = cond_group.create_group( '{0}' .format(output_path.level3)  )  
+
+            #Save best mean correlation as attribute to group and modelmaps as dataset
+            for key, value in output_attributes.iteritems():
+                run_group.attrs['{0}' .format(key)] = value
+
+            if self._outputdataset in run_group.keys():
+                print 'group, participant, condition already in outputfile, not recomputed', pt_group, output_path.level0, output_path.level1, output_path.level2, output_path.level3
+            else:
+                run_group.create_dataset('{0}' .format(self._outputdataset), data = output_data)
+
+###Sort Pt by Group Data Provider 1
+
+class SortPtByGroupDataProvider2(SortDataProvider):
+    def __init__(self, inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset):
+        SortDataProvider.__init__(self, inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset)
+
+    #call it once to get a list of objects which contain the paths needed each to create one output
+    def get_outputs(self):
+        out_paths_set = Set()
+        with closing( h5py.File(self._file, 'r') ) as f:
+            for current_level0 in f['/'].keys():                 
+                for current_level1 in f['/{0}'.format(current_level0)].keys():  
+                    out_paths_set.add(Levels2Path(current_level0, current_level1))
+        return list(out_paths_set)
+    
+    ### group pt cond run
+    #ein Aufruf pro Output, gets a list of all modelmaps which are to be sorted
+    def get_input_data(self, output_path):
+        with closing( h5py.File(self._file, 'r') ) as g:            
+            path = '{0}/{1}' .format(output_path.level0, output_path.level1)
+            microstate_run_value = g['/{0}/{1}' .format(path, self._inputdataset)] 
+            if all(microstate_run_value[0,:] == 0):
+                print 'Error!', path, 'has all zeros', 'group, pt, cond ignored.'    
+            else:
+                model_map=microstate_run_value[:]
+        return model_map
+
+    ### group pt cond
+    #ein Aufruf pro Output, gets a list of all modelmaps which are to be sorted by
+    def get_sortby_data(self, output_path):
+        with closing( h5py.File(self._sortbyfile, 'r') ) as h:
+            microstate_run_value = h['/{0}/{1}' .format(output_path.level1, self._sortbydataset)] 
+
+            if all(microstate_run_value[0,:] == 0):
+                print 'Error!', sortbyhdf5, 'has all zeros', 'group, pt, cond ignored.'    
+            else:
+                model_map=microstate_run_value[:]
+        return model_map
+       
+    #writes output into new hdf5 at correct location
+    def write_output_data(self, output_path, output_data, output_attributes):
+        with closing( h5py.File(self._outputfile, 'a') ) as k:
+            print 'output_paths used for output', output_path.level0
+
+            if output_path.level0 in k['/'].keys():
+                group_group = k['{0}' .format(output_path.level0)]
+            else:
+                group_group = k['/'].create_group( '{0}' .format(output_path.level0)  ) 
+
+            if output_path.level1 in group_group.keys():
+                pt_group = k['/{0}/{1}' .format(output_path.level0, output_path.level1)]
+            else:
+                pt_group = group_group.create_group( '{0}' .format(output_path.level1)  )  
+
+
+
+            #Save best mean correlation as attribute to group and modelmaps as dataset
+            for key, value in output_attributes.iteritems():
+                pt_group.attrs['{0}' .format(key)] = value
+
+            if self._outputdataset in pt_group.keys():
+                print 'group, participant, condition already in outputfile, not recomputed', pt_group, output_path.level0, output_path.level1
+            else:
+                pt_group.create_dataset('{0}' .format(self._outputdataset), data = output_data)
+
+
+
+
+
+
+
+
+
+
 class SortGroupPtCondByGroupCondDataProvider1(SortDataProvider):
-    def __init__(self, inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdatset):
-        SortDataProvider.__init__(self, inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdatset)
+    def __init__(self, inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset):
+        SortDataProvider.__init__(self, inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset)
 
     #call it once to get a list of objects which contain the paths needed each to create one output
     def get_outputs(self):
@@ -73,7 +788,7 @@ class SortGroupPtCondByGroupCondDataProvider1(SortDataProvider):
     #ein Aufruf pro Output, gets a list of all modelmaps which are to be sorted
     def get_input_data(self, output_path):
         with closing( h5py.File(self._file, 'r') ) as g:            
-            path = '{0}/{1}/{2}' .format(output_path.level1, output_path.level2, output_path.level3)
+            path = '{0}/{1}/{2}' .format(output_path.level0, output_path.level1, output_path.level2)
             microstate_run_value = g['/{0}/{1}' .format(path, self._inputdataset)] 
             if all(microstate_run_value[0,:] == 0):
                 print 'Error!', path, 'has all zeros', 'group, pt, cond ignored.'    
@@ -123,8 +838,8 @@ class SortGroupPtCondByGroupCondDataProvider1(SortDataProvider):
                 run_group.create_dataset('{0}' .format(self._outputdataset), data = output_data)
 
 class SortGroupCondByCondDataProvider1(SortDataProvider):
-    def __init__(self, inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdatset):
-        SortDataProvider.__init__(self, inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdatset)
+    def __init__(self, inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset):
+        SortDataProvider.__init__(self, inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset)
 
     #call it once to get a list of objects which contain the paths needed each to create one output
     def get_outputs(self):
@@ -187,8 +902,8 @@ class SortGroupCondByCondDataProvider1(SortDataProvider):
 
 
 class SortGroupCondByGroupDataProvider1(SortDataProvider):
-    def __init__(self, inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdatset):
-        SortDataProvider.__init__(self, inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdatset)
+    def __init__(self, inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset):
+        SortDataProvider.__init__(self, inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset)
 
     #call it once to get a list of objects which contain the paths needed each to create one output
     def get_outputs(self):
@@ -250,8 +965,8 @@ class SortGroupCondByGroupDataProvider1(SortDataProvider):
                 pt_group.create_dataset('{0}' .format(self._outputdataset), data = output_data)
 
 class SortGroupsByAllDataProvider1(SortDataProvider):
-    def __init__(self, inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdatset):
-        SortDataProvider.__init__(self, inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdatset)
+    def __init__(self, inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset):
+        SortDataProvider.__init__(self, inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset)
 
     #call it once to get a list of objects which contain the paths needed each to create one output
     def get_outputs(self):
@@ -309,8 +1024,8 @@ class SortGroupsByAllDataProvider1(SortDataProvider):
 ###################OLD
 
 class SortCondDataProvider_correct(SortDataProvider):
-    def __init__(self, inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdatset):
-        SortDataProvider.__init__(self, inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdatset)
+    def __init__(self, inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset):
+        SortDataProvider.__init__(self, inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset)
 
     #call it once to get a list of objects which contain the paths needed each to create one output
     def get_outputs(self):
@@ -520,7 +1235,7 @@ def sort_maps(confobj, input, sortby):
 ####--------------------------------------------------------------------------####
 ####--------------------------------------------------------------------------####
 
-def get_io_sortmap_for_series(series, iteration, inputfolder, outputfolder, first_input):
+def get_io_sortmap_for_series(series, iteration, inputfolder, sortbyfolder, outputfolder, first_input):
     """
     Gets inputs and outputs of modelmaps for the series of modelmap computations specified.
  
@@ -555,96 +1270,128 @@ def get_io_sortmap_for_series(series, iteration, inputfolder, outputfolder, firs
     """
 
     stop = False
-    inputhdf5 = False
-    outputhdf5 = False
-    modelmap_input= False
-    modelmap_output= False
-    computation_version= False
+    sortdata_provider = False
 
     if series == 'Series_1':
         if iteration == 0:
             ######
-            ##means across runs for each group pt cond
+            ##sort modelmaps across groups by mean_models_milz_etal_2015
             ######
-            inputhdf5 = os.path.join( inputfolder, 'all_recordings.hdf')
-            outputhdf5 = os.path.join( outputfolder, 'modelmaps_across_runs.hdf')
-            modelmap_input = first_input
-            modelmap_output = 'modelmap'
-            computation_version ='means across runs for each group pt cond'
+            inputhdf5 = os.path.join( outputfolder, 'Series_1', 'modelmaps_across_groups.hdf')
+            sortbyhdf5 = os.path.join(sortbyfolder, 'mean_models_milz_etal_2015.asc')
+            outputhdf5 = os.path.join( outputfolder, 'Series_1', 'modelmaps_across_groups{0}.hdf' .format('_sorted') )
+            inputdataset = 'modelmap'
+            sortbydataset = 'modelmap'
+            outputdataset = 'modelmap'
+            sortdata_provider = SortAllByNormDataProvider1(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset)
         elif iteration == 1:
             ######
-            ##means across conds for each group pt
+            ##sort modelmaps_across_pts by modelmaps_across_groups_sorted
             ######
-            inputhdf5 = os.path.join( outputfolder, 'modelmaps_across_runs.hdf')
-            outputhdf5 = os.path.join( outputfolder, 'modelmaps_across_conds.hdf')
-            modelmap_input = 'modelmap'
-            modelmap_output = 'modelmap'
-            computation_version ='means across conds for each group pt'
+            inputhdf5 = os.path.join( outputfolder, 'Series_1', 'modelmaps_across_pts.hdf')
+            sortbyhdf5 = os.path.join( outputfolder, 'Series_1', 'modelmaps_across_groups_sorted.hdf')
+            outputhdf5 = os.path.join( outputfolder, 'Series_1', 'modelmaps_across_pts{0}.hdf' .format('_sorted') )
+            inputdataset = 'modelmap'
+            sortbydataset = 'modelmap'
+            outputdataset = 'modelmap'
+            sortdata_provider = SortGroupByAllDataProvider1(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset)
         elif iteration == 2:
             ######
-            ##means across pts for each group
+            ##sort modelmaps_across_conds by modelmaps_across_pts_sorted
             ######
-            inputhdf5 = os.path.join( outputfolder, 'modelmaps_across_conds.hdf')
-            outputhdf5 = os.path.join( outputfolder, 'modelmaps_across_pts.hdf')
-            modelmap_input = 'modelmap'
-            modelmap_output = 'modelmap'
-            computation_version ='means across pts for each group'
+            inputhdf5 = os.path.join( outputfolder, 'Series_1', 'modelmaps_across_conds.hdf')
+            sortbyhdf5 = os.path.join( outputfolder, 'Series_1', 'modelmaps_across_pts_sorted.hdf')
+            outputhdf5 = os.path.join( outputfolder, 'Series_1', 'modelmaps_across_conds{0}.hdf' .format('_sorted') )
+            inputdataset = 'modelmap'
+            sortbydataset = 'modelmap'
+            outputdataset = 'modelmap'
+            sortdata_provider = SortPtByGroupDataProvider1(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset)
         elif iteration == 3:
             ######
-            ##means across groups
+            ##sort sort modelmaps_across_runs by modelmaps_across_conds_sorted
             ######
-            inputhdf5 = os.path.join( outputfolder, 'modelmaps_across_pts.hdf')
-            outputhdf5 = os.path.join( outputfolder, 'modelmaps_across_groups.hdf')
-            modelmap_input = 'modelmap'
-            modelmap_output = 'modelmap'
-            computation_version ='means across groups'
+            inputhdf5 = os.path.join( outputfolder, 'Series_1', 'modelmaps_across_runs.hdf')
+            sortbyhdf5 = os.path.join( outputfolder, 'Series_1', 'modelmaps_across_conds_sorted.hdf')
+            outputhdf5 = os.path.join( outputfolder, 'Series_1', 'modelmaps_across_runs{0}.hdf' .format('_sorted') )
+            inputdataset = 'modelmap'
+            sortbydataset = 'modelmap'
+            outputdataset = 'modelmap'
+            sortdata_provider = SortCondByPtDataProvider1(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset)
+        elif iteration == 4:
+            ######
+            ##sort microstates by modelmaps_across_runs_sorted
+            ######
+            inputhdf5 = os.path.join( outputfolder, 'all_recordings.hdf')
+            sortbyhdf5 = os.path.join( outputfolder, 'Series_1', 'modelmaps_across_runs_sorted.hdf')
+            outputhdf5 = os.path.join( outputfolder, 'all_recordings.hdf')
+            inputdataset = first_input
+            sortbydataset = 'modelmap'
+            outputdataset = '{0}{1}' .format(first_input, '_Series_1_sorted')
+            sortdata_provider = SortRunByCondDataProvider1(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset)
         else:
             stop = True
+
 
     elif series == 'Series_2':
         if iteration == 0:
             ######
-            ##means across pts for each group cond run
+            ##sort modelmaps across runs by mean_models_milz_etal_2015
             ######
-            inputhdf5 = os.path.join( inputfolder, 'all_recordings.hdf')
-            outputhdf5 = os.path.join( outputfolder, 'modelmaps_across_pts.hdf')
-            modelmap_input = first_input
-            modelmap_output = 'modelmap'
-            computation_version ='means across pts for each group cond run'
+            inputhdf5 = os.path.join( outputfolder, 'Series_2', 'modelmaps_across_runs.hdf')
+            sortbyhdf5 = os.path.join(sortbyfolder, 'mean_models_milz_etal_2015.asc')
+            outputhdf5 = os.path.join( outputfolder, 'Series_2', 'modelmaps_across_runs{0}.hdf' .format('_sorted') )
+            inputdataset = 'modelmap'
+            sortbydataset = 'modelmap'
+            outputdataset = 'modelmap'
+            sortdata_provider = SortAllByNormDataProvider2(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset)
         elif iteration == 1:
             ######
-            ##means across runs for each group cond
+            ##sort modelmaps_across_pts by modelmaps_across_runs
             ######
-            inputhdf5 = os.path.join( outputfolder, 'modelmaps_across_pts.hdf')
-            outputhdf5 = os.path.join( outputfolder, 'modelmaps_across_runs.hdf')
-            modelmap_input = 'modelmap'
-            modelmap_output = 'modelmap'
-            computation_version ='means across runs for each group cond'
+            inputhdf5 = os.path.join( outputfolder, 'Series_2', 'modelmaps_across_pts.hdf')
+            sortbyhdf5 = os.path.join( outputfolder, 'Series_2', 'modelmaps_across_runs_sorted.hdf')
+            outputhdf5 = os.path.join( outputfolder, 'Series_2', 'modelmaps_across_pts{0}.hdf' .format('_sorted') )
+            inputdataset = 'modelmap'
+            sortbydataset = 'modelmap'
+            outputdataset = 'modelmap'
+            sortdata_provider = SortCondByPtDataProvider1(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset)
+        elif iteration == 2:
+            ######
+            ##sort microstates by modelmaps_across_pts_sorted
+            ######
+            inputhdf5 = os.path.join( outputfolder, 'all_recordings.hdf')
+            sortbyhdf5 = os.path.join( outputfolder, 'Series_2', 'modelmaps_across_pts_sorted.hdf')
+            outputhdf5 = os.path.join( outputfolder, 'all_recordings.hdf')
+            inputdataset = first_input
+            sortbydataset = 'modelmap'
+            outputdataset = '{0}{1}' .format(first_input, '_Series_2_sorted')
+            sortdata_provider = SortRunByCondDataProvider2(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset)
         else:
             stop = True
 
     elif series == 'Series_3':
         if iteration == 0:
             ######
+            ##sort modelmaps across conds by mean_models_milz_etal_2015
+            ######
+            inputhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_conds.hdf')
+            sortbyhdf5 = os.path.join(sortbyfolder, 'mean_models_milz_etal_2015.asc')
+            outputhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_conds{0}.hdf' .format('_sorted') )
+            inputdataset = 'modelmap'
+            sortbydataset = 'modelmap'
+            outputdataset = 'modelmap'
+            sortdata_provider = SortAllByNormDataProvider1(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset)
+        elif iteration == 1:
+            ######
             ##sort modelmaps_across_groups by modelmaps_across_conds
             ######
             inputhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_groups.hdf')
-            sortbyhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_conds.hdf')
+            sortbyhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_conds_sorted.hdf')
             outputhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_groups{0}.hdf' .format('_sorted') )
             inputdataset = 'modelmap'
             sortbydataset = 'modelmap'
-            outputdatset = 'sorted_modelmap'
-        elif iteration == 1:
-            ######
-            ##sort modelmaps_across_pts by modelmaps_across_groups_sorted
-            ######
-            inputhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_pts.hdf')
-            sortbyhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_groups_sorted.hdf')
-            outputhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_pts{0}.hdf' .format('_sorted') )
-            inputdataset = 'modelmap'
-            sortbydataset = 'modelmap'
-            outputdatset = 'sorted_modelmap'
-            sortdata_provider = SortGroupCondByGroupDataProvider1(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdatset)
+            outputdataset = 'modelmap'
+            sortdata_provider = SortGroupByAllDataProvider1(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset)
         elif iteration == 2:
             ######
             ##sort modelmaps_across_pts by modelmaps_across_groups_sorted
@@ -653,107 +1400,158 @@ def get_io_sortmap_for_series(series, iteration, inputfolder, outputfolder, firs
             sortbyhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_groups_sorted.hdf')
             outputhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_pts{0}.hdf' .format('_sorted') )
             inputdataset = 'modelmap'
-            sortbydataset = 'sorted_modelmap'
-            outputdatset = 'sorted_modelmap'
-            sortdata_provider = SortGroupCondByCondDataProvider1(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdatset)
+            sortbydataset = 'modelmap'
+            outputdataset = 'modelmap'
+            sortdata_provider = SortPtByGroupDataProvider2(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset)
         elif iteration == 3:
             ######
-            ##sort modelmaps_across_runs by modelmaps_across_pts_sorted
+            ##sort sort modelmaps_across_runs by modelmaps_across_pts_sorted
             ######
             inputhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_runs.hdf')
             sortbyhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_pts_sorted.hdf')
             outputhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_runs{0}.hdf' .format('_sorted') )
             inputdataset = 'modelmap'
-            sortbydataset = 'sorted_modelmap'
-            outputdatset = 'sorted_modelmap'
-            sortdata_provider = SortGroupPtCondByGroupCondDataProvider1(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdatset)
+            sortbydataset = 'modelmap'
+            outputdataset = 'modelmap'
+            sortdata_provider = SortCondByPtDataProvider2(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset)
+        elif iteration == 4:
+            ######
+            ##sort microstates by modelmaps_across_runs_sorted
+            ######
+            inputhdf5 = os.path.join( outputfolder, 'all_recordings.hdf')
+            sortbyhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_runs_sorted.hdf')
+            outputhdf5 = os.path.join( outputfolder, 'all_recordings.hdf')
+            inputdataset = first_input
+            sortbydataset = 'modelmap'
+            outputdataset = '{0}{1}' .format(first_input, '_Series_3_sorted')
+            sortdata_provider = SortRunByCondDataProvider1(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset)
         else:
             stop = True
 
     elif series == 'Series_4':
         if iteration == 0:
             ######
-            ##means across runs for each group pt cond
+            ##sort modelmaps across groups by mean_models_milz_etal_2015
             ######
-            inputhdf5 = os.path.join( inputfolder, 'all_recordings.hdf')
-            outputhdf5 = os.path.join( outputfolder, 'modelmaps_across_runs.hdf')
-            modelmap_input = first_input
-            modelmap_output = 'modelmap'
-            computation_version ='means across runs for each group pt cond'
+            inputhdf5 = os.path.join( outputfolder, 'Series_4', 'modelmaps_across_groups.hdf')
+            sortbyhdf5 = os.path.join(sortbyfolder, 'mean_models_milz_etal_2015.asc')
+            outputhdf5 = os.path.join( outputfolder, 'Series_4', 'modelmaps_across_groups{0}.hdf' .format('_sorted') )
+            inputdataset = 'modelmap'
+            sortbydataset = 'modelmap'
+            outputdataset = 'modelmap'
+            sortdata_provider = SortAllByNormDataProvider1(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset)
         elif iteration == 1:
             ######
-            ##means across conds for each group pt
+            ##sort modelmaps_across_conds by modelmaps_across groups
             ######
-            inputhdf5 = os.path.join( outputfolder, 'modelmaps_across_runs.hdf')
-            outputhdf5 = os.path.join( outputfolder, 'modelmaps_across_conds.hdf')
-            modelmap_input = 'modelmap'
-            modelmap_output = 'modelmap'
-            computation_version ='means across conds for each group pt'
+            inputhdf5 = os.path.join( outputfolder, 'Series_4', 'modelmaps_across_conds.hdf')
+            sortbyhdf5 = os.path.join( outputfolder, 'Series_4', 'modelmaps_across_groups_sorted.hdf')
+            outputhdf5 = os.path.join( outputfolder, 'Series_4', 'modelmaps_across_conds{0}.hdf' .format('_sorted') )
+            inputdataset = 'modelmap'
+            sortbydataset = 'modelmap'
+            outputdataset = 'modelmap'
+            sortdata_provider = SortGroupByAllDataProvider1(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset)
         elif iteration == 2:
             ######
-            ##means across pts for each group
+            ##sort modelmaps_across_pts by modelmaps_across_conds_sorted
             ######
-            inputhdf5 = os.path.join( outputfolder, 'modelmaps_across_conds.hdf')
-            outputhdf5 = os.path.join( outputfolder, 'modelmaps_across_pts.hdf')
-            modelmap_input = 'modelmap'
-            modelmap_output = 'modelmap'
-            computation_version ='means across pts for each group'
+            inputhdf5 = os.path.join( outputfolder, 'Series_4', 'modelmaps_across_pts.hdf')
+            sortbyhdf5 = os.path.join( outputfolder, 'Series_4', 'modelmaps_across_conds_sorted.hdf')
+            outputhdf5 = os.path.join( outputfolder, 'Series_4', 'modelmaps_across_pts{0}.hdf' .format('_sorted') )
+            inputdataset = 'modelmap'
+            sortbydataset = 'modelmap'
+            outputdataset = 'modelmap'
+            sortdata_provider = SortPtByGroupDataProvider1(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset)
         elif iteration == 3:
+            ######
+            ##sort modelmaps_across_runs by modelmaps_across_pts_sorted
+            ######
+            inputhdf5 = os.path.join( outputfolder, 'Series_4', 'modelmaps_across_runs.hdf')
+            sortbyhdf5 = os.path.join( outputfolder, 'Series_4', 'modelmaps_across_pts_sorted.hdf')
+            outputhdf5 = os.path.join( outputfolder, 'Series_4', 'modelmaps_across_runs{0}.hdf' .format('_sorted') )
+            inputdataset = 'modelmap'
+            sortbydataset = 'modelmap'
+            outputdataset = 'modelmap'
+            sortdata_provider = SortCondByPtDataProvider2(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset)
+        elif iteration == 4:
             ######
             ##means across groups
             ######
-            inputhdf5 = os.path.join( outputfolder, 'modelmaps_across_pts.hdf')
-            outputhdf5 = os.path.join( outputfolder, 'modelmaps_across_groups.hdf')
-            modelmap_input = 'modelmap'
-            modelmap_output = 'modelmap'
-            computation_version ='means across groups'
+            inputhdf5 = os.path.join( outputfolder, 'all_recordings.hdf')
+            sortbyhdf5 = os.path.join( outputfolder, 'Series_4', 'modelmaps_across_runs_sorted.hdf')
+            outputhdf5 = os.path.join( outputfolder, 'all_recordings.hdf')
+            inputdataset = first_input
+            sortbydataset = 'modelmap'
+            outputdataset = '{0}{1}' .format(first_input, '_Series_4_sorted')
+            sortdata_provider = SortRunByCondDataProvider1(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset)
         else:
             stop = True
 
     elif series == 'Series_5':
         if iteration == 0:
             ######
-            ##means across runs for each group pt cond
+            ##sort modelmaps across pts by mean_models_milz_etal_2015
             ######
-            inputhdf5 = os.path.join( inputfolder, 'all_recordings.hdf')
-            outputhdf5 = os.path.join( outputfolder, 'modelmaps_across_runs.hdf')
-            modelmap_input = first_input
-            modelmap_output = 'modelmap'
-            computation_version ='means across runs for each group pt cond'
+            inputhdf5 = os.path.join( outputfolder, 'Series_5', 'modelmaps_across_pts.hdf')
+            sortbyhdf5 = os.path.join(sortbyfolder, 'mean_models_milz_etal_2015.asc')
+            outputhdf5 = os.path.join( outputfolder, 'Series_5', 'modelmaps_across_pts{0}.hdf' .format('_sorted') )
+            inputdataset = 'modelmap'
+            sortbydataset = 'modelmap'
+            outputdataset = 'modelmap'
+            sortdata_provider = SortAllByNormDataProvider1(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset)
         elif iteration == 1:
             ######
-            ##means across conds for each group pt
+            ##sort modelmaps_across_groups by modelmaps_across_pts
             ######
-            inputhdf5 = os.path.join( outputfolder, 'modelmaps_across_runs.hdf')
-            outputhdf5 = os.path.join( outputfolder, 'modelmaps_across_conds.hdf')
-            modelmap_input = 'modelmap'
-            modelmap_output = 'modelmap'
-            computation_version ='means across conds for each group pt'
+            inputhdf5 = os.path.join( outputfolder, 'Series_5', 'modelmaps_across_groups.hdf')
+            sortbyhdf5 = os.path.join( outputfolder, 'Series_5', 'modelmaps_across_pts_sorted.hdf')
+            outputhdf5 = os.path.join( outputfolder, 'Series_5', 'modelmaps_across_groups{0}.hdf' .format('_sorted') )
+            inputdataset = 'modelmap'
+            sortbydataset = 'modelmap'
+            outputdataset = 'modelmap'
+            sortdata_provider = SortGroupByAllDataProvider1(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset)
         elif iteration == 2:
             ######
-            ##means across groups for each pt
+            ##sort modelmaps_across_conds by modelmaps_across_groups_sorted
             ######
-            inputhdf5 = os.path.join( outputfolder, 'modelmaps_across_conds.hdf')
-            outputhdf5 = os.path.join( outputfolder, 'modelmaps_across_groups.hdf')
-            modelmap_input = 'modelmap'
-            modelmap_output = 'modelmap'
-            computation_version ='means across groups for each pt'
+            inputhdf5 = os.path.join( outputfolder, 'Series_5', 'modelmaps_across_conds.hdf')
+            sortbyhdf5 = os.path.join( outputfolder, 'Series_5', 'modelmaps_across_groups_sorted.hdf')
+            outputhdf5 = os.path.join( outputfolder, 'Series_5', 'modelmaps_across_conds{0}.hdf' .format('_sorted') )
+            inputdataset = 'modelmap'
+            sortbydataset = 'modelmap'
+            outputdataset = 'modelmap'
+            sortdata_provider = SortPtByGroupDataProvider2(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset)
+
         elif iteration == 3:
+            ######
+            ##sort modelmaps_across_runs by modelmaps_across_conds_sorted
+            ######
+            inputhdf5 = os.path.join( outputfolder, 'Series_5', 'modelmaps_across_runs.hdf')
+            sortbyhdf5 = os.path.join( outputfolder, 'Series_5', 'modelmaps_across_conds_sorted.hdf')
+            outputhdf5 = os.path.join( outputfolder, 'Series_5', 'modelmaps_across_runs{0}.hdf' .format('_sorted') )
+            inputdataset = 'modelmap'
+            sortbydataset = 'modelmap'
+            outputdataset = 'modelmap'
+            sortdata_provider = SortCondByPtDataProvider1(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset)
+
+        elif iteration == 4:
             ######
             ##means across groups
             ######
-            inputhdf5 = os.path.join( outputfolder, 'modelmaps_across_groups.hdf')
-            outputhdf5 = os.path.join( outputfolder, 'modelmaps_across_pts.hdf')
-            modelmap_input = 'modelmap'
-            modelmap_output = 'modelmap'
-            computation_version ='means across groups'
+            inputhdf5 = os.path.join( outputfolder, 'all_recordings.hdf')
+            sortbyhdf5 = os.path.join( outputfolder, 'Series_5', 'modelmaps_across_runs_sorted.hdf')
+            outputhdf5 = os.path.join( outputfolder, 'all_recordings.hdf')
+            inputdataset = first_input
+            sortbydataset = 'modelmap'
+            outputdataset = '{0}{1}' .format(first_input, '_Series_5_sorted')
+            sortdata_provider = SortRunByCondDataProvider1(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset)
         else:
             stop = True
     else:
         print 'series not defined:', series
 
 
-    sortdata_provider = SortGroupsByAllDataProvider1(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdatset)
+    #sortdata_provider = SortGroupsByAllDataProvider1(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset)
 
     return sortdata_provider, stop
 
@@ -767,7 +1565,7 @@ def run_sort_maps(data_provider, find_model_maps, confobj):
             data_provider.write_output_data(output_path, output_data, output_attributes)
 
 
-def run_sort_maps_series(series, inputfolder, outputfolder, first_input, confobj):
+def run_sort_maps_series(series, inputfolder, sortbyfolder, outputfolder, first_input, confobj):
     """
     Runs run_model_maps for each input of the series.
  
@@ -793,10 +1591,10 @@ def run_sort_maps_series(series, inputfolder, outputfolder, first_input, confobj
     stop = False
     iteration = 0
     while True:
-        sortdata_provider, stop = get_io_sortmap_for_series(series, iteration, inputfolder, outputfolder, first_input)
+        sortdata_provider, stop = get_io_sortmap_for_series(series, iteration, inputfolder, sortbyfolder, outputfolder, first_input)
         if stop:
             break
 
-        run_sort_maps(sortdata_provider, find_model_maps, confobj)
+        run_sort_maps(sortdata_provider, run_sort_maps, confobj)
 
         iteration = iteration + 1

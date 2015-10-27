@@ -174,27 +174,27 @@ def get_io_modelmap_for_series(series, iteration, inputfolder, outputfolder, fir
             computation_version ='means across runs for each group pt cond'
         elif iteration == 1:
             ######
-            ##means across conds for each group pt
+            ##means across pts for each group cond
             ######
             inputhdf5 = os.path.join( outputfolder, 'modelmaps_across_runs.hdf')
-            outputhdf5 = os.path.join( outputfolder, 'modelmaps_across_conds.hdf')
+            outputhdf5 = os.path.join( outputfolder, 'modelmaps_across_pts.hdf')
             modelmap_input = 'modelmap'
             modelmap_output = 'modelmap'
-            computation_version ='means across conds for each group pt'
+            computation_version ='means across pts for each group cond'
         elif iteration == 2:
             ######
             ##means across pts for each group
             ######
-            inputhdf5 = os.path.join( outputfolder, 'modelmaps_across_conds.hdf')
-            outputhdf5 = os.path.join( outputfolder, 'modelmaps_across_pts.hdf')
+            inputhdf5 = os.path.join( outputfolder, 'modelmaps_across_pts.hdf')
+            outputhdf5 = os.path.join( outputfolder, 'modelmaps_across_conds.hdf')
             modelmap_input = 'modelmap'
             modelmap_output = 'modelmap'
-            computation_version ='means across pts for each group'
+            computation_version ='means across conds for each group'
         elif iteration == 3:
             ######
             ##means across groups
             ######
-            inputhdf5 = os.path.join( outputfolder, 'modelmaps_across_pts.hdf')
+            inputhdf5 = os.path.join( outputfolder, 'modelmaps_across_conds.hdf')
             outputhdf5 = os.path.join( outputfolder, 'modelmaps_across_groups.hdf')
             modelmap_input = 'modelmap'
             modelmap_output = 'modelmap'
@@ -524,7 +524,7 @@ def run_model_maps_series(series, inputfolder, outputfolder, first_input, confob
         'Series_1' : (1) means across runs for each group pt cond, (2) means across conds for each group pt, (3) means across pts for each group, (4) means across groups
         'Series_2' : (1) means across pts for each group cond run, (2) means across runs for each group cond
         'Series_3' : (1) means across runs for each group pt cond, (2) means across pts for each group cond, (3) means across groups for each cond, (4) means across conds
-        'Series_4' : (1) means across runs for each group pt cond, (2) means across conds for each group pt, (3) means across pts for each group, (4) means across groups       
+        'Series_4' : (1) means across runs for each group pt cond, (2) means across pts for each group cond, (3) means across conds for each group, (4) means across groups     
         'Series_5' : (1) means across runs for each group pt cond, (2) means across conds for each group pt , (3) means across groups for each pt, (4) means across pts
     inputfolder : str
         path to folder that contains the input hdf5 file
