@@ -22,6 +22,8 @@
   <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
   <ItemGroup>
     <Compile Include="keypy\microstates\modelmaps.py" />
+    <Compile Include="keypy\microstates\parameters.py" />
+    <Compile Include="keypy\microstates\parameters_outtakes.py" />
     <Compile Include="keypy\microstates\sortmaps.py" />
     <Compile Include="setup.py" />
     <Compile Include="example\run_example_analysis.py" />

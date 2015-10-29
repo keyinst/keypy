@@ -158,3 +158,52 @@ def gfp_peaks_indices(gfp):
 			list of indices of GFP curve that are peaks
     """
     return scipy.signal.argrelmax( gfp )[0]
+
+
+##################################
+#######  compute_gfp_peaks  ########
+##################################
+def compute_gfp_peaks(gfp_curve, use_gfp_peaks, use_smoothing, gfp_type_smoothing, smoothing_window, use_fancy_peaks):
+    """
+    Computes GFP peaks from global field power curve.
+
+    Parameters
+    ----------
+    gfp_curve : 1D array
+        Global field power for each time frame.
+    use_gfp_peaks : bool
+        Option whether whole GFP peaks are used or not.
+    use_smoothing : bool
+        Option whether smoothing is to be applied to the GFP curve before peak computation or not.
+    gfp_type_smoothing : {'hamming', 'hanning'}
+        `hamming` : use hamming window to smooth
+        `hanning` : use hanning window to smooth
+    smoothing_window : int
+		window for smoothing, e.g. 100.
+    use_fancy_peaks : bool
+        Whether a particular smoothing algorithm from scipy.signal.find_peaks_cwt is applied before peak computation or not.
+        Reference: Bioinformatics (2006) 22 (17): 2059-2065. doi: 10.1093/bioinformatics/btl355 http://bioinformatics.oxfordjournals.org/content/22/17/2059.long)
+
+    Returns
+    -------
+    gfp_peak_indices : list
+        List of indices of the EEG that qualify as global field power peaks.
+    gfp_curve : 1D array
+        GFP curve after smoothing (if smoothing was applied).
+    """
+    if use_gfp_peaks:
+        if use_smoothing:
+            gfp_curve=gfp_smoothing(gfp_curve, gfp_type_smoothing, smoothing_window)
+        if use_fancy_peaks:
+            peakind = scipy.signal.find_peaks_cwt(gfp_curve, numpy.arange(1,10))
+            gfp_peak_indices=numpy.asarray(peakind) #we would expect a peak at about each 50 ms
+            gfp_curve = gfp_curve
+        else:
+            gfp_peak_indices=gfp_peaks_indices(gfp_curve) #we would expect a peak at about each 50 ms
+            gfp_curve = gfp_curve
+    else:
+        gfp_peak_indices=numpy.array(range(len(gfp_curve)))   #when we take all maps, we still call the array gfp_peak_indices
+        gfp_curve = gfp_curve
+        print 'all maps used'
+
+    return gfp_peak_indices, gfp_curve

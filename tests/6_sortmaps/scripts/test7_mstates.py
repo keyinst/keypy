@@ -44,7 +44,7 @@ class Test_test7_mstates(unittest.TestCase):
             os.makedirs(outputfolder)
 
         #name of hdf5 that contains data
-        inputhdf5 = os.path.join( inputfolder, 'all_recordings.hdf')
+        inputhdf5 = os.path.join( outputfolder, 'all_recordings.hdf')
 
 
         #####################################
@@ -80,7 +80,7 @@ class Test_test7_mstates(unittest.TestCase):
         ################################
 
         inputfolder = os.path.join(library_path, "..\\data\\test7")
-        outputfolder = inputfolder
+        outputfolder = os.path.join(library_path, "..\\data\\test7_output")
 
         if not os.path.exists(outputfolder):
             os.makedirs(outputfolder)
@@ -153,8 +153,8 @@ class Test_test7_mstates(unittest.TestCase):
                                 use_fancy_peaks = False,
                                 method_GFPpeak = 'GFPL1',
                                 original_nr_of_maps = 4,
-                                seed_number = 50,
-                                max_number_of_iterations = 100,
+                                seed_number = 5,
+                                max_number_of_iterations = 5,
                                 ERP = False,
                                 correspondance_cutoff = 0.00)
 
@@ -214,21 +214,24 @@ class Test_test7_mstates(unittest.TestCase):
         #means across groups
 
         confobj = MstConfiguration(
-                                seed_number = 15,
-                                max_number_of_iterations = 100)
+                                seed_number = 5,
+                                max_number_of_iterations = 10)
 
 
         series_versions = ['Series_1', 'Series_2', 'Series_3', 'Series_4', 'Series_5']
+
+        outputfolder = os.path.join(library_path, "..\\data\\test7_output")
+        inputfolder = outputfolder
 
         for series in series_versions:
             first_input = 'microstate'
 
             #create folder with name of series as outputfolder
-            outputfolder = os.path.join(library_path, "..\\data\\test7_output\\{0}" .format(series))
-            if not os.path.exists(outputfolder):
-                os.makedirs(outputfolder)
+            outputfolder_series = os.path.join(library_path, "..\\data\\test7_output\\{0}" .format(series))
+            if not os.path.exists(outputfolder_series):
+                os.makedirs(outputfolder_series)
 
-            run_model_maps_series(series, inputfolder, outputfolder, first_input, confobj)
+            run_model_maps_series(series, inputfolder, outputfolder_series, first_input, confobj)
 
         #--------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -239,19 +242,23 @@ class Test_test7_mstates(unittest.TestCase):
 
         confobj = MstConfiguration()
 
-        series_versions = ['Series_3']
+        series_versions = ['Series_1', 'Series_2', 'Series_3', 'Series_4', 'Series_5']
+
+        first_input = 'microstate'
+        sortbyfolder = os.path.join(library_path, "..","data","sortby")
+        outputfolder = os.path.join(library_path, "..\\data\\test7_output")
 
         for series in series_versions:
-            first_input = 'microstate'
+            
+            run_sort_maps_series(series, inputfolder, sortbyfolder, outputfolder, first_input, confobj)      
+            
 
+            '''
             #create folder with name of series as outputfolder
             outputfolder = os.path.join(library_path, "..\\data\\test7_output\\{0}" .format(series))
             if not os.path.exists(outputfolder):
                 print 'Error Outputfolder necessary for sorting', outputfolder
 
             run_sort_maps_series(series, inputfolder, outputfolder, first_input, confobj)
-
-
-            
-        
-            
+            '''
+        #--------------------------------------------------------------------------------------------------------------------------------------------
