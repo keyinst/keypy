@@ -15,6 +15,7 @@ from keypy.microstates.microstates import *
 from keypy.microstates.configuration import *
 from keypy.microstates.modelmaps import *
 from keypy.microstates.sortmaps import *
+from keypy.microstates.parameters import *
 #--------------------------------------------------------------------------------------------------------------------------------------------
 
 ###################################
@@ -239,11 +240,11 @@ microstate_output = 'microstate'
 #means across groups for each pt
 #means across groups
 '''
-
-
+'''
+'''
 #fix problem that it only computes for one series at a time!
 
-series_versions = ['Series_3']
+series_versions = ['Series_1', 'Series_3']
 
 first_modelmap_series_input = microstate_input
 
@@ -253,13 +254,13 @@ for series in series_versions:
     first_input = first_modelmap_series_input
 
     #create folder with name of series as outputfolder
-    outputfolder = os.path.join(outputfolder,"{0}".format(series))
-    if not os.path.exists(outputfolder):
-        os.makedirs(outputfolder)
+    outputfolder_series = os.path.join(outputfolder,"{0}".format(series))
+    if not os.path.exists(outputfolder_series):
+        os.makedirs(outputfolder_series)
 
-    run_model_maps_series(series, inputfolder, outputfolder, first_input, confobj)
+    run_model_maps_series(series, inputfolder, outputfolder_series, first_input, confobj)
+
 '''
-
 #--------------------------------------------------------------------------------------------------------------------------------------------
 
 #################
@@ -298,6 +299,7 @@ outputdatset = 'sorted_modelmap'
 sortdata_provider = SortGroupPtCondByGroupCondDataProvider1(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdatset)
 
 '''
+'''
 
 confobj = MstConfiguration()
 
@@ -307,7 +309,7 @@ confobj = MstConfiguration()
 
 series = 'Series_2'
 
-series_versions = ['Series_1', 'Series_5']
+series_versions = ['Series_1', 'Series_3']
 
 first_input = 'microstate'
 
@@ -316,3 +318,36 @@ sortbyfolder = os.path.join(library_path,"data","sortby")
 
 for series in series_versions:
     run_sort_maps_series(series, inputfolder, sortbyfolder, outputfolder, first_input, confobj)
+
+'''
+
+#################
+# 7.) #Run Parameters
+#################
+
+
+############
+###Inputs for ParametersByNormDataProvider1(SortDataProvider)
+############
+
+# the folder path to the all_recoredings.hdf file
+library_path = os.path.dirname(os.path.abspath(__file__))
+inputfolder = os.path.join(library_path,"data","output")
+inputhdf5 = os.path.join( inputfolder, 'all_recordings.hdf')
+
+inputdataset = 'mstate1'
+
+# the folder path to the microstates to sortby (for parameter computation) file
+sortbyfolder = os.path.join(library_path,"data","sortby")
+sortbyhdf5 = os.path.join(sortbyfolder, 'mean_models_milz_etal_2015.asc')
+
+#will not be used if you select a file in a folder to categorize the maps based on
+sortbydataset = 'modelmaps'
+
+# the folder path to the output hdf5 file
+outputhdf5 = os.path.join(library_path,"data","output", 'mstate_parameters.hdf')
+
+###Establish DataProvider
+data_provider=ParametersByNormDataProvider1(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset)
+
+run_parameters(data_provider, confobj, eeg_info_study_obj)
