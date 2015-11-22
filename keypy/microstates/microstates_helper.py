@@ -204,6 +204,6 @@ def compute_gfp_peaks(gfp_curve, use_gfp_peaks, use_smoothing, gfp_type_smoothin
     else:
         gfp_peak_indices=numpy.array(range(len(gfp_curve)))   #when we take all maps, we still call the array gfp_peak_indices
         gfp_curve = gfp_curve
-        print 'all maps used'
+        print('all maps used')
 
     return gfp_peak_indices, gfp_curve

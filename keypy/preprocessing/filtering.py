@@ -5,6 +5,8 @@
 ##filter_settings{'mstate1': {'high': 20, 'low': 2.0}, 'mstate2': {'high': 30, 'low': 1.5}}
 #############################################################################
 
+from __future__ import print_function
+
 from contextlib import closing
 
 import h5py
@@ -33,7 +35,7 @@ def boxkeyfilter(inputhdf5, eeg_info_study_obj, filter_input, filter_settings, e
         Use detrending or not before filtering (False by default). 
     """
 
-    print 'Filter signals ...'
+    print('Filter signals ...')
     with closing( h5py.File(inputhdf5) ) as f:
         for groupi in f['/'].keys():
             for pti in f['/%s' % (groupi)].keys():
@@ -42,7 +44,7 @@ def boxkeyfilter(inputhdf5, eeg_info_study_obj, filter_input, filter_settings, e
                         try:
                             timeframe_channel_dset = f['/{0}/{1}/{2}/{3}/{4}' .format(groupi, pti, cond, run, filter_input)]
                         except:
-                            print 'not found',  ['/{0}/{1}/{2}/{3}/{4}' .format(groupi, pti, cond, run, filter_input)]
+                            print('not found',  ['/{0}/{1}/{2}/{3}/{4}' .format(groupi, pti, cond, run, filter_input)])
                             continue
                     
                         path = f['/{0}/{1}/{2}/{3}' .format(groupi, pti, cond, run)]   

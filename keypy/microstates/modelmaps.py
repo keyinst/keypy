@@ -4,6 +4,8 @@
 #######  Import Packages  ########
 ##################################
 
+from __future__ import print_function
+
 import os.path
 import math
 import itertools
@@ -242,7 +244,7 @@ def get_io_modelmap_for_series(series, iteration, inputfolder, outputfolder, fir
         else:
             stop = True
     else:
-        print 'series not defined:', series
+        print('series not defined:', series)
 
     return inputhdf5, outputhdf5, modelmap_input, modelmap_output, computation_version, stop
 #
@@ -293,8 +295,8 @@ def find_model_maps(confobj, model_maps_foundation):
     
     while iii < seed_number:
         
-        print '------------'
-        print 'SEED', iii, ':'
+        print('------------')
+        print('SEED', iii, ':')
         
         delta_correlation = 0.1
         mean_correlation=0.1
@@ -331,7 +333,7 @@ def find_model_maps(confobj, model_maps_foundation):
             for i in range(original_nr_of_maps):
                 randmap[i,:]=model_maps_foundation[random_vp][i,:]
 
-                print 'seed', iii, 'random_vp', random_vp, 'random_map', i
+                print('seed', iii, 'random_vp', random_vp, 'random_map', i)
         else:
             #Completely random
             for i in range(original_nr_of_maps):
@@ -339,10 +341,10 @@ def find_model_maps(confobj, model_maps_foundation):
                 random_map= randrange(original_nr_of_maps)
                 randmap[i,:]=model_maps_foundation[random_vp][random_map,:]
 
-                print 'seed', iii, 'random_vp', random_vp, 'random_map', random_map
+                print('seed', iii, 'random_vp', random_vp, 'random_map', random_map)
         
         if number_of_basic_maps < original_nr_of_maps:
-            print 'Attention, you have only', number_of_basic_maps ,'participants/conditions/runs to select your', original_nr_of_maps ,'random maps from'
+            print('Attention, you have only', number_of_basic_maps ,'participants/conditions/runs to select your', original_nr_of_maps ,'random maps from')
 
 
         #########
@@ -350,7 +352,7 @@ def find_model_maps(confobj, model_maps_foundation):
         #########  
   
         while (ii < max_number_of_iterations) and abs(delta_correlation) > 0.0002:
-            print 'iteration:', ii
+            print('iteration:', ii)
             best_results[iii][ii] = []       
             #intitialize attribution_matrix
             #attribution_matrix=numpy.zeros( (number_of_basic_maps ,original_nr_of_maps) )
@@ -452,7 +454,7 @@ def find_model_maps(confobj, model_maps_foundation):
         for iterationnr in best_results[seednr].keys():
 
             if len(best_results[seednr][iterationnr]) == 0:
-                print 'value is zero'
+                print('value is zero')
             
             else:
                 corr, resmm, attrmatrix = best_results[seednr][iterationnr]
@@ -472,7 +474,7 @@ def find_model_maps(confobj, model_maps_foundation):
             pass
     else:
         if confobj.debug:
-            print 'for SEED', iii, 'not found best'
+            print('for SEED', iii, 'not found best')
     #save attributes in dictionary
     attributes_dict = {}
     attributes_dict['Mean Correlation'] = best_mean_correlation

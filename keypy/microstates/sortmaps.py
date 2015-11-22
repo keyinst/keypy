@@ -3,6 +3,8 @@
 #######  Import Packages  ########
 ##################################
 
+from __future__ import print_function
+
 import os.path
 import math
 import itertools
@@ -77,13 +79,13 @@ def sort_maps(confobj, input, sortby):
 
     bestpermi=max(mean_correlations.iteritems(), key=operator.itemgetter(1))[0]
 
-    print 'bestpermi', bestpermi, 'mean_correlations[bestpermi]', mean_correlations[bestpermi]
+    print('bestpermi', bestpermi, 'mean_correlations[bestpermi]', mean_correlations[bestpermi])
 
     bestpermi_corr = mean_correlations[bestpermi]
                         
     attribution_matrix = list(itertools.permutations((range(original_nr_of_maps))))[bestpermi]
 
-    print 'attribution_matrix', attribution_matrix
+    print('attribution_matrix', attribution_matrix)
 
     ######
     ###Check if inversion is necessary and save whole EEG into newraw
@@ -104,7 +106,7 @@ def sort_maps(confobj, input, sortby):
         '''
 
         if pr < 0:
-            print 'r=', pr, 'modelmap', mapi, 'reversed'
+            print('r=', pr, 'modelmap', mapi, 'reversed')
             newraw[attribution_matrix[mapi],:]=modelmaps[mapi,:]*-1
             map_corr_list.append(abs(pr))
             '''
@@ -117,7 +119,7 @@ def sort_maps(confobj, input, sortby):
             '''
 
         else:
-            print 'r=', pr,'modelmap', mapi, 'not reversed'
+            print('r=', pr,'modelmap', mapi, 'not reversed')
             newraw[attribution_matrix[mapi],:]=modelmaps[mapi,:]
             map_corr_list.append(pr)
             '''
@@ -457,7 +459,7 @@ def get_io_sortmap_for_series(series, iteration, inputfolder, sortbyfolder, outp
         else:
             stop = True
     else:
-        print 'series not defined:', series
+        print('series not defined:', series)
 
 
     #sortdata_provider = SortGroupsByAllDataProvider1(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset)

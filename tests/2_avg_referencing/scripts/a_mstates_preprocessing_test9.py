@@ -178,5 +178,5 @@ class Test_a_mstates_preprocessing_test9(unittest.TestCase):
         finally:
             sys.stdout = saved_stdout
 
-        print out.getvalue()
+        print(out.getvalue())
 

@@ -2,6 +2,8 @@
 #######  run_mstate_paramters  ########
 ##################################
 
+from __future__ import print_function
+
 from scipy.stats import nanmean, pearsonr
 from keypy.microstates.data_provider import *
 from keypy.microstates.microstates_helper import *
@@ -48,7 +50,7 @@ class ParametersByNormDataProvider1(ParametersDataProvider):
             path = '/{0}/{1}/{2}/{3}' .format(output_path.level0, output_path.level1, output_path.level2, output_path.level3)
             eeg_value = g['/{0}/{1}' .format(path, self._inputdataset)] 
             if all(eeg_value[0,:] == 0):
-                print 'Error!', path, 'has all zeros', 'group, pt, cond ignored.'    
+                print('Error!', path, 'has all zeros', 'group, pt, cond ignored.')    
             else:
                 eeg=eeg_value[:]
         return eeg
@@ -59,7 +61,7 @@ class ParametersByNormDataProvider1(ParametersDataProvider):
         microstate_run_value = np.loadtxt(self._sortbyfile)
 
         if all(microstate_run_value[0,:] == 0):
-            print 'Error!', sortbyhdf5, 'has all zeros', 'group, pt, cond ignored.'    
+            print('Error!', sortbyhdf5, 'has all zeros', 'group, pt, cond ignored.')    
         else:
             model_map=microstate_run_value[:]
         return model_map
@@ -67,7 +69,7 @@ class ParametersByNormDataProvider1(ParametersDataProvider):
     #writes output into new hdf5 at correct location
     def write_output_data(self, output_path, output_data, output_attributes):
         with closing( h5py.File(self._outputfile, 'a') ) as k:
-            print 'output_paths used for output', output_path.level0
+            print('output_paths used for output', output_path.level0)
 
             if output_path.level0 in k['/'].keys():
                 group_group = k['{0}' .format(output_path.level0)]
@@ -138,7 +140,7 @@ class ParametersByNormDataProvider1(ParametersDataProvider):
                 #create folder
                 ep_group = run_group.create_group("ep_"+"%03d" % (epochnr,))  
                 if confobj.debug:
-                    print epochnr
+                    print(epochnr)
 
                 #add attributes to epoch folder
                 for attribute_name, attribute_value in data_attributes.iteritems():
@@ -235,7 +237,7 @@ def compute_mstate_parameters(confobj, eeg, maps, eeg_info_study_obj):
         
         gfp_curve = compute_gfp(epoch, confobj.method_GFPpeak)
         if confobj.debug:
-            print 'GFP Curve computed'
+            print('GFP Curve computed')
             
             
         #################   
@@ -331,7 +333,7 @@ def compute_mstate_parameters(confobj, eeg, maps, eeg_info_study_obj):
 
             if (dur_state is None):
                 if confobj.debug:
-                    print outti, inni, dur_state
+                    print(outti, inni, dur_state)
 
         
 
@@ -355,7 +357,7 @@ def compute_mstate_parameters(confobj, eeg, maps, eeg_info_study_obj):
         freq_dict=dict.fromkeys(range(confobj.original_nr_of_maps))
         for mapnr in range(confobj.original_nr_of_maps):
             if dur_state[mapnr] == None:
-                print 'epochnr, mapnr no content', epochnr, mapnr
+                print('epochnr, mapnr no content', epochnr, mapnr)
                 freq_dict[mapnr] = 0
             else:
                 #freq corrected by smaller epoch size (returns # of occurrences per second based on info from whole epoch)

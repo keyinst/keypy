@@ -2,6 +2,8 @@
 #######  create_parameter_spss_sheets  ########
 ##################################
 
+from __future__ import print_function
+
 def run_mstate_paramters(confobj, eeg_info_mot_obj, sorted_maps_hdf, mstate_parameters_output_hdf, eeg_hdf, eeg_input, sort_type, sortby_type, spss_sheets=False, groups = False):     
     ###Loop across VPs, runs
     if groups:
@@ -38,7 +40,7 @@ def run_mstate_paramters(confobj, eeg_info_mot_obj, sorted_maps_hdf, mstate_para
                                     path = '/%s/%s/%s/%s' % (looper3, looper2, looper1, eeg_input)
 
                                     if confobj.debug:
-                                        print 'retrieving EEG', looper3, looper2, looper1
+                                        print('retrieving EEG', looper3, looper2, looper1)
                                     timeframe_channel_dset = f[path]         
                                     eeg=timeframe_channel_dset.value
 
@@ -50,7 +52,7 @@ def run_mstate_paramters(confobj, eeg_info_mot_obj, sorted_maps_hdf, mstate_para
                                     mstate_parameters_and_saving(labelbymaps, eeg_re, confobj, looper2, looper1, mstate_parameters_all, looper2_group, groups, looper3)
                                    
                                 except:
-                                    print 'not found', looper3, looper2, looper1, eeg_input
+                                    print('not found', looper3, looper2, looper1, eeg_input)
 
         if spss_sheets == True:
             create_parameter_spss_sheets(confobj, eeg_info_mot_obj, inputfolder, mstate_parameters_all, groups = True)
@@ -69,13 +71,13 @@ def run_mstate_paramters(confobj, eeg_info_mot_obj, sorted_maps_hdf, mstate_para
                             try:
                                 timeframe_channel_dset = f['/%s/%s/%s' % (looper2, looper1, eeg_input)]
                             except:
-                                print 'not found', looper2, looper1, eeg_input
+                                print('not found', looper2, looper1, eeg_input)
                                 continue
                     
                             path = '/%s/%s/%s' % (looper2, looper1, eeg_input)
 
                             if confobj.debug:
-                                print 'retrieving EEG', looper2, looper1
+                                print('retrieving EEG', looper2, looper1)
                             timeframe_channel_dset = f[path]         
                             eeg=timeframe_channel_dset.value
 
@@ -213,7 +215,7 @@ def create_parameter_spss_sheets(confobj, eeg_info_mot_obj, inputfolder, mstate_
                 
                             except:                      
                                 if confobj.debug:
-                                    print meas, outti, inni, mapnr
+                                    print(meas, outti, inni, mapnr)
                                 #print mstate_parameters_all[outti][inni][meas][epochnr][mapnr]
                                 continue
 
@@ -317,7 +319,7 @@ def create_parameter_spss_sheets(confobj, eeg_info_mot_obj, inputfolder, mstate_
                 
                         except:                      
                             if confobj.debug:
-                                print meas, outti, inni, mapnr
+                                print(meas, outti, inni, mapnr)
                             #print mstate_parameters_all[outti][inni][meas][epochnr][mapnr]
                             continue
 

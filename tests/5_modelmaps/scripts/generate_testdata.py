@@ -54,16 +54,16 @@ for group in groups:
 
                 for row in range(512):
                     if row%4 == 0:
-                        print '0'
+                        print('0')
                         noise_array[row,:]=four_maps[0]+np.random.normal(0,0.01,61)
                     elif row%4 == 1:
-                        print '1'
+                        print('1')
                         noise_array[row,:]=four_maps[1]+np.random.normal(0,0.01,61)
                     elif row%4 == 2:
-                        print '2'
+                        print('2')
                         noise_array[row,:]=four_maps[2]+np.random.normal(0,0.01,61)
                     elif row%4 == 3:
-                        print '3'
+                        print('3')
                         noise_array[row,:]=four_maps[3]+np.random.normal(0,0.01,61)
 
                 np.savetxt('{0}_{1}_{2}_{3}.txt' .format(group, vp, cond, run), noise_array)
