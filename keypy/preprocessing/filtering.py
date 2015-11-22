@@ -61,7 +61,7 @@ def boxkeyfilter(inputhdf5, eeg_info_study_obj, filter_input, filter_settings, e
                                     x = scipy.signal.detrend(x)
 
                                 # loop across 2second epochs
-                                for i in range(len(x)/eeg_info_study_obj.tf):
+                                for i in range(len(x)//eeg_info_study_obj.tf):
                                     epoch = x[i*eeg_info_study_obj.tf:(i+1)*eeg_info_study_obj.tf]
                                     epoch_fft=numpy.fft.fftpack.fft(epoch)
                                     selector = band_pass( frequency_bins, filter_settings[filter_state]["low"], filter_settings[filter_state]["high"] )
