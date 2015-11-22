@@ -15,7 +15,6 @@ from scipy.stats import pearsonr
 from contextlib import closing
 
 import h5py
-from sets import Set
 from keypy.microstates.data_provider import *
 
 

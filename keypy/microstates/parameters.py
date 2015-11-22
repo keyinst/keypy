@@ -34,7 +34,7 @@ class ParametersByNormDataProvider1(ParametersDataProvider):
 
     #call it once to get a list of objects which contain the paths needed each to create one output
     def get_outputs(self):
-        out_paths_set = Set()
+        out_paths_set = set()
         with closing( h5py.File(self._file, 'r') ) as f:
             for current_level0 in f['/'].keys():                 
                 for current_level1 in f['/{0}'.format(current_level0)].keys():  

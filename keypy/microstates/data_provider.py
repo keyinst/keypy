@@ -8,7 +8,6 @@ from __future__ import print_function
 
 from contextlib import closing
 import h5py
-from sets import Set
 import numpy as np
 
 ##########################
@@ -208,7 +207,7 @@ class CondDataProvider1(DataProvider):
 
     #call it once to get a list of objects which contain the paths needed each to create one output
     def get_outputs(self):
-        out_paths_set = Set()
+        out_paths_set = set()
         with closing( h5py.File(self._file, 'r') ) as f:
             for current_group in f['/'].keys():
                 group_group = f['/{0}' .format(current_group)]
@@ -269,7 +268,7 @@ class PtDataProvider1(DataProvider):
         DataProvider.__init__(self, inputhdf5, outputhdf5, inputdataset, outputdataset)
 
     def get_outputs(self):
-        out_paths_set = Set()
+        out_paths_set = set()
         with closing( h5py.File(self._file, 'r') ) as f:
             for current_group in f['/'].keys():
                 group_group = f['/{0}' .format(current_group)]
@@ -328,7 +327,7 @@ class GroupDataProvider1(DataProvider):
         DataProvider.__init__(self, inputhdf5, outputhdf5, inputdataset, outputdataset)
 
     def get_outputs(self):
-        out_paths_set = Set()
+        out_paths_set = set()
         with closing( h5py.File(self._file, 'r') ) as f:
             for current_group in f['/'].keys():
                 out_paths_set.add(GroupPath(current_group)) 
@@ -376,7 +375,7 @@ class AllDataProvider1(DataProvider):
         DataProvider.__init__(self, inputhdf5, outputhdf5, inputdataset, outputdataset)
 
     def get_outputs(self):
-        out_paths_set = Set()
+        out_paths_set = set()
         out_paths_set.add(AllPath('all')) 
         return list(out_paths_set)
 
@@ -421,7 +420,7 @@ class RunDataProvider1(DataProvider):
         DataProvider.__init__(self, inputhdf5, outputhdf5, inputdataset, outputdataset)
 
     def get_outputs(self):      
-        out_paths_set = Set()
+        out_paths_set = set()
         with closing( h5py.File(self._file, 'r') ) as f:
             for current_group in f['/'].keys():
                 group_group = f['/{0}' .format(current_group)]
@@ -488,7 +487,7 @@ class CondDataProvider5(DataProvider):
         DataProvider.__init__(self, inputhdf5, outputhdf5, inputdataset, outputdataset)
 
     def get_outputs(self):
-        out_paths_set = Set()
+        out_paths_set = set()
         with closing( h5py.File(self._file, 'r') ) as f:
             for current_group in f['/'].keys():
                 group_group = f['/{0}' .format(current_group)]
@@ -543,7 +542,7 @@ class CondDataProvider2(DataProvider):
         DataProvider.__init__(self, inputhdf5, outputhdf5, inputdataset, outputdataset)
 
     def get_outputs(self):
-        out_paths_set = Set()
+        out_paths_set = set()
         with closing( h5py.File(self._file, 'r') ) as f:
             for current_group in f['/'].keys():
                 group_group = f['/{0}' .format(current_group)]
@@ -602,7 +601,7 @@ class CondDataProvider3(DataProvider):
         DataProvider.__init__(self, inputhdf5, outputhdf5, inputdataset, outputdataset)
 
     def get_outputs(self):
-        out_paths_set = Set()
+        out_paths_set = set()
         with closing( h5py.File(self._file, 'r') ) as f:
             for current_group in f['/'].keys():
                 group_group = f['/{0}' .format(current_group)]
@@ -779,7 +778,7 @@ class SortAllByNormDataProvider1(SortDataProvider):
 
     #call it once to get a list of objects which contain the paths needed each to create one output
     def get_outputs(self):
-        out_paths_set = Set()
+        out_paths_set = set()
         with closing( h5py.File(self._file, 'r') ) as f:
             for current_level0 in f['/'].keys():
                 out_paths_set.add(Levels1Path(current_level0))                     
@@ -837,7 +836,7 @@ class SortGroupByAllDataProvider1(SortDataProvider):
 
     #call it once to get a list of objects which contain the paths needed each to create one output
     def get_outputs(self):
-        out_paths_set = Set()
+        out_paths_set = set()
         with closing( h5py.File(self._file, 'r') ) as f:
             for current_level0 in f['/'].keys():                 
                 for current_level1 in f['/{0}'.format(current_level0)].keys():  
@@ -895,7 +894,7 @@ class SortPtByGroupDataProvider1(SortDataProvider):
 
     #call it once to get a list of objects which contain the paths needed each to create one output
     def get_outputs(self):
-        out_paths_set = Set()
+        out_paths_set = set()
         with closing( h5py.File(self._file, 'r') ) as f:
             for current_level0 in f['/'].keys():                 
                 for current_level1 in f['/{0}'.format(current_level0)].keys():  
@@ -961,7 +960,7 @@ class SortCondByPtDataProvider1(SortDataProvider):
 
     #call it once to get a list of objects which contain the paths needed each to create one output
     def get_outputs(self):
-        out_paths_set = Set()
+        out_paths_set = set()
         with closing( h5py.File(self._file, 'r') ) as f:
             for current_level0 in f['/'].keys():                 
                 for current_level1 in f['/{0}'.format(current_level0)].keys():  
@@ -1033,7 +1032,7 @@ class SortRunByCondDataProvider1(SortDataProvider):
 
     #call it once to get a list of objects which contain the paths needed each to create one output
     def get_outputs(self):
-        out_paths_set = Set()
+        out_paths_set = set()
         with closing( h5py.File(self._file, 'r') ) as f:
             for current_level0 in f['/'].keys():                 
                 for current_level1 in f['/{0}'.format(current_level0)].keys():  
@@ -1108,7 +1107,7 @@ class SortPtByGroupDataProvider2(SortDataProvider):
 
     #call it once to get a list of objects which contain the paths needed each to create one output
     def get_outputs(self):
-        out_paths_set = Set()
+        out_paths_set = set()
         with closing( h5py.File(self._file, 'r') ) as f:
             for current_level0 in f['/'].keys():                 
                 for current_level1 in f['/{0}'.format(current_level0)].keys():  
@@ -1174,7 +1173,7 @@ class SortCondByPtDataProvider2(SortDataProvider):
 
     #call it once to get a list of objects which contain the paths needed each to create one output
     def get_outputs(self):
-        out_paths_set = Set()
+        out_paths_set = set()
         with closing( h5py.File(self._file, 'r') ) as f:
             for current_level0 in f['/'].keys():                 
                 for current_level1 in f['/{0}'.format(current_level0)].keys():  
@@ -1243,7 +1242,7 @@ class SortAllByNormDataProvider2(SortDataProvider):
 
     #call it once to get a list of objects which contain the paths needed each to create one output
     def get_outputs(self):
-        out_paths_set = Set()
+        out_paths_set = set()
         with closing( h5py.File(self._file, 'r') ) as f:
             for current_level0 in f['/'].keys():
                 for current_level1 in f['/{0}'.format(current_level0)].keys():  
@@ -1307,7 +1306,7 @@ class SortRunByCondDataProvider2(SortDataProvider):
 
     #call it once to get a list of objects which contain the paths needed each to create one output
     def get_outputs(self):
-        out_paths_set = Set()
+        out_paths_set = set()
         with closing( h5py.File(self._file, 'r') ) as f:
             for current_level0 in f['/'].keys():                 
                 for current_level1 in f['/{0}'.format(current_level0)].keys():  
@@ -1382,7 +1381,7 @@ class SortPtByGroupDataProvider2(SortDataProvider):
 
     #call it once to get a list of objects which contain the paths needed each to create one output
     def get_outputs(self):
-        out_paths_set = Set()
+        out_paths_set = set()
         with closing( h5py.File(self._file, 'r') ) as f:
             for current_level0 in f['/'].keys():                 
                 for current_level1 in f['/{0}'.format(current_level0)].keys():  
