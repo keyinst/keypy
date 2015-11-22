@@ -204,25 +204,25 @@ def compute_mstate_parameters(confobj, eeg, maps, eeg_info_study_obj):
     Fs = eeg_info_study_obj.sf
 
     #####Create Dictionaries for parameters across all epochs
-    dur_state_all_epochs = dict.fromkeys(range(len(eeg)/TF))
-    freq_dict_all_epochs = dict.fromkeys(range(len(eeg)/TF))
-    dur_dict_all_epochs = dict.fromkeys(range(len(eeg)/TF))
-    cov_dict_all_epochs = dict.fromkeys(range(len(eeg)/TF))
-    gfp_peak_nr_all_epochs = dict.fromkeys(range(len(eeg)/TF))
-    mean_gfp_all_epochs = dict.fromkeys(range(len(eeg)/TF))
-    gfp_mean_all_epochs = dict.fromkeys(range(len(eeg)/TF))
-    durstd_dict_all_epochs= dict.fromkeys(range(len(eeg)/TF))
-    start_state_list_all_epochs= dict.fromkeys(range(len(eeg)/TF))
-    exp_var_all_epochs= dict.fromkeys(range(len(eeg)/TF))
-    exp_var_tot_all_epochs= dict.fromkeys(range(len(eeg)/TF))
-    state_match_percentage_all_epochs= dict.fromkeys(range(len(eeg)/TF))
-    state_match_percentage_std_all_epochs= dict.fromkeys(range(len(eeg)/TF))
+    dur_state_all_epochs = dict.fromkeys(list(range(len(eeg)/TF)))
+    freq_dict_all_epochs = dict.fromkeys(list(range(len(eeg)/TF)))
+    dur_dict_all_epochs = dict.fromkeys(list(range(len(eeg)/TF)))
+    cov_dict_all_epochs = dict.fromkeys(list(range(len(eeg)/TF)))
+    gfp_peak_nr_all_epochs = dict.fromkeys(list(range(len(eeg)/TF)))
+    mean_gfp_all_epochs = dict.fromkeys(list(range(len(eeg)/TF)))
+    gfp_mean_all_epochs = dict.fromkeys(list(range(len(eeg)/TF)))
+    durstd_dict_all_epochs= dict.fromkeys(list(range(len(eeg)/TF)))
+    start_state_list_all_epochs= dict.fromkeys(list(range(len(eeg)/TF)))
+    exp_var_all_epochs= dict.fromkeys(list(range(len(eeg)/TF)))
+    exp_var_tot_all_epochs= dict.fromkeys(list(range(len(eeg)/TF)))
+    state_match_percentage_all_epochs= dict.fromkeys(list(range(len(eeg)/TF)))
+    state_match_percentage_std_all_epochs= dict.fromkeys(list(range(len(eeg)/TF)))
 
     #################  
     # 3.) LOOP ACROSS 2 Sec Segments
     #################
 
-    individu_dict = dict.fromkeys(range(confobj.original_nr_of_maps))
+    individu_dict = dict.fromkeys(list(range(confobj.original_nr_of_maps)))
     for mstate in individu_dict:
         individu_dict[mstate]=np.zeros((eeg.shape[1]))
 
@@ -309,8 +309,8 @@ def compute_mstate_parameters(confobj, eeg, maps, eeg_info_study_obj):
         #Compute mstate duration (in tfs & converted into ms) for each class
 
         #dictionary of the 4 states
-        dur_state=dict.fromkeys(range(confobj.original_nr_of_maps))
-        gfp_state=dict.fromkeys(range(confobj.original_nr_of_maps))
+        dur_state=dict.fromkeys(list(range(confobj.original_nr_of_maps)))
+        gfp_state=dict.fromkeys(list(range(confobj.original_nr_of_maps)))
                   
         i = 0
         while (i < len(start_state_list)-1):
@@ -354,7 +354,7 @@ def compute_mstate_parameters(confobj, eeg, maps, eeg_info_study_obj):
         #Frequency
         ####
 
-        freq_dict=dict.fromkeys(range(confobj.original_nr_of_maps))
+        freq_dict=dict.fromkeys(list(range(confobj.original_nr_of_maps)))
         for mapnr in range(confobj.original_nr_of_maps):
             if dur_state[mapnr] == None:
                 print('epochnr, mapnr no content', epochnr, mapnr)
@@ -369,8 +369,8 @@ def compute_mstate_parameters(confobj, eeg, maps, eeg_info_study_obj):
         #Mean Duration & Std from tf to secs
         ####
 
-        dur_dict=dict.fromkeys(range(confobj.original_nr_of_maps))
-        durstd_dict=dict.fromkeys(range(confobj.original_nr_of_maps))
+        dur_dict=dict.fromkeys(list(range(confobj.original_nr_of_maps)))
+        durstd_dict=dict.fromkeys(list(range(confobj.original_nr_of_maps)))
         for mapnr in range(confobj.original_nr_of_maps): 
             if dur_state[mapnr] == None:
                 dur_dict[mapnr] = 0
@@ -385,7 +385,7 @@ def compute_mstate_parameters(confobj, eeg, maps, eeg_info_study_obj):
 
 
         #Compute relative coverage for each state
-        cov_dict=dict.fromkeys(range(confobj.original_nr_of_maps))
+        cov_dict=dict.fromkeys(list(range(confobj.original_nr_of_maps)))
         for mapnr in range(confobj.original_nr_of_maps): 
             if dur_state[mapnr] == None:
                 cov_dict[mapnr] = 0
@@ -406,7 +406,7 @@ def compute_mstate_parameters(confobj, eeg, maps, eeg_info_study_obj):
         ####
         #Mean GFP for each class
         ####
-        gfp_mean=dict.fromkeys(range(confobj.original_nr_of_maps))
+        gfp_mean=dict.fromkeys(list(range(confobj.original_nr_of_maps)))
 
         for mapnr in range(confobj.original_nr_of_maps):  
             if  gfp_state[mapnr] == None:
@@ -461,8 +461,8 @@ def compute_mstate_parameters(confobj, eeg, maps, eeg_info_study_obj):
 
         ###Compute Percentage of Correspondance between tf & labelby map
 
-        state_match_percentage=dict.fromkeys(range(confobj.original_nr_of_maps+1))
-        state_match_percentage_std=dict.fromkeys(range(confobj.original_nr_of_maps+1))
+        state_match_percentage=dict.fromkeys(list(range(confobj.original_nr_of_maps+1)))
+        state_match_percentage_std=dict.fromkeys(list(range(confobj.original_nr_of_maps+1)))
 
         for keyli in state_match_percentage.keys():
             state_match_percentage[keyli]=[]

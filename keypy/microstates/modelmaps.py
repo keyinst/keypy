@@ -329,7 +329,7 @@ def find_model_maps(confobj, model_maps_foundation):
 
         if iii <= 10:
             #Take all maps of one participant as seed
-            random_vp= random.choice(range(len(model_maps_foundation)))
+            random_vp= random.choice(list(range(len(model_maps_foundation))))
             for i in range(original_nr_of_maps):
                 randmap[i,:]=model_maps_foundation[random_vp][i,:]
 
@@ -337,7 +337,7 @@ def find_model_maps(confobj, model_maps_foundation):
         else:
             #Completely random
             for i in range(original_nr_of_maps):
-                random_vp= random.choice(range(len(model_maps_foundation)))
+                random_vp= random.choice(list(range(len(model_maps_foundation))))
                 random_map= randrange(original_nr_of_maps)
                 randmap[i,:]=model_maps_foundation[random_vp][random_map,:]
 
@@ -356,18 +356,18 @@ def find_model_maps(confobj, model_maps_foundation):
             best_results[iii][ii] = []       
             #intitialize attribution_matrix
             #attribution_matrix=numpy.zeros( (number_of_basic_maps ,original_nr_of_maps) )
-            attribution_matrix= dict.fromkeys(range(len(model_maps_foundation)))  
+            attribution_matrix= dict.fromkeys(list(range(len(model_maps_foundation))))  
                         
             #Find best map attribution for VP, save its indices and the corresponding correlation
             #for ivpi, vpi in enumerate(VP): (SO WARS VORHER)
-            for numberi, number in enumerate((range(len(model_maps_foundation)))):
+            for numberi, number in enumerate((list(range(len(model_maps_foundation))))):
                 #get maps from VP with key number
                 maps=model_maps_foundation[number]
                 #initialize dict for all permuations to later save mean correlation of that permutation
-                mean_correlations = dict.fromkeys( range(math.factorial(original_nr_of_maps)) )
+                mean_correlations = dict.fromkeys( list(range(math.factorial(original_nr_of_maps))) )
                 
                 #for ithperm, perm in enumerate(itertools.permutations([0,1,2,3])):
-                for ithperm, perm in enumerate(itertools.permutations((range(original_nr_of_maps)))):    
+                for ithperm, perm in enumerate(itertools.permutations((list(range(original_nr_of_maps))))):    
                     pearsons=[]
                     pearsons2=[]
                     for i in range(original_nr_of_maps):
@@ -385,14 +385,14 @@ def find_model_maps(confobj, model_maps_foundation):
                 
                 bestpermi=max(mean_correlations.iteritems(), key=operator.itemgetter(1))[0]
                 
-                attribution_matrix[number] = list(itertools.permutations((range(original_nr_of_maps))))[bestpermi]
+                attribution_matrix[number] = list(itertools.permutations((list(range(original_nr_of_maps)))))[bestpermi]
         
                 #save bestcorrelation which corresponds to the one of the best attribution for VP
                 bestcorr[number]=mean_correlations[bestpermi]
                 
                                 
             #generate a dictionary, where keys 0, 1, 2, 3 and arrays nVP x nch (best map that corresponds for each vp)
-            best_fit = dict.fromkeys( range( 0, original_nr_of_maps) )
+            best_fit = dict.fromkeys( list(range( 0, original_nr_of_maps)) )
 
             for i in best_fit:
                 b=numpy.zeros(( number_of_basic_maps , nch))

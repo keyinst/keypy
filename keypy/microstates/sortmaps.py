@@ -49,9 +49,9 @@ def sort_maps(confobj, input, sortby):
     ######
 
     attribution_matrix=[]
-    mean_correlations = dict.fromkeys( range(original_nr_of_maps) )
+    mean_correlations = dict.fromkeys( list(range(original_nr_of_maps)) )
 
-    for ithperm, perm in enumerate(itertools.permutations((range(original_nr_of_maps)))):    
+    for ithperm, perm in enumerate(itertools.permutations((list(range(original_nr_of_maps))))):    
         pearsons=[]
         pearsons2=[]
         #changed from below to account for matchings with only 4 TK maps
@@ -82,7 +82,7 @@ def sort_maps(confobj, input, sortby):
 
     bestpermi_corr = mean_correlations[bestpermi]
                         
-    attribution_matrix = list(itertools.permutations((range(original_nr_of_maps))))[bestpermi]
+    attribution_matrix = list(itertools.permutations((list(range(original_nr_of_maps)))))[bestpermi]
 
     print('attribution_matrix', attribution_matrix)
 

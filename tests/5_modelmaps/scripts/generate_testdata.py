@@ -41,7 +41,7 @@ import numpy as np
 groups=["HEA", "PAT"]
 vps=["vp01","vp02","vp03","vp04"]
 conds=["Rest", "Test"]
-runs=range(3)
+runs=list(range(3))
 
 four_maps=np.loadtxt('E://Programming//DEVELOPMENT//keypy_public//keypy//tests//6_sortmaps//data//mean_models_milz_etal_2015.asc')
 

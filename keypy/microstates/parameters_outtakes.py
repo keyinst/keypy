@@ -193,7 +193,7 @@ def create_parameter_spss_sheets(confobj, eeg_info_mot_obj, inputfolder, mstate_
             for outti in eeg_info_mot_obj.VP:
                 parameters_mean[meas][outti]=dict.fromkeys(Cond)
                 for inni in eeg_info_mot_obj.Cond:
-                    parameters_mean[meas][outti][inni]=dict.fromkeys(range(confobj.original_nr_of_maps))
+                    parameters_mean[meas][outti][inni]=dict.fromkeys(list(range(confobj.original_nr_of_maps)))
 
 
 
@@ -303,7 +303,7 @@ def create_parameter_spss_sheets(confobj, eeg_info_mot_obj, inputfolder, mstate_
             for outti in eeg_info_mot_obj.VP:
                 parameters_mean[meas][outti]=dict.fromkeys(Cond)
                 for inni in eeg_info_mot_obj.Cond:
-                    parameters_mean[meas][outti][inni]=dict.fromkeys(range(confobj.original_nr_of_maps))
+                    parameters_mean[meas][outti][inni]=dict.fromkeys(list(range(confobj.original_nr_of_maps)))
 
 
 

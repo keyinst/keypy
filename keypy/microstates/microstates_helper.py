@@ -41,7 +41,7 @@ def princomp_B(A,numpc=0):
     coeff = coeff[:,idx]
     #latent = latent[idx] # sorting eigenvalues
     if numpc < p or numpc >= 0:
-        coeff = coeff[:,range(numpc)] # cutting some PCs
+        coeff = coeff[:,list(range(numpc))] # cutting some PCs
     #score = dot(coeff.T,M) # projection of the data in the new space
     return coeff
 
@@ -69,13 +69,13 @@ def compute_gfp(X, method = 'GFPL2'):
     
     if method == 'GFPL2':
         # gfp = sqrt(sum(abs(x - x.mean())**2 / len(x) ))
-        for i in xrange(ntf):
+        for i in range(ntf):
             x = X[i,:]
             gfp = numpy.sqrt(numpy.sum(numpy.abs(x - x.mean())**2 / len(x) ))
             ret[i] = gfp
     elif method == 'GFPL1':
         # gfp = sum(abs(x - x.mean()) / len(x) ))
-        for i in xrange(ntf):
+        for i in range(ntf):
             x = X[i,:]
             gfp = numpy.sum(numpy.abs(x - x.mean())) / len(x) 
             ret[i] = gfp
@@ -202,7 +202,7 @@ def compute_gfp_peaks(gfp_curve, use_gfp_peaks, use_smoothing, gfp_type_smoothin
             gfp_peak_indices=gfp_peaks_indices(gfp_curve) #we would expect a peak at about each 50 ms
             gfp_curve = gfp_curve
     else:
-        gfp_peak_indices=numpy.array(range(len(gfp_curve)))   #when we take all maps, we still call the array gfp_peak_indices
+        gfp_peak_indices=numpy.array(list(range(len(gfp_curve))))   #when we take all maps, we still call the array gfp_peak_indices
         gfp_curve = gfp_curve
         print('all maps used')
 
