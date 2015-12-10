@@ -10,7 +10,7 @@ from math import sqrt
 import h5py
 import numpy
 
-from keypy.microstates. microstates_helper import compute_gfp, gfp_peaks_indices, princomp_B, compute_gfp_peaks
+from keypy.microstates. microstates_helper import compute_gfp, gfp_peaks_indices, princomp_B, compute_gfp_peaks, set_gfp_all_1
 
 ##################################
 #######  run_microstates  ########
@@ -38,6 +38,9 @@ def run_microstates(confobj, eeg_info_study_obj, inputhdf5, microstate_input = '
     microstate_output : str
         Name of the output dataset that contains the EEG microstates ('microstate' by default). 
     """
+
+    if confobj.use_smoothing == True:
+        print 'To use smoothing prior to GFP peak extraction deviates from the published algorithm. The option was added for exploratory purposes.'
 
     with closing( h5py.File(inputhdf5) ) as f:
         print 'Computing Microstates ....'
@@ -194,29 +197,6 @@ def TK_norm(eeg, gfp_peak_indices, nch):
 
     return eeg
 
-
-##################################
-#######  set_gfp_all_1  ########
-##################################
-def set_gfp_all_1(eeg, gfp_curve):        
-    """
-    Normalizes EEG to set GFP to 1 for each time frame.
-
-    Parameters
-    ----------
-    eeg : array
-        Shape ntf*nch, conatains the EEG data the average referencing is to be computed on.
-    gfp_curve : 1D array
-        Global field power for each time frame.
-
-    Returns
-    -------
-    eeg: array
-        EEG with GFP set to 1.
-    """
-    for i in range(eeg.shape[0]):
-        eeg[i,:] = eeg[i,:]/gfp_curve[i]
-    return eeg
 
 
 
