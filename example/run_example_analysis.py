@@ -4,6 +4,7 @@
 
 import os
 import os.path
+from os.path import basename
 
 from keypy.preprocessing.file_info_classes import *
 from keypy.preprocessing.data_loading import *
@@ -44,6 +45,12 @@ hdf5_filename = 'all_recordings.hdf'
 
 # the folder path for the output where the HDF5 file is stored
 outputfolder = os.path.join(library_path,"data","output")
+
+# the folder path of the external .asc file that contains the microstate maps that the obtained maps are to be sorted by
+sortbyfolder = os.path.join(library_path,"data","sortby")
+
+#filenmae of external .asc file that contains the microstate maps that the obtained maps are to be sorted by
+sortbyfile_external = os.path.join(sortbyfolder, 'mean_models_milz_etal_2015.asc')
 
 # Specify the information of your study
 ##Where in the filename is the following information (at which index of the string)? inclusive
@@ -107,7 +114,7 @@ filename_folder_obj = FilenameFolderDescription(has_group, has_participant, has_
 ###Load Data to HDF 5###
 ########################
 
-#loaddata(inputfolder, outputhdf5, loaddata_output, file_name_obj, folder_structure_obj, filename_folder_obj, eeg_info_study_obj)
+loaddata(inputfolder, outputhdf5, loaddata_output, file_name_obj, folder_structure_obj, filename_folder_obj, eeg_info_study_obj)
 
 ########################
 ###Compute Avg Ref   ###
@@ -118,7 +125,7 @@ inputhdf5 = os.path.join( outputfolder, hdf5_filename)
 average_input = 'rawdata'
 average_output = 'avg_ref'
 
-#averageref(inputhdf5, average_input, average_output )
+averageref(inputhdf5, average_input, average_output )
 
 #################################
 ###  Filter for microstates   ###
@@ -158,9 +165,10 @@ filter_output = filter_settings
 ###Inputhdf (Outputhdf from before)
 ######
 
-inputhdf5 = os.path.join( outputfolder, 'all_recordings.hdf')
 
-#boxkeyfilter(inputhdf5, eeg_info_study_obj, filter_input, filter_settings, enable_detrending = False)
+inputhdf5 = os.path.join( outputfolder, hdf5_filename)
+
+boxkeyfilter(inputhdf5, eeg_info_study_obj, filter_input, filter_settings, enable_detrending = False)
 
 #--------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -185,7 +193,7 @@ confobj = MstConfiguration(
                         ERP = False,
                         correspondance_cutoff = 0.00)
 
-'''
+
 #################
 # 6.) #Run Microstates (computes 1 microstate for each dataset in inputfile)
 #################
@@ -193,13 +201,13 @@ confobj = MstConfiguration(
 ######
 ###Define input processing stage and output hdf5 file group
 ######
-'''
+
 microstate_input = 'mstate1'
 microstate_output = 'microstate'
 
 #fixed_seed = 100
 
-#run_microstates(confobj, eeg_info_study_obj, inputhdf5, microstate_input, microstate_output)
+run_microstates(confobj, eeg_info_study_obj, inputhdf5, microstate_input, microstate_output)
 
 #--------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -239,15 +247,11 @@ microstate_output = 'microstate'
 #means across conds for each group pt
 #means across groups for each pt
 #means across groups
-'''
-'''
-'''
-#fix problem that it only computes for one series at a time!
 
 series_versions = ['Series_1', 'Series_3']
 
 first_modelmap_series_input = microstate_input
-
+'''
 inputfolder = outputfolder
 
 for series in series_versions:
@@ -266,55 +270,12 @@ for series in series_versions:
 #################
 # 7.) #Run Sortmaps (run_sortmaps_for_sortmap_types computes sortmaps for all types selected)
 #################
-
-##Series 3 complete processing
 '''
-#Step 1
-inputhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_groups.hdf')
-sortbyhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_conds.hdf')
-outputhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_groups{0}.hdf' .format('_sorted') )
-inputdataset = 'modelmap'
-sortbydataset = 'modelmap'
-outputdatset = 'sorted_modelmap'
-sortdata_provider = SortGroupsByAllDataProvider1(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdatset)
-
-
-#Step 2
-inputhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_pts.hdf')
-sortbyhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_groups_sorted.hdf')
-outputhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_pts{0}.hdf' .format('_sorted') )
-inputdataset = 'modelmap'
-sortbydataset = 'modelmap'
-outputdatset = 'sorted_modelmap'
-sortdata_provider = SortGroupCondByGroupDataProvider1(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdatset)
-
-#Step 3
-inputhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_runs.hdf')
-sortbyhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_pts_sorted.hdf')
-outputhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_runs{0}.hdf' .format('_sorted') )
-inputdataset = 'modelmap'
-sortbydataset = 'sorted_modelmap'
-outputdatset = 'sorted_modelmap'
-
-sortdata_provider = SortGroupPtCondByGroupCondDataProvider1(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdatset)
-
-'''
-'''
-
 confobj = MstConfiguration()
-
-
-##only one particular sorting
-#run_sort_maps(sortdata_provider, find_model_maps, confobj)
-
-series = 'Series_2'
 
 series_versions = ['Series_1', 'Series_3']
 
 first_input = 'microstate'
-
-sortbyfolder = os.path.join(library_path,"data","sortby")
-
 
 for series in series_versions:
     run_sort_maps_series(series, inputfolder, sortbyfolder, outputfolder, first_input, confobj)
@@ -325,29 +286,68 @@ for series in series_versions:
 # 7.) #Run Parameters
 #################
 
+################################
+#### Options for parameters ####
+################################
 
-############
-###Inputs for ParametersByNormDataProvider1(SortDataProvider)
-############
+#############################
+#### Continuous EEG data ####
+#############################
 
-# the folder path to the all_recoredings.hdf file
-library_path = os.path.dirname(os.path.abspath(__file__))
-inputfolder = os.path.join(library_path,"data","output")
-inputhdf5 = os.path.join( inputfolder, 'all_recordings.hdf')
-
+##info needed to know which data the parameters are to be computed upon
+inputfolder = outputfolder
+hdf5_filename = hdf5_filename
 inputdataset = 'mstate1'
 
-# the folder path to the microstates to sortby (for parameter computation) file
-sortbyfolder = os.path.join(library_path,"data","sortby")
-sortbyhdf5 = os.path.join(sortbyfolder, 'mean_models_milz_etal_2015.asc')
+############################
+####    Parameter by    ####
+############################
 
-#will not be used if you select a file in a folder to categorize the maps based on
-sortbydataset = 'modelmaps'
+##info needed to know which data the parameters are to be "sorted" upon (modelmaps)
+sortbyfolder = sortbyfolder
+parameter_type = 'external' #can be external, series, inputhdf
+###
+#if you use an external asci file to sort your data by
+###
+if parameter_type == 'external' : 
+    parameter_by = 'external_norm'
+    sortbyfile ='mean_models_koenig_et_al_2002.asc'
+    external_chlist='mean_models_koenig_et_al_2002_chlist.asc'
+    sortbydataset = None
+    sortbyseries = None
 
-# the folder path to the output hdf5 file
-outputhdf5 = os.path.join(library_path,"data","output", 'mstate_parameters.hdf')
+###
+#if you use a previously computed hdf5 file (from Series)
+###
+elif parameter_type == 'series': 
+    sortbyseries = 'Series_3'
+    sortbyfile = 'modelmaps_across_runs_sorted.hdf'
+    #sortbydataset = 'microstate_Series_1_sorted'
+    sortbydataset = 'modelmap'
+    external_chlist = False
 
-###Establish DataProvider
-data_provider=ParametersByNormDataProvider1(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset)
+    #specify the number of layers of your sortbyfile
+    #parameter_by = '4Levels'
+    parameter_by = '3Levels'
+    #parameter_by = '2Levels'
+    #parameter_by = '1Level'
+
+###
+#if you use input hdf5 file sort
+###
+elif parameter_type == 'inputhdf':
+    parameter_by = 'own_hdf'
+    sortbyfile = hdf5_filename
+    sortbydataset = 'microstate_Series_1_sorted'
+    sortbyseries = None
+    external_chlist = False
+    
+
+else:
+    'Error, type not correctly specified for parameter computation.'
+
+
+data_provider=get_data_provider_for_parameter_by(parameter_by, inputfolder, hdf5_filename, inputdataset, sortbyfolder, sortbyfile, sortbydataset, sortbyseries, external_chlist)
 
 run_parameters(data_provider, confobj, eeg_info_study_obj)
+#--------------------------------------------------------------------------------------------------------------------------------------------
