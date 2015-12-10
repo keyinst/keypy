@@ -767,7 +767,7 @@ class SortDataProvider(object):
         self._sortbydataset = sortbydataset
         self._outputdataset = outputdataset
 
-####Sub Class CondDataProvider --> umbenennen
+####Sub Class CondDataProvider
 
 ###Sort All by Norm Data Provider 1
 

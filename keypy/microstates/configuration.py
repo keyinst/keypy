@@ -21,7 +21,7 @@ class MstConfiguration(object):
         set_gfp_all_1 : bool
 			set global field power to 1 before microstate computation
         use_smoothing : bool
-			smoothe global field power curve before peak extraction
+			smoothe global field power curve before peak extraction (default = False)
         gfp_type_smoothing : {'hamming', 'hanning'}
             `hamming` : use hamming window to smooth global field power curve before peak identification
             `hanning` : use hanning window to smooth global field power curve before peak identification		
@@ -42,12 +42,14 @@ class MstConfiguration(object):
         ERP : bool
             Whether microstate computation is done based on ERP (time-locked) data (in this case map polarity is considered).
         correspondance_cutoff : double
-            Pearson correlation coefficient minimum that is regarded as the microstate of a particular class (used for microstate class visualization across time).
+            Pearson correlation coefficient minimum or dissimilarity maximum that is regarded as the microstate of a particular class (used for microstate class visualization across time) (default = 0 which means no cutoff).
         fixed_seed : int
             Fixate seed for testing for microstate and modelmaps algorithms (default=1).
+        dissimilarity_measure : {'correlation', 'dissimilarity'}
+            Determines the measure similarity between two maps is computed upon (default=dissimilarity).
     """
 
-    def __init__(self, subtract_column_mean_at_start = False, debug = True, use_gfp_peaks = True, force_avgref = True, set_gfp_all_1 = False, use_smoothing = False, gfp_type_smoothing='hamming', smoothing_window=100, use_fancy_peaks = False, method_GFPpeak = 'GFPL1', original_nr_of_maps = 4, seed_number = 100, max_number_of_iterations = 100, ERP = False, correspondance_cutoff = 0.00, fixed_seed = None):
+    def __init__(self, subtract_column_mean_at_start = False, debug = True, use_gfp_peaks = True, force_avgref = True, set_gfp_all_1 = False, use_smoothing = False, gfp_type_smoothing='hamming', smoothing_window=100, use_fancy_peaks = False, method_GFPpeak = 'GFPL1', original_nr_of_maps = 4, seed_number = 100, max_number_of_iterations = 100, ERP = False, correspondance_cutoff = 0, fixed_seed = None, similarity_measure = 'dissimilarity'):
         """ This constructor initializes the class members with the corresponding parameter values. 
         """
         self.subtract_column_mean_at_start = subtract_column_mean_at_start
@@ -66,5 +68,6 @@ class MstConfiguration(object):
         self.ERP = ERP
         self.correspondance_cutoff = correspondance_cutoff
         self.fixed_seed = fixed_seed
+        self.similarity_measure = similarity_measure
 
 #---------------------------------

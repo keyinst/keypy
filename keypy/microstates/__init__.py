@@ -19,4 +19,4 @@ sortmaps : functions
 
 #############################################################################
 
-__all__ = ["configuration", "data_provider", "microstates", "microstates_helper", "modelmaps", "sormaps"]
+__all__ = ["configuration", "data_provider", "microstates", "microstates_helper", "modelmaps", "sormaps", "parameters"]

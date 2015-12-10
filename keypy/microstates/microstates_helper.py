@@ -4,7 +4,7 @@
 #######  Import Packages  ########
 ##################################
 
-import numpy
+import numpy as np
 import scipy
 import scipy.signal
 
@@ -32,7 +32,7 @@ def princomp_B(A,numpc=0):
     """
 
     M=A.T
-    a=numpy.dot(M,M.T) #get covariance matrix by  matrix multiplication of data with transposed data
+    a=np.dot(M,M.T) #get covariance matrix by  matrix multiplication of data with transposed data
     [latent,coeff]=eig(a)
     p = size(coeff,axis=1)
     idx = argsort(latent) # sorting the eigenvalues
@@ -46,7 +46,7 @@ def princomp_B(A,numpc=0):
     return coeff
 
 
-def compute_gfp(X, method = 'GFPL2'):
+def compute_gfp(X, method = 'GFPL1'):
     """
     Compute the Global Field Power
  
@@ -65,19 +65,19 @@ def compute_gfp(X, method = 'GFPL2'):
 			GFP curve
     """
     ntf = X.shape[0]
-    ret = numpy.zeros( (ntf, ) )
+    ret = np.zeros( (ntf, ) )
     
     if method == 'GFPL2':
-        # gfp = sqrt(sum(abs(x - x.mean())**2 / len(x) ))
+        # gfp = sqrt(sum((x - x.mean())**2 / len(x) ))
         for i in xrange(ntf):
             x = X[i,:]
-            gfp = numpy.sqrt(numpy.sum(numpy.abs(x - x.mean())**2 / len(x) ))
+            gfp = np.sqrt(np.sum((x - x.mean())**2 / len(x) ))
             ret[i] = gfp
     elif method == 'GFPL1':
         # gfp = sum(abs(x - x.mean()) / len(x) ))
         for i in xrange(ntf):
             x = X[i,:]
-            gfp = numpy.sum(numpy.abs(x - x.mean())) / len(x) 
+            gfp = np.sum(np.abs(x - x.mean())) / len(x) 
             ret[i] = gfp
     #print 'compute gfp', ret        
     return ret
@@ -97,7 +97,7 @@ def l2mm_norm(X,Y):
 	l2 norm: double
 
     """
-    return numpy.linalg.norm(X - Y, ord = None)
+    return np.linalg.norm(X - Y, ord = None)
 
 
 def l1mm_norm(X,Y):
@@ -113,7 +113,7 @@ def l1mm_norm(X,Y):
     ----------
 	l1 norm: double
     """
-    return numpy.linalg.norm(X - Y, ord = 1)
+    return np.linalg.norm(X - Y, ord = 1)
 
 
 #Smoothing: Convolving with window function
@@ -160,6 +160,27 @@ def gfp_peaks_indices(gfp):
     return scipy.signal.argrelmax( gfp )[0]
 
 
+#Dissimilarity Computation
+
+def dissim(map, tf, method_GFPpeak):
+    #compute differences A-B and -A-B
+    diff1=map-tf
+    diff2=-map-tf
+
+    #convert differences into numpy arrays of 1 dimension
+    diff1=np.reshape(diff1, (-1, 1))
+    diff2=np.reshape(diff2, (-1, 1))
+
+    #computes global field power across all channels
+    diff1_gfp=compute_gfp(diff1.T, method_GFPpeak)
+    diff2_gfp=compute_gfp(diff2.T, method_GFPpeak)
+
+    #determines the smaller dissimilarity value
+    diff=min(diff1_gfp,diff2_gfp)
+
+    return diff
+
+
 ##################################
 #######  compute_gfp_peaks  ########
 ##################################
@@ -195,15 +216,41 @@ def compute_gfp_peaks(gfp_curve, use_gfp_peaks, use_smoothing, gfp_type_smoothin
         if use_smoothing:
             gfp_curve=gfp_smoothing(gfp_curve, gfp_type_smoothing, smoothing_window)
         if use_fancy_peaks:
-            peakind = scipy.signal.find_peaks_cwt(gfp_curve, numpy.arange(1,10))
-            gfp_peak_indices=numpy.asarray(peakind) #we would expect a peak at about each 50 ms
+            peakind = scipy.signal.find_peaks_cwt(gfp_curve, np.arange(1,10))
+            gfp_peak_indices=np.asarray(peakind) #we would expect a peak at about each 50 ms
             gfp_curve = gfp_curve
         else:
             gfp_peak_indices=gfp_peaks_indices(gfp_curve) #we would expect a peak at about each 50 ms
             gfp_curve = gfp_curve
     else:
-        gfp_peak_indices=numpy.array(range(len(gfp_curve)))   #when we take all maps, we still call the array gfp_peak_indices
+        gfp_peak_indices=np.array(range(len(gfp_curve)))   #when we take all maps, we still call the array gfp_peak_indices
         gfp_curve = gfp_curve
         print 'all maps used'
 
     return gfp_peak_indices, gfp_curve
+
+
+
+
+##################################
+#######  set_gfp_all_1  ########
+##################################
+def set_gfp_all_1(eeg, gfp_curve):        
+    """
+    Normalizes EEG to set GFP to 1 for each time frame.
+
+    Parameters
+    ----------
+    eeg : array
+        Shape ntf*nch, conatains the EEG data the average referencing is to be computed on.
+    gfp_curve : 1D array
+        Global field power for each time frame.
+
+    Returns
+    -------
+    eeg: array
+        EEG with GFP set to 1.
+    """
+    for i in range(eeg.shape[0]):
+        eeg[i,:] = eeg[i,:]/gfp_curve[i]
+    return eeg
