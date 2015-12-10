@@ -52,7 +52,7 @@ class Test_test2_mstates(unittest.TestCase):
         #####################################
 
         #contains StudyInfo script
-        script_inputfolder = os.path.join(library_path, "tests\\5_modelmaps\\scripts")
+        #script_inputfolder = os.path.join(library_path, "tests\\1_data_loading\\scripts")
 
         #exclude before committ
         #execfile(os.path.join( script_inputfolder, 'study_info_test1.py'))
@@ -77,7 +77,7 @@ class Test_test2_mstates(unittest.TestCase):
         ### Specify data folder info ###
         ################################
 
-        inputfolder = os.path.join(library_path, "tests\\5_modelmaps\\data\\test23")
+        #inputfolder = os.path.join(library_path, "tests\\1_data_loading\\data\\test23")
         outputfolder = inputfolder
 
         if not os.path.exists(outputfolder):
@@ -241,7 +241,7 @@ class Test_test2_mstates(unittest.TestCase):
         ############
 
         #new outputfolder
-        outputfolder = os.path.join(library_path, "tests\\5_modelmaps\\data\\test2_output")
+        #outputfolder = os.path.join(library_path, "tests\\5_modelmaps\\data\\test2_output")
 
         #name of hdf5 that contains input microstates or modelmaps
         inputhdf5 = os.path.join( inputfolder, 'all_recordings.hdf')
@@ -280,7 +280,7 @@ class Test_test2_mstates(unittest.TestCase):
         with closing (h5py.File(outputhdf5, 'r')) as f:
             g1 = f['/group_HC']
             g2 = g1['pt_02']
-            g3 = g2['cond_S1']
+            g3 = g2['cond_S']
             dataset = g3['modelmap'][:]
 
         correct_solution = np.loadtxt(os.path.join(outputfolder, 'correct_output_test2.asc'))

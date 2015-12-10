@@ -226,7 +226,7 @@ class Test_test3_mstates(unittest.TestCase):
 
 
         #include before commit
-        run_microstates(confobj, eeg_info_study_obj, inputhdf5, outputfolder, microstate_input, microstate_output)
+        run_microstates(confobj, eeg_info_study_obj, inputhdf5, microstate_input, microstate_output)
         #--------------------------------------------------------------------------------------------------------------------------------------------
 
 

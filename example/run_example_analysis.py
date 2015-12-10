@@ -188,8 +188,8 @@ confobj = MstConfiguration(
                         use_fancy_peaks = False,
                         method_GFPpeak = 'GFPL1',
                         original_nr_of_maps = 4,
-                        seed_number = 5,
-                        max_number_of_iterations = 10,
+                        seed_number = 50,
+                        max_number_of_iterations = 50,
                         ERP = False,
                         correspondance_cutoff = 0.00)
 
@@ -248,10 +248,10 @@ run_microstates(confobj, eeg_info_study_obj, inputhdf5, microstate_input, micros
 #means across groups for each pt
 #means across groups
 
-series_versions = ['Series_1', 'Series_3']
+series_versions = ['Series_3']
 
 first_modelmap_series_input = microstate_input
-'''
+
 inputfolder = outputfolder
 
 for series in series_versions:
@@ -264,23 +264,23 @@ for series in series_versions:
 
     run_model_maps_series(series, inputfolder, outputfolder_series, first_input, confobj)
 
-'''
+
 #--------------------------------------------------------------------------------------------------------------------------------------------
 
 #################
 # 7.) #Run Sortmaps (run_sortmaps_for_sortmap_types computes sortmaps for all types selected)
 #################
-'''
+
 confobj = MstConfiguration()
 
-series_versions = ['Series_1', 'Series_3']
+series_versions = ['Series_3']
 
 first_input = 'microstate'
 
 for series in series_versions:
     run_sort_maps_series(series, inputfolder, sortbyfolder, outputfolder, first_input, confobj)
 
-'''
+
 
 #################
 # 7.) #Run Parameters
@@ -305,14 +305,14 @@ inputdataset = 'mstate1'
 
 ##info needed to know which data the parameters are to be "sorted" upon (modelmaps)
 sortbyfolder = sortbyfolder
-parameter_type = 'external' #can be external, series, inputhdf
+parameter_type = 'series' #can be external, series, inputhdf
 ###
 #if you use an external asci file to sort your data by
 ###
 if parameter_type == 'external' : 
     parameter_by = 'external_norm'
-    sortbyfile ='mean_models_koenig_et_al_2002.asc'
-    external_chlist='mean_models_koenig_et_al_2002_chlist.asc'
+    sortbyfile ='mean_models_milz_etal_2015.asc'
+    external_chlist='mean_models_milz_etal_2015_chlist.asc'
     sortbydataset = None
     sortbyseries = None
 
@@ -321,16 +321,16 @@ if parameter_type == 'external' :
 ###
 elif parameter_type == 'series': 
     sortbyseries = 'Series_3'
-    sortbyfile = 'modelmaps_across_runs_sorted.hdf'
+    sortbyfile = 'modelmaps_across_conds_sorted.hdf'
     #sortbydataset = 'microstate_Series_1_sorted'
     sortbydataset = 'modelmap'
     external_chlist = False
 
     #specify the number of layers of your sortbyfile
     #parameter_by = '4Levels'
-    parameter_by = '3Levels'
+    #parameter_by = '3Levels'
     #parameter_by = '2Levels'
-    #parameter_by = '1Level'
+    parameter_by = '1Level'
 
 ###
 #if you use input hdf5 file sort
