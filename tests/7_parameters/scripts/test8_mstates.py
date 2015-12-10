@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ###############################################################
-# test7_mstates.py computes a series of modelmaps at a time ###
+# test8_mstates.py computes a series of modelmaps at a time ###
 ###############################################################
 
 
@@ -22,13 +22,14 @@ from keypy.preprocessing.filtering import *
 from keypy.microstates.microstates import * 
 from keypy.microstates.modelmaps import * 
 from keypy.microstates.sortmaps import * 
+from keypy.microstates.parameters import * 
 
 ####   Classes     ####
 from keypy.microstates.configuration import *
 
 
-class Test_test7_mstates(unittest.TestCase):
-    def test7_mstates(self):
+class Test_test8_mstates(unittest.TestCase):
+    def test8_mstates(self):
         ################################
         # 2.) Specify data folder info ###
         ################################
@@ -36,9 +37,9 @@ class Test_test7_mstates(unittest.TestCase):
         library_path = os.path.dirname(os.path.abspath(__file__))
 
         #contains data loaded into hdf5 file with the preprocessing script
-        inputfolder = os.path.join(library_path, "..","data","test7")
+        inputfolder = os.path.join(library_path, "..","data","test8")
         #will be created to contain output hdf5 files from microstate processing
-        outputfolder = os.path.join(library_path, "..","data","test7_output")
+        outputfolder = os.path.join(library_path, "..","data","test8_output")
 
         if not os.path.exists(outputfolder):
             os.makedirs(outputfolder)
@@ -79,8 +80,8 @@ class Test_test7_mstates(unittest.TestCase):
         ### Specify data folder info ###
         ################################
 
-        inputfolder = os.path.join(library_path, "..\\data\\test7")
-        outputfolder = os.path.join(library_path, "..\\data\\test7_output")
+        inputfolder = os.path.join(library_path, "..\\data\\test8")
+        outputfolder = os.path.join(library_path, "..\\data\\test8_output")
 
         if not os.path.exists(outputfolder):
             os.makedirs(outputfolder)
@@ -212,7 +213,7 @@ class Test_test7_mstates(unittest.TestCase):
         #means across conds for each group pt
         #means across groups for each pt
         #means across groups
-
+        '''
         confobj = MstConfiguration(
                                 seed_number = 5,
                                 max_number_of_iterations = 10)
@@ -220,36 +221,157 @@ class Test_test7_mstates(unittest.TestCase):
 
         series_versions = ['Series_1', 'Series_2', 'Series_3', 'Series_4', 'Series_5']
 
-        outputfolder = os.path.join(library_path, "..\\data\\test7_output")
+        outputfolder = os.path.join(library_path, "..\\data\\test8_output")
         inputfolder = outputfolder
 
         for series in series_versions:
             first_input = 'microstate'
 
             #create folder with name of series as outputfolder
-            outputfolder_series = os.path.join(library_path, "..\\data\\test7_output\\{0}" .format(series))
+            outputfolder_series = os.path.join(library_path, "..\\data\\test8_output\\{0}" .format(series))
             if not os.path.exists(outputfolder_series):
                 os.makedirs(outputfolder_series)
 
             run_model_maps_series(series, inputfolder, outputfolder_series, first_input, confobj)
-
+        '''
         #--------------------------------------------------------------------------------------------------------------------------------------------
 
 
         #################
-        # 7.) #Run Sortmaps (run_sortmaps_for_sortmap_types computes sortmaps for all types selected)
+        # 7.) #Run Sortmaps (run_sortmaps_for_sortmap_types computes sortmaps for all types selected) - Not needed for external sort
         #################
 
-        confobj = MstConfiguration()
-
+        #confobj = MstConfiguration()
+        '''
         series_versions = ['Series_1', 'Series_2', 'Series_3', 'Series_4', 'Series_5']
 
         first_input = 'microstate'
         sortbyfolder = os.path.join(library_path, "..","data","sortby")
-        outputfolder = os.path.join(library_path, "..\\data\\test7_output")
+        outputfolder = os.path.join(library_path, "..\\data\\test8_output")
 
         for series in series_versions:
             
             run_sort_maps_series(series, inputfolder, sortbyfolder, outputfolder, first_input, confobj)      
-            
+        '''    
         #--------------------------------------------------------------------------------------------------------------------------------------------
+
+
+        #################
+        # 7.) #Run Parameters
+        #################
+
+        #############################
+        #### Continuous EEG data ####
+        #############################
+
+        ##info needed to know which data the parameters are to be computed upon
+        inputfolder = os.path.join(library_path, "..\\data\\test8_output")
+        hdf5_filename = 'all_recordings.hdf'
+        inputdataset = 'rawdata'
+
+        ############################
+        ####    Parameter by    ####
+        ############################
+
+        ##info needed to know which data the parameters are to be "sorted" upon (modelmaps)
+        sortbyfolder = os.path.join(library_path, "..","data","sortby")
+        parameter_type = 'external' #can be external, series, inputhdf
+        ###
+        #if you use an external asci file to sort your data by
+        ###
+        if parameter_type == 'external' : 
+            parameter_by = 'external_norm'
+            sortbyfile ='mean_models_milz_etal_2015.asc'
+            external_chlist='mean_models_milz_etal_2015_chlist.asc'
+            sortbydataset = None
+            sortbyseries = None
+
+        ###
+        #if you use a previously computed hdf5 file (from Series)
+        ###
+        elif parameter_type == 'series': 
+            sortbyseries = 'Series_3'
+            sortbyfile = 'modelmaps_across_runs_sorted.hdf'
+            #sortbydataset = 'microstate_Series_1_sorted'
+            sortbydataset = 'modelmap'
+            external_chlist = False
+
+            #specify the number of layers of your sortbyfile
+            #parameter_by = '4Levels'
+            parameter_by = '3Levels'
+            #parameter_by = '2Levels'
+            #parameter_by = '1Level'
+
+        ###
+        #if you use input hdf5 file sort
+        ###
+        elif parameter_type == 'inputhdf':
+            parameter_by = 'own_hdf'
+            sortbyfile = hdf5_filename
+            sortbydataset = 'microstate_Series_1_sorted'
+            sortbyseries = None
+            external_chlist = False
+    
+
+        else:
+            'Error, type not correctly specified for parameter computation.'
+
+        data_provider=get_data_provider_for_parameter_by(parameter_by, inputfolder, hdf5_filename, inputdataset, sortbyfolder, sortbyfile, sortbydataset, sortbyseries, external_chlist)
+
+        run_parameters(data_provider, confobj, eeg_info_study_obj)
+        #--------------------------------------------------------------------------------------------------------------------------------------------
+        
+        dataset = None
+        with closing (h5py.File(os.path.join(sortbyfolder, 'mean_models_milz_etal_2015', 'mstate_parameters.hdf5'), 'r')) as f:
+            g1 = f['/group_HEA']
+            g2 = g1['pt_01']
+            g3 = g2['cond_Rest']
+            g4 = g3['run_0']
+            dataset1 = g4['Individual_States'][:]
+            dataset2 = g4['State Match Mean p'][:]
+            g5 = g4['ep_000']
+            map_00 = g5['map_00']
+            map_01 = g5['map_01']
+            map_02 = g5['map_02']
+            map_03 = g5['map_03']
+            cov_dataset_0 = map_00['Coverage in percent'].value
+            cov_dataset_1 = map_01['Coverage in percent'].value
+            cov_dataset_2 = map_02['Coverage in percent'].value
+            cov_dataset_3 = map_03['Coverage in percent'].value
+            dur_dataset_0 = map_00['Mean duration in ms'].value
+            dur_dataset_1 = map_01['Mean duration in ms'].value
+            dur_dataset_2 = map_02['Mean duration in ms'].value
+            dur_dataset_3 = map_03['Mean duration in ms'].value
+            occ_dataset_0 = map_00['Occurrance per s'].value
+            occ_dataset_1 = map_01['Occurrance per s'].value
+            occ_dataset_2 = map_02['Occurrance per s'].value
+            occ_dataset_3 = map_03['Occurrance per s'].value
+
+            #load correct solutions
+            individu_correct_solution = np.loadtxt(os.path.join(inputfolder, 'solutions', 'Individual_States_HEA01Rest00.asc'))
+            state_match_mean_correct_solution = np.loadtxt(os.path.join(inputfolder, 'solutions', 'State Match Mean p_HEA01Rest00.asc'))
+
+            #Asserts that coverage, duration, and occurrence measures are as expected based on the simulated data
+            self.assertAlmostEqual(cov_dataset_0, 0.24901960784313726)
+            self.assertAlmostEqual(cov_dataset_1, 0.25098039215686274)
+            self.assertAlmostEqual(cov_dataset_2, 0.25098039215686274)
+            self.assertAlmostEqual(cov_dataset_3, 0.24901960784313726)
+
+            self.assertAlmostEqual(dur_dataset_0, 3.90625)
+            self.assertAlmostEqual(dur_dataset_1, 3.90625)
+            self.assertAlmostEqual(dur_dataset_2, 3.90625)
+            self.assertAlmostEqual(dur_dataset_3, 3.90625)
+
+            self.assertAlmostEqual(occ_dataset_0, 63.74901960784314)
+            self.assertAlmostEqual(occ_dataset_1, 64.25098039215686)
+            self.assertAlmostEqual(occ_dataset_2, 64.25098039215686)
+            self.assertAlmostEqual(occ_dataset_3, 63.74901960784314)         
+
+
+            #Asserts that individu states and state match mean (mean across dissimilarities for each matched GFP peak) are correct
+            self.assertAlmostEqual(dataset1.all(), individu_correct_solution.all())  
+            self.assertEqual(g4['State Match Mean p'].attrs['State Match Mean p based on'], 'Mean dissimilarity')
+            self.assertAlmostEqual(dataset2.all(), state_match_mean_correct_solution.all())     
+            
+              
+        

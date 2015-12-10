@@ -23,7 +23,6 @@
   <ItemGroup>
     <Compile Include="keypy\microstates\modelmaps.py" />
     <Compile Include="keypy\microstates\parameters.py" />
-    <Compile Include="keypy\microstates\parameters_outtakes.py" />
     <Compile Include="keypy\microstates\sortmaps.py" />
     <Compile Include="setup.py" />
     <Compile Include="example\run_example_analysis.py" />
@@ -35,6 +34,9 @@
     <Compile Include="tests\5_modelmaps\scripts\test5_mstates.py" />
     <Compile Include="tests\5_modelmaps\scripts\test6_mstates.py" />
     <Compile Include="tests\6_sortmaps\scripts\test7_mstates.py" />
+    <Compile Include="tests\7_parameters\scripts\test10_mstates.py" />
+    <Compile Include="tests\7_parameters\scripts\test8_mstates.py" />
+    <Compile Include="tests\7_parameters\scripts\test9_mstates.py" />
     <Content Include="example\data\input\groups\HC\Rest\vp01_1.txt" />
     <Content Include="example\data\input\groups\HC\Rest\vp01_2.txt" />
     <Content Include="example\data\input\groups\HC\Rest\vp01_3.txt" />
@@ -249,6 +251,38 @@
     <Content Include="tests\5_modelmaps\data\test4\HC\vp02_O1.txt" />
     <Content Include="tests\5_modelmaps\data\test4\HC\vp03_O1.txt" />
     <Content Include="tests\5_modelmaps\data\test4\HC\vp04_O1.txt" />
+    <Content Include="tests\7_parameters\data\test8\HEA_vp01_Rest_0.txt" />
+    <Content Include="tests\7_parameters\data\test8\HEA_vp01_Test_0.txt" />
+    <Content Include="tests\7_parameters\data\test8\HEA_vp01_Test_1.txt" />
+    <Content Include="tests\7_parameters\data\test8\HEA_vp01_Test_2.txt" />
+    <Content Include="tests\7_parameters\data\test8\HEA_vp02_Rest_0.txt" />
+    <Content Include="tests\7_parameters\data\test8\HEA_vp02_Rest_1.txt" />
+    <Content Include="tests\7_parameters\data\test8\HEA_vp02_Rest_2.txt" />
+    <Content Include="tests\7_parameters\data\test8\HEA_vp03_Rest_0.txt" />
+    <Content Include="tests\7_parameters\data\test8\HEA_vp03_Rest_1.txt" />
+    <Content Include="tests\7_parameters\data\test8\HEA_vp03_Rest_2.txt" />
+    <Content Include="tests\7_parameters\data\test8\HEA_vp03_Test_0.txt" />
+    <Content Include="tests\7_parameters\data\test8\HEA_vp03_Test_1.txt" />
+    <Content Include="tests\7_parameters\data\test8\HEA_vp03_Test_2.txt" />
+    <Content Include="tests\7_parameters\data\test8\HEA_vp04_Rest_0.txt" />
+    <Content Include="tests\7_parameters\data\test8\HEA_vp04_Rest_1.txt" />
+    <Content Include="tests\7_parameters\data\test8\HEA_vp04_Rest_2.txt" />
+    <Content Include="tests\7_parameters\data\test8\HEA_vp04_Test_1.txt" />
+    <Content Include="tests\7_parameters\data\test8\HEA_vp04_Test_2.txt" />
+    <Content Include="tests\7_parameters\data\test8\PAT_vp01_Rest_0.txt" />
+    <Content Include="tests\7_parameters\data\test8\PAT_vp01_Rest_2.txt" />
+    <Content Include="tests\7_parameters\data\test8\PAT_vp01_Test_0.txt" />
+    <Content Include="tests\7_parameters\data\test8\PAT_vp01_Test_1.txt" />
+    <Content Include="tests\7_parameters\data\test8\PAT_vp01_Test_2.txt" />
+    <Content Include="tests\7_parameters\data\test8\PAT_vp02_Rest_0.txt" />
+    <Content Include="tests\7_parameters\data\test8\PAT_vp02_Rest_1.txt" />
+    <Content Include="tests\7_parameters\data\test8\PAT_vp02_Test_0.txt" />
+    <Content Include="tests\7_parameters\data\test8\PAT_vp02_Test_1.txt" />
+    <Content Include="tests\7_parameters\data\test8\PAT_vp02_Test_2.txt" />
+    <Content Include="tests\7_parameters\data\test8\PAT_vp04_Rest_0.txt" />
+    <Content Include="tests\7_parameters\data\test8\PAT_vp04_Rest_2.txt" />
+    <Content Include="tests\7_parameters\data\test8\PAT_vp04_Test_0.txt" />
+    <Content Include="tests\7_parameters\data\test8\PAT_vp04_Test_2.txt" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="example" />
@@ -420,6 +454,10 @@
     <Folder Include="tests\5_modelmaps\scripts\" />
     <Folder Include="tests\6_sortmaps\" />
     <Folder Include="tests\6_sortmaps\scripts\" />
+    <Folder Include="tests\7_parameters\" />
+    <Folder Include="tests\7_parameters\data\" />
+    <Folder Include="tests\7_parameters\data\test8\" />
+    <Folder Include="tests\7_parameters\scripts\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" />
 </Project>

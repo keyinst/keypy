@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ###############################################################
-# test7_mstates.py computes a series of modelmaps at a time ###
+# test10_mstates.py computes a series of modelmaps at a time ###
 ###############################################################
 
 
@@ -22,13 +22,14 @@ from keypy.preprocessing.filtering import *
 from keypy.microstates.microstates import * 
 from keypy.microstates.modelmaps import * 
 from keypy.microstates.sortmaps import * 
+from keypy.microstates.parameters import * 
 
 ####   Classes     ####
 from keypy.microstates.configuration import *
 
 
-class Test_test7_mstates(unittest.TestCase):
-    def test7_mstates(self):
+class Test_test10_mstates(unittest.TestCase):
+    def test10_mstates(self):
         ################################
         # 2.) Specify data folder info ###
         ################################
@@ -36,9 +37,9 @@ class Test_test7_mstates(unittest.TestCase):
         library_path = os.path.dirname(os.path.abspath(__file__))
 
         #contains data loaded into hdf5 file with the preprocessing script
-        inputfolder = os.path.join(library_path, "..","data","test7")
+        inputfolder = os.path.join(library_path, "..","data","test10")
         #will be created to contain output hdf5 files from microstate processing
-        outputfolder = os.path.join(library_path, "..","data","test7_output")
+        outputfolder = os.path.join(library_path, "..","data","test10_output")
 
         if not os.path.exists(outputfolder):
             os.makedirs(outputfolder)
@@ -79,8 +80,8 @@ class Test_test7_mstates(unittest.TestCase):
         ### Specify data folder info ###
         ################################
 
-        inputfolder = os.path.join(library_path, "..\\data\\test7")
-        outputfolder = os.path.join(library_path, "..\\data\\test7_output")
+        inputfolder = os.path.join(library_path, "..\\data\\test10")
+        outputfolder = os.path.join(library_path, "..\\data\\test10_output")
 
         if not os.path.exists(outputfolder):
             os.makedirs(outputfolder)
@@ -154,7 +155,7 @@ class Test_test7_mstates(unittest.TestCase):
                                 method_GFPpeak = 'GFPL1',
                                 original_nr_of_maps = 4,
                                 seed_number = 5,
-                                max_number_of_iterations = 5,
+                                max_number_of_iterations = 10,
                                 ERP = False,
                                 correspondance_cutoff = 0.00)
 
@@ -213,43 +214,109 @@ class Test_test7_mstates(unittest.TestCase):
         #means across groups for each pt
         #means across groups
 
-        confobj = MstConfiguration(
-                                seed_number = 5,
-                                max_number_of_iterations = 10)
-
-
         series_versions = ['Series_1', 'Series_2', 'Series_3', 'Series_4', 'Series_5']
 
-        outputfolder = os.path.join(library_path, "..\\data\\test7_output")
+        outputfolder = os.path.join(library_path, "..\\data\\test10_output")
         inputfolder = outputfolder
 
         for series in series_versions:
             first_input = 'microstate'
 
             #create folder with name of series as outputfolder
-            outputfolder_series = os.path.join(library_path, "..\\data\\test7_output\\{0}" .format(series))
+            outputfolder_series = os.path.join(library_path, "..\\data\\test10_output\\{0}" .format(series))
             if not os.path.exists(outputfolder_series):
                 os.makedirs(outputfolder_series)
 
             run_model_maps_series(series, inputfolder, outputfolder_series, first_input, confobj)
-
+        
         #--------------------------------------------------------------------------------------------------------------------------------------------
 
 
         #################
-        # 7.) #Run Sortmaps (run_sortmaps_for_sortmap_types computes sortmaps for all types selected)
+        # 7.) #Run Sortmaps (run_sortmaps_for_sortmap_types computes sortmaps for all types selected) - Not needed for external sort
         #################
 
-        confobj = MstConfiguration()
-
+        #confobj = MstConfiguration()
+        
         series_versions = ['Series_1', 'Series_2', 'Series_3', 'Series_4', 'Series_5']
 
         first_input = 'microstate'
         sortbyfolder = os.path.join(library_path, "..","data","sortby")
-        outputfolder = os.path.join(library_path, "..\\data\\test7_output")
+        outputfolder = os.path.join(library_path, "..\\data\\test10_output")
 
         for series in series_versions:
             
             run_sort_maps_series(series, inputfolder, sortbyfolder, outputfolder, first_input, confobj)      
-            
+           
         #--------------------------------------------------------------------------------------------------------------------------------------------
+
+
+        #################
+        # 7.) #Run Parameters
+        #################
+
+        #############################
+        #### Continuous EEG data ####
+        #############################
+
+        ##info needed to know which data the parameters are to be computed upon
+        inputfolder = os.path.join(library_path, "..\\data\\test10_output")
+        hdf5_filename = 'all_recordings.hdf'
+        inputdataset = 'rawdata'
+
+        ############################
+        ####    Parameter by    ####
+        ############################
+
+        ##info needed to know which data the parameters are to be "sorted" upon (modelmaps)
+        sortbyfolder = os.path.join(library_path, "..","data","sortby")
+        parameter_type = 'series' #can be external, series, inputhdf
+        ###
+        #if you use an external asci file to sort your data by
+        ###
+        if parameter_type == 'external' : 
+            parameter_by = 'external_norm'
+            sortbyfile ='mean_models_koenig_et_al_2002.asc'
+            external_chlist='mean_models_koenig_et_al_2002_chlist.asc'
+            sortbydataset = None
+            sortbyseries = None
+
+        ###
+        #if you use a previously computed hdf5 file (from Series)
+        ###
+        elif parameter_type == 'series': 
+            sortbyseries = 'Series_3'
+            sortbyfile = 'modelmaps_across_runs_sorted.hdf'
+            #sortbydataset = 'microstate_Series_1_sorted'
+            sortbydataset = 'modelmap'
+            external_chlist = False
+
+            #specify the number of layers of your sortbyfile
+            #parameter_by = '4Levels'
+            parameter_by = '3Levels'
+            #parameter_by = '2Levels'
+            #parameter_by = '1Level'
+
+        ###
+        #if you use input hdf5 file sort
+        ###
+        elif parameter_type == 'inputhdf':
+            parameter_by = 'own_hdf'
+            sortbyfile = hdf5_filename
+            sortbydataset = 'microstate_Series_1_sorted'
+            sortbyseries = None
+            external_chlist = False
+    
+
+        else:
+            'Error, type not correctly specified for parameter computation.'
+
+        data_provider=get_data_provider_for_parameter_by(parameter_by, inputfolder, hdf5_filename, inputdataset, sortbyfolder, sortbyfile, sortbydataset, sortbyseries, external_chlist)
+
+        run_parameters(data_provider, confobj, eeg_info_study_obj)
+        #--------------------------------------------------------------------------------------------------------------------------------------------
+
+            
+                
+        #--------------------------------------------------------------------------------------------------------------------------------------------
+        
