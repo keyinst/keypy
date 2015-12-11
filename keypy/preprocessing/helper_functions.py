@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
+
 from contextlib import closing
 
 import h5py
@@ -86,12 +88,12 @@ def del_channels(inputhdf5, ch_to_delete, del_channels_input, del_channels_outpu
                         try:
                             timeframe_channel_dset = f['/{0}/{1}/{2}/{3}/{4}' .format(groupi, pti, cond, run, del_channels_input)]
                         except:
-                            print 'not found',  ['/{0}/{1}/{2}/{3}/{4}' .format(groupi, pti, cond, run, del_channels_input)]
+                            print('not found',  ['/{0}/{1}/{2}/{3}/{4}' .format(groupi, pti, cond, run, del_channels_input)])
                             continue
                     
                         path = '/{0}/{1}/{2}/{3}/{4}' .format(groupi, pti, cond, run, del_channels_input)
                 
-                        print 'deleting channels for ', pti, cond, run
+                        print('deleting channels for ', pti, cond, run)
                         timeframe_channel_dset = f[path]    
                         
                         if not del_channels_output in f['/{0}/{1}/{2}/{3}' .format(groupi, pti, cond, run)].keys():
@@ -137,5 +139,5 @@ def del_participants(inputhdf5, pts_to_delete):
         for groupi in f['/'].keys():
             for pti in f['/%s' % (groupi)].keys():
                 if pti in pts_to_delete:
-                    print 'Deleting ....', group, pti
+                    print('Deleting ....', group, pti)
                     del f['/%s/%s' % (groupi, pti)]

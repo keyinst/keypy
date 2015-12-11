@@ -1,6 +1,8 @@
-##################################
+﻿##################################
 #######  run_mstate_paramters  ########
 ##################################
+
+from __future__ import print_function
 
 from scipy.stats import nanmean, pearsonr
 from keypy.microstates.data_provider import *
@@ -77,7 +79,7 @@ class ParametersDataProvider(object):
 
     #call it once to get a list of objects which contain the paths needed each to create one output
     def get_outputs(self):
-        out_paths_set = Set()
+        out_paths_set = set()
         with closing( h5py.File(self._file, 'r') ) as f:
             for current_level0 in f['/'].keys():                 
                 for current_level1 in f['/{0}'.format(current_level0)].keys():  
@@ -93,7 +95,7 @@ class ParametersDataProvider(object):
             path = '/{0}/{1}/{2}/{3}' .format(output_path.level0, output_path.level1, output_path.level2, output_path.level3)
             eeg_value = g['/{0}/{1}' .format(path, self._inputdataset)] 
             if all(eeg_value[0,:] == 0):
-                print 'Error!', path, 'has all zeros', 'group, pt, cond ignored.'    
+                print('Error!', path, 'has all zeros', 'group, pt, cond ignored.')    
             else:
                 eeg=eeg_value[:]
 
@@ -102,7 +104,6 @@ class ParametersDataProvider(object):
         return eeg
        
     #writes output into new hdf5 at correct location
-
     def write_output_data(self, confobj, output_path, output_data, output_attributes):
 
         outputfolder=op.join(op.dirname(op.abspath(self._outputfile)))
@@ -111,7 +112,7 @@ class ParametersDataProvider(object):
             os.makedirs(outputfolder)
 
         with closing( h5py.File(self._outputfile) ) as k:
-            print 'output_paths used for output', output_path.level0
+            print('output_paths used for output: {0}'.format(output_path.level0))
 
             if output_path.level0 in k['/'].keys():
                 group_group = k['{0}' .format(output_path.level0)]
@@ -157,7 +158,7 @@ class ParametersDataProvider(object):
             map_avg_perc=parameter_preprocessing(confobj, epochwise_data['State Match Mean percentage'])  
 
             if 'State Match Mean p' in run_group.keys():
-                print 'State Match Mean p already exists. Not recomputed for', output_path.level0, output_path.level1, output_path.level2, output_path.level3
+                print('State Match Mean p already exists. Not recomputed for {0} {1} {2} {3}'.format(output_path.level0, output_path.level1, output_path.level2, output_path.level3))
             else:
                 if map_avg_perc.any():
                     run_group.create_dataset('State Match Mean p', data = map_avg_perc)    
@@ -171,7 +172,7 @@ class ParametersDataProvider(object):
             ##add other runwise datasets
             for dataset_name in runwise_data:
                 if dataset_name in run_group.keys():
-                    print dataset_name, 'already exists. Not recomputed for', output_path.level0, output_path.level1, output_path.level2, output_path.level3
+                    print( '{0} already exists. Not recomputed for {0} {1} {2} {3}'.format(dataset_name, output_path.level0, output_path.level1, output_path.level2, output_path.level3))
                 else:
                     if runwise_data[dataset_name].any():
                         run_group.create_dataset(dataset_name, data = runwise_data[dataset_name])
@@ -194,8 +195,8 @@ class ParametersDataProvider(object):
                 else:
                     ep_group = run_group.create_group("ep_"+"%03d" % (epochnr,))  
                     if confobj.debug:
-                        print epochnr     
-                             
+                        print(epochnr)
+
                 #add attributes to epoch folder
                 for attribute_name, attribute_value in output_attributes.iteritems():
                     ep_group.attrs['{0}' .format(attribute_name)]=str(attribute_value[epochnr])
@@ -251,7 +252,7 @@ class ParametersByNormDataProvider1(ParametersDataProvider):
         microstate_run_value = np.loadtxt(self._sortbyfile)
 
         if all(microstate_run_value[0,:] == 0):
-            print 'Error!', sortbyhdf5, 'has all zeros', 'group, pt, cond ignored.'    
+            print('Warning! {0} has all zeros, group, pt, cond ignored.'.format(sortbyhdf5))
         else:
             model_map=microstate_run_value[:]
         return model_map
@@ -281,7 +282,7 @@ class ParametersBy1LevelDataProvider1(ParametersDataProvider):
             elif output_path.level3 in f['/'].keys():
                 path = '/{0}' .format(output_path.level3)   
             else:
-                print 'sortbypath not found for', output_path.level0, output_path.level1, output_path.level2, output_path.level3, 'in hdf',  self._sortbyfile
+                print('Sortbypath not found for {0} {1} {2} {3} in HDF5 file {4}'.format(output_path.level0, output_path.level1, output_path.level2, output_path.level3, self._sortbyfile))
                        
             microstate_run_value = f['/{0}/{1}' .format(path, self._sortbydataset)] 
             model_map=microstate_run_value[:]
@@ -314,7 +315,7 @@ class ParametersBy2LevelsDataProvider1(ParametersDataProvider):
             elif output_path.level3 in f.keys():
                 firstlevel = output_path.level3
             else:
-                print 'sortbypath not found for', output_path.level0, output_path.level1, output_path.level2, output_path.level3, 'in hdf',  self._sortbyfile
+                print('Sortbypath not found for {0} {1} {2} {3} in HDF5 file {4}'.format(output_path.level0, output_path.level1, output_path.level2, output_path.level3, self._sortbyfile))
 
             #find Level 1
 
@@ -328,7 +329,7 @@ class ParametersBy2LevelsDataProvider1(ParametersDataProvider):
             elif output_path.level3 in f['/{0}/'.format(firstlevel)].keys():
                 secondlevel = output_path.level3
             else:
-                print 'sortbypath not found for', output_path.level0, output_path.level1, output_path.level2, output_path.level3, 'in hdf',  self._sortbyfile
+                print('Sortbypath not found for {0} {1} {2} {3} in HDF5 file {4}'.format(output_path.level0, output_path.level1, output_path.level2, output_path.level3, self._sortbyfile))
 
             path = '/{0}/{1}' .format(firstlevel, secondlevel)
             microstate_run_value = f['/{0}/{1}' .format(path, self._sortbydataset)] 
@@ -363,7 +364,7 @@ class ParametersBy3LevelsDataProvider1(ParametersDataProvider):
             elif output_path.level3 in f.keys():
                 firstlevel = output_path.level3
             else:
-                print 'sortbypath not found for', output_path.level0, output_path.level1, output_path.level2, output_path.level3, 'in hdf',  self._sortbyfile
+                print('Sortbypath not found for {0} {1} {2} {3} in HDF5 file {4}'.format(output_path.level0, output_path.level1, output_path.level2, output_path.level3, self._sortbyfile))
 
             #find Level 1
             if output_path.level0 in f['/{0}/'.format(firstlevel)].keys():
@@ -375,7 +376,7 @@ class ParametersBy3LevelsDataProvider1(ParametersDataProvider):
             elif output_path.level3 in f['/{0}/'.format(firstlevel)].keys():
                 secondlevel = output_path.level3
             else:
-                print 'sortbypath not found for', output_path.level0, output_path.level1, output_path.level2, output_path.level3, 'in hdf',  self._sortbyfile
+                print('Sortbypath not found for {0} {1} {2} {3} in HDF5 file {4}'.format(output_path.level0, output_path.level1, output_path.level2, output_path.level3, self._sortbyfile))
 
             #find Level 2
             if output_path.level0 in f['/{0}/{1}/'.format(firstlevel, secondlevel)].keys():
@@ -387,7 +388,7 @@ class ParametersBy3LevelsDataProvider1(ParametersDataProvider):
             elif output_path.level3 in f['/{0}/{1}/'.format(firstlevel, secondlevel)].keys():
                 thirdlevel = output_path.level3
             else:
-                print 'sortbypath not found for', output_path.level0, output_path.level1, output_path.level2, output_path.level3, 'in hdf',  self._sortbyfile
+                print('Sortbypath not found for {0} {1} {2} {3} in HDF5 file {4}'.format(output_path.level0, output_path.level1, output_path.level2, output_path.level3, self._sortbyfile))
 
 
             path = '/{0}/{1}/{2}' .format(firstlevel, secondlevel, thirdlevel)
@@ -421,7 +422,7 @@ class ParametersBy4LevelsDataProvider1(ParametersDataProvider):
             elif output_path.level3 in f.keys():
                 firstlevel = output_path.level3
             else:
-                print 'sortbypath not found for', output_path.level0, output_path.level1, output_path.level2, output_path.level3, 'in hdf',  self._sortbyfile
+                print('Sortbypath not found for {0} {1} {2} {3} in HDF5 file {4}'.format(output_path.level0, output_path.level1, output_path.level2, output_path.level3, self._sortbyfile))
 
             #find Level 1
             if output_path.level0 in f['/{0}/'.format(firstlevel)].keys():
@@ -433,7 +434,7 @@ class ParametersBy4LevelsDataProvider1(ParametersDataProvider):
             elif output_path.level3 in f['/{0}/'.format(firstlevel)].keys():
                 secondlevel = output_path.level3
             else:
-                print 'sortbypath not found for', output_path.level0, output_path.level1, output_path.level2, output_path.level3, 'in hdf',  self._sortbyfile
+                print('Sortbypath not found for {0} {1} {2} {3} in HDF5 file {4}'.format(output_path.level0, output_path.level1, output_path.level2, output_path.level3, self._sortbyfile))
 
             #find Level 2
             if output_path.level0 in f['/{0}/{1}/'.format(firstlevel, secondlevel)].keys():
@@ -445,7 +446,7 @@ class ParametersBy4LevelsDataProvider1(ParametersDataProvider):
             elif output_path.level3 in f['/{0}/{1}/'.format(firstlevel, secondlevel)].keys():
                 thirdlevel = output_path.level3
             else:
-                print 'sortbypath not found for', output_path.level0, output_path.level1, output_path.level2, output_path.level3, 'in hdf',  self._sortbyfile
+                print('Sortbypath not found for {0} {1} {2} {3} in HDF5 file {4}'.format(output_path.level0, output_path.level1, output_path.level2, output_path.level3, self._sortbyfile))
 
             #find Level 3
             if output_path.level0 in f['/{0}/{1}/{2}/'.format(firstlevel, secondlevel, thirdlevel)].keys():
@@ -457,7 +458,7 @@ class ParametersBy4LevelsDataProvider1(ParametersDataProvider):
             elif output_path.level3 in f['/{0}/{1}/{2}/'.format(firstlevel, secondlevel, thirdlevel)].keys():
                 fourthlevel = output_path.level3
             else:
-                print 'sortbypath not found for', output_path.level0, output_path.level1, output_path.level2, output_path.level3, 'in hdf',  self._sortbyfile
+                print('Sortbypath not found for {0} {1} {2} {3} in HDF5 file {4}'.format(output_path.level0, output_path.level1, output_path.level2, output_path.level3, self._sortbyfile))
 
             path = '/{0}/{1}/{2}/{3}' .format(firstlevel, secondlevel, thirdlevel, fourthlevel)
             microstate_run_value = f['/{0}/{1}' .format(path, self._sortbydataset)] 
@@ -496,26 +497,26 @@ def compute_mstate_parameters(confobj, eeg, maps, eeg_info_study_obj):
     Fs = eeg_info_study_obj.sf
 
     #####Create Dictionaries for parameters across all epochs
-    dur_state_all_epochs = dict.fromkeys(range(len(eeg)/TF))
-    freq_dict_all_epochs = dict.fromkeys(range(len(eeg)/TF))
-    dur_dict_all_epochs = dict.fromkeys(range(len(eeg)/TF))
-    cov_dict_all_epochs = dict.fromkeys(range(len(eeg)/TF))
-    gfp_peak_nr_all_epochs = dict.fromkeys(range(len(eeg)/TF))
-    mean_gfp_all_epochs = dict.fromkeys(range(len(eeg)/TF))
-    gfp_mean_all_epochs = dict.fromkeys(range(len(eeg)/TF))
-    durstd_dict_all_epochs= dict.fromkeys(range(len(eeg)/TF))
-    start_state_list_all_epochs= dict.fromkeys(range(len(eeg)/TF))
-    exp_var_all_epochs= dict.fromkeys(range(len(eeg)/TF))
-    exp_var_tot_all_epochs= dict.fromkeys(range(len(eeg)/TF))
-    state_match_percentage_all_epochs= dict.fromkeys(range(len(eeg)/TF))
-    state_match_percentage_std_all_epochs= dict.fromkeys(range(len(eeg)/TF))
-    gfp_curves_all_epochs= dict.fromkeys(range(len(eeg)/TF))
+    dur_state_all_epochs = dict.fromkeys(list(range(len(eeg)/TF)))
+    freq_dict_all_epochs = dict.fromkeys(list(range(len(eeg)/TF)))
+    dur_dict_all_epochs = dict.fromkeys(list(range(len(eeg)/TF)))
+    cov_dict_all_epochs = dict.fromkeys(list(range(len(eeg)/TF)))
+    gfp_peak_nr_all_epochs = dict.fromkeys(list(range(len(eeg)/TF)))
+    mean_gfp_all_epochs = dict.fromkeys(list(range(len(eeg)/TF)))
+    gfp_mean_all_epochs = dict.fromkeys(list(range(len(eeg)/TF)))
+    durstd_dict_all_epochs= dict.fromkeys(list(range(len(eeg)/TF)))
+    start_state_list_all_epochs= dict.fromkeys(list(range(len(eeg)/TF)))
+    exp_var_all_epochs= dict.fromkeys(list(range(len(eeg)/TF)))
+    exp_var_tot_all_epochs= dict.fromkeys(list(range(len(eeg)/TF)))
+    state_match_percentage_all_epochs= dict.fromkeys(list(range(len(eeg)/TF)))
+    state_match_percentage_std_all_epochs= dict.fromkeys(list(range(len(eeg)/TF)))
+    gfp_curves_all_epochs= dict.fromkeys(list(range(len(eeg)/TF)))
 
     #################  
     # 3.) LOOP ACROSS 2 Sec Segments
     #################
 
-    individu_dict = dict.fromkeys(range(confobj.original_nr_of_maps))
+    individu_dict = dict.fromkeys(list(range(confobj.original_nr_of_maps)))
     for mstate in individu_dict:
         individu_dict[mstate]=np.zeros((eeg.shape[1]))
 
@@ -530,7 +531,7 @@ def compute_mstate_parameters(confobj, eeg, maps, eeg_info_study_obj):
         
         gfp_curve = compute_gfp(epoch, confobj.method_GFPpeak)
         if confobj.debug:
-            print 'GFP Curve computed'
+            print('GFP Curve computed')
 
         #################   
         # 3.) Average ref prior to gfp_1
@@ -555,7 +556,7 @@ def compute_mstate_parameters(confobj, eeg, maps, eeg_info_study_obj):
         #set to gfp_1 of all external maps
         gfp_curve_maps = compute_gfp(maps, confobj.method_GFPpeak)
         maps = set_gfp_all_1(maps, gfp_curve_maps)
-      
+
         #################   
         #4.) Compute GFP Peaks (identical to microstates.py)
         #################
@@ -586,7 +587,7 @@ def compute_mstate_parameters(confobj, eeg, maps, eeg_info_study_obj):
                     #Dissimilarity
                     pr = dissim(maps[mapnr,:], tf, confobj.method_GFPpeak)
                 else:
-                    print 'Error confobj.similarity_measure must be correlation or dissimilarity but it is ', confobj.similarity_measure
+                    print('Error confobj.similarity_measure must be correlation or dissimilarity but it is {0}'.format(confobj.similarity_measure))
 
                 #abs specific for EEG / continuous data where polarity is disregarded
                 corr_list.append(abs(pr))
@@ -612,7 +613,7 @@ def compute_mstate_parameters(confobj, eeg, maps, eeg_info_study_obj):
                 else:
                     attribution_matrix_indices[key]=[999, min(corr_list)] 
             else:
-                print 'Error confobj.similarity_measure must be correlation or dissimilarity but it is ', confobj.similarity_measure
+                print('Error confobj.similarity_measure must be correlation or dissimilarity but it is {0}'.format(confobj.similarity_measure))
 
 
         #tf_begin is determined as, the first gfp peak where the mstate changes from one to another, e.g. A A A (B) B B (A) (B) B
@@ -639,8 +640,8 @@ def compute_mstate_parameters(confobj, eeg, maps, eeg_info_study_obj):
         #Compute mstate duration (in tfs & converted into ms) for each class
 
         #dictionary of the 4 states
-        dur_state=dict.fromkeys(range(confobj.original_nr_of_maps))
-        gfp_state=dict.fromkeys(range(confobj.original_nr_of_maps))
+        dur_state=dict.fromkeys(list(range(confobj.original_nr_of_maps)))
+        gfp_state=dict.fromkeys(list(range(confobj.original_nr_of_maps)))
                   
         i = 0
         while (i < len(start_state_list)-1):
@@ -663,7 +664,7 @@ def compute_mstate_parameters(confobj, eeg, maps, eeg_info_study_obj):
 
             if (dur_state is None):
                 if confobj.debug:
-                    print outti, inni, dur_state
+                    print(outti, inni, dur_state)
 
 
 
@@ -683,10 +684,10 @@ def compute_mstate_parameters(confobj, eeg, maps, eeg_info_study_obj):
         #Frequency
         ####
 
-        freq_dict=dict.fromkeys(range(confobj.original_nr_of_maps))
+        freq_dict=dict.fromkeys(list(range(confobj.original_nr_of_maps)))
         for mapnr in range(confobj.original_nr_of_maps):
             if dur_state[mapnr] == None:
-                print 'epochnr, mapnr no content', epochnr, mapnr
+                print('epochnr, mapnr no content', epochnr, mapnr)
                 freq_dict[mapnr] = 0
             else:
                 #freq corrected by smaller epoch size (returns # of occurrences per second based on info from whole epoch)
@@ -698,8 +699,8 @@ def compute_mstate_parameters(confobj, eeg, maps, eeg_info_study_obj):
         #Mean Duration & Std from tf to secs
         ####
 
-        dur_dict=dict.fromkeys(range(confobj.original_nr_of_maps))
-        durstd_dict=dict.fromkeys(range(confobj.original_nr_of_maps))
+        dur_dict=dict.fromkeys(list(range(confobj.original_nr_of_maps)))
+        durstd_dict=dict.fromkeys(list(range(confobj.original_nr_of_maps)))
         for mapnr in range(confobj.original_nr_of_maps): 
             if dur_state[mapnr] == None:
                 dur_dict[mapnr] = 0
@@ -714,7 +715,7 @@ def compute_mstate_parameters(confobj, eeg, maps, eeg_info_study_obj):
 
 
         #Compute relative coverage for each state
-        cov_dict=dict.fromkeys(range(confobj.original_nr_of_maps))
+        cov_dict=dict.fromkeys(list(range(confobj.original_nr_of_maps)))
         for mapnr in range(confobj.original_nr_of_maps): 
             if dur_state[mapnr] == None:
                 cov_dict[mapnr] = 0
@@ -735,7 +736,7 @@ def compute_mstate_parameters(confobj, eeg, maps, eeg_info_study_obj):
         ####
         #Mean GFP for each class
         ####
-        gfp_mean=dict.fromkeys(range(confobj.original_nr_of_maps))
+        gfp_mean=dict.fromkeys(list(range(confobj.original_nr_of_maps)))
 
         for mapnr in range(confobj.original_nr_of_maps):  
             if  gfp_state[mapnr] == None:
@@ -788,9 +789,8 @@ def compute_mstate_parameters(confobj, eeg, maps, eeg_info_study_obj):
 
 
         ###Compute Percentage of Correspondance between tf & labelby map
-
-        state_match_percentage=dict.fromkeys(range(confobj.original_nr_of_maps))
-        state_match_percentage_std=dict.fromkeys(range(confobj.original_nr_of_maps))
+        state_match_percentage=dict.fromkeys(list(range(confobj.original_nr_of_maps)))
+        state_match_percentage_std=dict.fromkeys(list(range(confobj.original_nr_of_maps)))
 
         for keyli in state_match_percentage.keys():
             state_match_percentage[keyli]=[]
@@ -1010,7 +1010,7 @@ def create_parameter_spss_sheets(confobj, eeg_info_study_obj, outputfolder, outp
                                         list_to_avg.append(mapwise_data[meas][epochnr][mapnr])
                                     parameters_mean[meas][pti][condi][runi][mapnr]=np.mean(list_to_avg)
                             else:
-                                print "error for",  output_data_path.level0, output_data_path.level1, output_data_path.level2, output_data_path.level3
+                                print("Warning for {0} {1} {2} {3}".format(output_data_path.level0, output_data_path.level1, output_data_path.level2, output_data_path.level3))
 
 
     ###Seperate file for each measure
@@ -1036,7 +1036,7 @@ def create_parameter_spss_sheets(confobj, eeg_info_study_obj, outputfolder, outp
                             if parameters_mean[meas][pti][condi][runi][mapnr]:
                                 spss_parameter_file.write("{0:.2f}".format(parameters_mean[meas][pti][condi][runi][mapnr]))
                             else:
-                                print 'No data available for', pti, condi, runi, mapnr
+                                print('No data available for {0} {1} {2} {3}'.format(pti, condi, runi, mapnr))
                                 spss_parameter_file.write("{0}".format(999))
 
 
@@ -1132,7 +1132,7 @@ def get_data_provider_for_parameter_by(parameter_by, inputfolder, hdf5_filename,
         elif parameter_by == '4Levels':
             data_provider=ParametersBy4LevelsDataProvider1(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, sortbychlist)
         else:
-            print 'Error: data_provider could not be specified based on the given information. parameter_by must be specified.'
+            print('Warning: data_provider could not be specified based on the given information. parameter_by must be specified.')
 
 
     return data_provider

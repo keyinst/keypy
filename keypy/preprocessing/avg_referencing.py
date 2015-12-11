@@ -4,6 +4,8 @@
 ##COMPUTE AVERAGE REFERENCE (subtract mean across all channels for each channel)
 #############################################################################
 
+from __future__ import print_function
+
 from contextlib import closing
 
 import h5py
@@ -24,7 +26,7 @@ def averageref(inputhdf5, average_input, average_output ):
         Name of the dataset in the hdf5 file that is created for each average-referenced file, e.g. 'avg_ref'.
     """
 
-    print 'Compute average reference ....'
+    print('Compute average reference ....')
     with closing( h5py.File(inputhdf5) ) as f:
         for groupi in f['/'].keys():
             for pti in f['/%s' % (groupi)].keys():
@@ -33,12 +35,12 @@ def averageref(inputhdf5, average_input, average_output ):
                         try:
                             timeframe_channel_dset = f['/{0}/{1}/{2}/{3}/{4}' .format(groupi, pti, cond, run, average_input)]
                         except:
-                            print 'not found',  ['/{0}/{1}/{2}/{3}/{4}' .format(groupi, pti, cond, run, average_input)]
+                            print('not found',  ['/{0}/{1}/{2}/{3}/{4}' .format(groupi, pti, cond, run, average_input)])
                             continue
                     
                         path = '/{0}/{1}/{2}/{3}/{4}' .format(groupi, pti, cond, run, average_input)
                 
-                        print 'avg_referencing', pti, cond, run
+                        print('avg_referencing', pti, cond, run)
                         timeframe_channel_dset = f[path]
                 
                         if not average_output in f['/{0}/{1}/{2}/{3}' .format(groupi, pti, cond, run)].keys():

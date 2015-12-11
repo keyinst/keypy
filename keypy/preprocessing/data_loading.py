@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
+
 from contextlib import closing
 import os
 import os.path
@@ -172,7 +174,7 @@ def loaddata(inputfolder, outputhdf5, loaddata_output, file_name_obj, folder_str
             if filename.endswith(file_name_obj.file_ending):
                 allfiles_list.append((filename, result[0][len(inputfolder)+1:].split(os.path.sep), result[0]))
             else:
-                print 'File named ', filename, ' ignored. Did not have file ending ', file_name_obj.file_ending, ' which was specified by the user.'
+                print('File named ', filename, ' ignored. Did not have file ending ', file_name_obj.file_ending, ' which was specified by the user.')
 
     with closing( h5py.File(outputhdf5, 'w') ) as f:
         #retrieves info about group, pt, cond, run for each file
@@ -187,7 +189,7 @@ def loaddata(inputfolder, outputhdf5, loaddata_output, file_name_obj, folder_str
             elif filename_folder_obj.group == 'none':
                 group = 'All_PTs'
             else:
-                print 'fatal error'
+                print('fatal error')
 
             if filename_folder_obj.pt == 'filename':
                 pt = pt_file
@@ -196,7 +198,7 @@ def loaddata(inputfolder, outputhdf5, loaddata_output, file_name_obj, folder_str
             elif filename_folder_obj.pt == 'none':
                 pt = 'PT'
             else:
-                print 'fatal error'
+                print('fatal error')
 
             if filename_folder_obj.cond == 'filename':
                 cond = cond_file
@@ -205,7 +207,7 @@ def loaddata(inputfolder, outputhdf5, loaddata_output, file_name_obj, folder_str
             elif filename_folder_obj.cond == 'none':
                 cond = 'Cond'
             else:
-                print 'fatal error'
+                print('fatal error')
 
             if filename_folder_obj.run == 'filename':
                 run = run_file
@@ -214,7 +216,7 @@ def loaddata(inputfolder, outputhdf5, loaddata_output, file_name_obj, folder_str
             elif filename_folder_obj.run == 'none':
                 run = '1'
             else:
-                print 'fatal error'
+                print('fatal error')
 
             #write data to hdf5 file
             if not 'group_{0}' .format(group) in f['/'].keys():

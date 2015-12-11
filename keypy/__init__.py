@@ -51,7 +51,7 @@ def princomp_C(A,numpc=0):
     coeff = coeff[:,idx]
     #latent = latent[idx] # sorting eigenvalues
     if numpc < p or numpc >= 0:
-        coeff = coeff[:,range(numpc)] # cutting some PCs
+        coeff = coeff[:,list(range(numpc))] # cutting some PCs
     #score = dot(coeff.T,M) # projection of the data in the new space
     return coeff, idx, latent
 
