@@ -17,5 +17,5 @@ file_info_classes : class definitions
 
 #############################################################################
 
-__all__ = ["avg_referencing", "filtering", "file_info_classes", "data_loading", "helper_functions.py"]
+__all__ = ["avg_referencing", "filtering", "file_info_classes", "data_loading", "helper_functions.py", "concatenating_segments.py"]
 

@@ -24,9 +24,12 @@
     <PtvsTargetsFile>$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets</PtvsTargetsFile>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="example\run_Travis_analysis.py" />
+    <Compile Include="example\run_file_concatenating.py" />
     <Compile Include="keypy\microstates\modelmaps.py" />
     <Compile Include="keypy\microstates\parameters.py" />
     <Compile Include="keypy\microstates\sortmaps.py" />
+    <Compile Include="keypy\preprocessing\concatenating_segments.py" />
     <Compile Include="setup.py" />
     <Compile Include="example\run_example_analysis.py" />
     <Compile Include="keypy\__init__.py" />
