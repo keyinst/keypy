@@ -6,6 +6,9 @@ keypy\microstates\configuration.py
 keypy\microstates\data_provider.py
 keypy\microstates\microstates.py
 keypy\microstates\microstates_helper.py
+keypy\microstates\modelmaps.py
+keypy\microstates\parameters.py
+keypy\microstates\sortmaps.py
 keypy\preprocessing\__init__.py
 keypy\preprocessing\avg_referencing.py
 keypy\preprocessing\data_loading.py
