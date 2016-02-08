@@ -241,7 +241,7 @@ run_microstates(confobj, eeg_info_study_obj, inputhdf5, microstate_input, micros
 
 series_versions = ['Series_3']
 
-first_modelmap_series_input = microstate_input
+first_modelmap_series_input = microstate_output
 
 inputfolder = outputfolder
 
