@@ -1,12 +1,13 @@
+# -*- coding: utf-8 -*-
 
 import glob, os
 from sets import Set
 import numpy as np
 
 
-##Concatination function
+##Concatenation function
 
-def concatenate(mydir, ntf, nch, id_start, id_end, ending):
+def concatenate(mydir, ntf, nch, id_start, id_end, ending_in, ending_out):
     """
     Outputs one file of all epochs of a particular group participant cond run which had previously been segmented into separate files.
 
@@ -22,7 +23,9 @@ def concatenate(mydir, ntf, nch, id_start, id_end, ending):
         Starting index of part of filename that is a unique identifier for each group participant cond run.
     id_end : object of type FolderStructureDescription
         Ending index of part of filename that is a unique identifier for each group participant cond run.
-    ending : object of type FilenameFolderDescription
+    ending_in : str
+        File ending of inputfiles.
+    ending_out : str
         Desired file ending of outputfiles.
     """
 
@@ -34,7 +37,7 @@ def concatenate(mydir, ntf, nch, id_start, id_end, ending):
     file_list_by_id={}
 
     os.chdir(mydir)
-    for file in glob.glob("*.asc"):
+    for file in glob.glob("*.{0}" .format(ending_in)):
         id=file[id_start:id_end]
         #id_list.add(id)
         if id in file_list_by_id:
@@ -49,12 +52,9 @@ def concatenate(mydir, ntf, nch, id_start, id_end, ending):
     ##export as *.asc file
 
     for idi in file_list_by_id.keys():
-        conc_file = np.zeros((ntf, nch))
-        for file in file_list_by_id[idi]:
+        conc_file = np.zeros((len(file_list_by_id[idi])*ntf, nch))
+        for filenr, file in enumerate(file_list_by_id[idi]):
             file_content=np.loadtxt(file)
-            if conc_file.all()==0:
-                conc_file=file_content
-            else:
-                conc_file=np.vstack([conc_file,file_content])
+            conc_file[filenr*512:(filenr*512)+ntf]=file_content
 
-        np.savetxt('{0}.{1}' .format(idi, ending), conc_file)
+        np.savetxt('{0}.{1}' .format(idi, ending_out), conc_file)

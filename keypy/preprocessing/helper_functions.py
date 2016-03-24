@@ -8,6 +8,8 @@ import h5py
 
 from keypy.preprocessing.file_info_classes import *
 
+import numpy as np
+
 #############################################################################
 ##Get study info object from hdf5 file
 ##dictionary of groups, pts, conds, runs
@@ -95,12 +97,7 @@ def del_channels(inputhdf5, ch_to_delete, del_channels_input, del_channels_outpu
                 
                         print('deleting channels for ', pti, cond, run)
                         timeframe_channel_dset = f[path]    
-                        
-                        if not del_channels_output in f['/{0}/{1}/{2}/{3}' .format(groupi, pti, cond, run)].keys():
-                            i_channels_output = f['/{0}/{1}/{2}/{3}' .format(groupi, pti, cond, run)].create_dataset(del_channels_output, data = timeframe_channel_dset.value)
-                        else:
-                            i_channels_output = f['/{0}/{1}/{2}/{3}' .format(groupi, pti, cond, run, del_channels_output)]
-                
+               
                         timeframe_channel=timeframe_channel_dset.value
 
                         chlist_process = list(chlist)
@@ -112,7 +109,15 @@ def del_channels(inputhdf5, ch_to_delete, del_channels_input, del_channels_outpu
                             timeframe_channel=np.delete(timeframe_channel, index, 1)
                             chlist_process.remove(channi)
 
-                        i_channels_output[:] = timeframe_channel                        
+
+                        
+                        if not del_channels_output in f['/{0}/{1}/{2}/{3}' .format(groupi, pti, cond, run)].keys():
+                            i_channels_output = f['/{0}/{1}/{2}/{3}' .format(groupi, pti, cond, run)].create_dataset(del_channels_output, data = timeframe_channel)
+                        else:
+                            i_channels_output = f['/{0}/{1}/{2}/{3}' .format(groupi, pti, cond, run, del_channels_output)]
+
+
+                        #i_channels_output[:] = timeframe_channel                        
 
     return chlist_process
 

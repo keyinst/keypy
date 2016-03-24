@@ -13,9 +13,11 @@ helper_functions : functions
     Includes functions to create a study_info_obj from the data, to delete channels, and to delete participants.
 file_info_classes : class definitions
     Includes the definition of the following classes: FileNameDescription, FolderStructureDescription, FilenameFolderDescription, EegInfo, StudyInfo
+concatenating_segments : function
+    Allows you to concatenate multiple epochs of one participant cond run into one file.
 """
 
 #############################################################################
 
-__all__ = ["avg_referencing", "filtering", "file_info_classes", "data_loading", "helper_functions.py", "concatenating_segments.py"]
+__all__ = ["avg_referencing", "filtering", "file_info_classes", "data_loading", "helper_functions", "concatenating_segments"]
 
