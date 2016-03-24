@@ -180,7 +180,8 @@ class Test_test3_mstates(unittest.TestCase):
         ###Inputhdf (Outputhdf from before)
         ######
 
-        inputhdf5 = os.path.join( outputfolder, 'all_recordings.hdf')
+        hdf5_filename = 'all_recordings.hdf'
+        inputhdf5 = os.path.join( outputfolder, hdf5_filename)
 
         boxkeyfilter(inputhdf5, eeg_info_study_obj, filter_input, filter_settings, enable_detrending = False)
 
@@ -276,7 +277,7 @@ class Test_test3_mstates(unittest.TestCase):
             if not os.path.exists(outputfolder):
                 os.makedirs(outputfolder)
 
-            run_model_maps_series(series, inputfolder, outputfolder, first_input, confobj)
+            run_model_maps_series(series, inputfolder, hdf5_filename, outputfolder, first_input, confobj)
 
 
 

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ###############################################################
-# test4_mstates.py computes a series of modelmaps at a time ###
+# test11_mstates.py computes a series of modelmaps at a time ###
 ###############################################################
 
 
@@ -21,13 +21,14 @@ from keypy.preprocessing.avg_referencing import *
 from keypy.preprocessing.filtering import *
 from keypy.microstates.microstates import * 
 from keypy.microstates.modelmaps import * 
+from keypy.microstates.sortmaps import * 
 
 ####   Classes     ####
 from keypy.microstates.configuration import *
 
 
-class Test_test4_mstates(unittest.TestCase):
-    def test4_mstates(self):
+class Test_test11_mstates(unittest.TestCase):
+    def test11_mstates(self):
         ################################
         # 2.) Specify data folder info ###
         ################################
@@ -35,15 +36,15 @@ class Test_test4_mstates(unittest.TestCase):
         library_path = os.path.dirname(os.path.abspath(__file__))
 
         #contains data loaded into hdf5 file with the preprocessing script
-        inputfolder = os.path.join(library_path, "..","data","test4")
+        inputfolder = os.path.join(library_path, "..","data","test7")
         #will be created to contain output hdf5 files from microstate processing
-        outputfolder = os.path.join(library_path, "..","data","test4_output")
+        outputfolder = os.path.join(library_path, "..","data","test11_output")
 
         if not os.path.exists(outputfolder):
             os.makedirs(outputfolder)
 
         #name of hdf5 that contains data
-        inputhdf5 = os.path.join( inputfolder, 'all_recordings.hdf')
+        inputhdf5 = os.path.join( outputfolder, 'all_recordings.hdf')
 
 
         #####################################
@@ -58,6 +59,8 @@ class Test_test4_mstates(unittest.TestCase):
         #exclude before committ
         #execfile(os.path.join( script_inputfolder, 'study_info_test1.py'))
         #include before committ
+
+
         ###########################
         ### Create EEG info object ###
         ###########################
@@ -78,8 +81,8 @@ class Test_test4_mstates(unittest.TestCase):
         ### Specify data folder info ###
         ################################
 
-        inputfolder = os.path.join(library_path, "..\\data\\test4")
-        outputfolder = inputfolder
+        inputfolder = os.path.join(library_path, "..\\data\\test7")
+        outputfolder = os.path.join(library_path, "..\\data\\test11_output")
 
         if not os.path.exists(outputfolder):
             os.makedirs(outputfolder)
@@ -97,22 +100,22 @@ class Test_test4_mstates(unittest.TestCase):
         ##Specify for each element (group, partcipant, condition, run) whether the information is in the filename or folder structure.
 
         #group
-        group_indices_range = [0,1]
+        group_indices_range = [0,2]
         group_folder_level = 0
-        has_group = 'folder' ###can be 'folder', 'filename', or 'none'
+        has_group = 'filename' ###can be 'folder', 'filename', or 'none'
 
         #participant
-        participant_indices_range = [2,3]
+        participant_indices_range = [6,7]
         participant_folder_level = 0
         has_participant = 'filename'
 
         #condition
-        condition_indices_range = [5,6]
+        condition_indices_range = [9,12]
         condition_folder_level = 1
         has_condition = 'filename'
 
         #run
-        run_indices_range = [6,6]
+        run_indices_range = [14,14]
         run_folder_level = 0
         has_run = 'filename'
 
@@ -153,8 +156,8 @@ class Test_test4_mstates(unittest.TestCase):
                                 use_fancy_peaks = False,
                                 method_GFPpeak = 'GFPL1',
                                 original_nr_of_maps = 4,
-                                seed_number = 1000,
-                                max_number_of_iterations = 100,
+                                seed_number = 5,
+                                max_number_of_iterations = 5,
                                 ERP = False,
                                 correspondance_cutoff = 0.00)
 
@@ -214,22 +217,44 @@ class Test_test4_mstates(unittest.TestCase):
         #means across groups
 
         confobj = MstConfiguration(
-                                seed_number = 20,
-                                max_number_of_iterations = 100)
+                                seed_number = 5,
+                                max_number_of_iterations = 10)
 
 
-        #series_versions = ['Series_1', 'Series_2', 'Series_3', 'Series_4', 'Series_5']
-        series_versions = ['Series_2']
+        series_versions = ['Series_1', 'Series_2', 'Series_3', 'Series_4', 'Series_5']
+
+        outputfolder = os.path.join(library_path, "..\\data\\test11_output")
+        inputfolder = outputfolder
 
         for series in series_versions:
             first_input = 'microstate'
 
             #create folder with name of series as outputfolder
-            outputfolder = os.path.join(library_path, "..\\data\\test4_output\\{0}" .format(series))
-            if not os.path.exists(outputfolder):
-                os.makedirs(outputfolder)
+            outputfolder_series = os.path.join(library_path, "..\\data\\test11_output\\{0}" .format(series))
+            if not os.path.exists(outputfolder_series):
+                os.makedirs(outputfolder_series)
 
-            run_model_maps_series(series, inputfolder, hdf5_filename, outputfolder, first_input, confobj)
+            run_model_maps_series(series, inputfolder, outputfolder_series, first_input, confobj)
+
+        #--------------------------------------------------------------------------------------------------------------------------------------------
 
 
+        #################
+        # 7.) #Run Sortmaps (run_sortmaps_for_sortmap_types computes sortmaps for all types selected)
+        #################
 
+        confobj = MstConfiguration()
+
+        series_versions = ['Series_1', 'Series_2', 'Series_3', 'Series_4', 'Series_5']
+
+        first_input = 'microstate'
+        sortbyfolder = os.path.join(library_path, "..","data","sortby")
+        outputfolder = os.path.join(library_path, "..\\data\\test11_output")
+
+        sortbyfile = 'mean_models_koenig_et_al_2002.asc'
+        sortbyfile_chlist = 'mean_models_koenig_et_al_2002_chlist.asc'
+
+        for series in series_versions:
+            
+            run_sort_maps_series(series, inputfolder, sortbyfolder, sortbyfile, sortbyfile_chlist, outputfolder, first_input, confobj, eeg_info_study_obj)                  
+        #--------------------------------------------------------------------------------------------------------------------------------------------

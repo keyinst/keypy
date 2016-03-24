@@ -85,7 +85,8 @@ class Test_test7_mstates(unittest.TestCase):
         if not os.path.exists(outputfolder):
             os.makedirs(outputfolder)
 
-        outputhdf5 = os.path.join( outputfolder, 'all_recordings.hdf')
+        hdf5_filename = 'all_recordings.hdf'
+        outputhdf5 = os.path.join( outputfolder, hdf5_filename)
         loaddata_output = 'rawdata'
 
         ########################
@@ -231,7 +232,7 @@ class Test_test7_mstates(unittest.TestCase):
             if not os.path.exists(outputfolder_series):
                 os.makedirs(outputfolder_series)
 
-            run_model_maps_series(series, inputfolder, outputfolder_series, first_input, confobj)
+            run_model_maps_series(series, inputfolder, hdf5_filename, outputfolder, first_input, confobj)
 
         #--------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -248,8 +249,12 @@ class Test_test7_mstates(unittest.TestCase):
         sortbyfolder = os.path.join(library_path, "..","data","sortby")
         outputfolder = os.path.join(library_path, "..\\data\\test7_output")
 
+        sortbyfile = 'mean_models_milz_etal_2015.asc'
+        sortbyfile_chlist = 'mean_models_milz_etal_2015_chlist.asc'
+
         for series in series_versions:
             
-            run_sort_maps_series(series, inputfolder, sortbyfolder, outputfolder, first_input, confobj)      
+            run_sort_maps_series(series, inputfolder, sortbyfolder, sortbyfile, sortbyfile_chlist, outputfolder, first_input, confobj, eeg_info_study_obj)     
             
+               
         #--------------------------------------------------------------------------------------------------------------------------------------------

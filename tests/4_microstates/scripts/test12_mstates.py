@@ -1,10 +1,5 @@
 # -*- coding: utf-8 -*-
 
-###############################################################
-# test4_mstates.py computes a series of modelmaps at a time ###
-###############################################################
-
-
 ################################
 # 1.) LOAD PACKAGES ###
 ################################
@@ -19,15 +14,16 @@ from keypy.preprocessing.helper_functions import *
 from keypy.preprocessing.data_loading import *
 from keypy.preprocessing.avg_referencing import *
 from keypy.preprocessing.filtering import *
-from keypy.microstates.microstates import * 
-from keypy.microstates.modelmaps import * 
+from keypy.preprocessing.helper_functions import *
 
 ####   Classes     ####
 from keypy.microstates.configuration import *
+from keypy.preprocessing.file_info_classes import *
 
+from keypy.microstates.microstates import *
 
-class Test_test4_mstates(unittest.TestCase):
-    def test4_mstates(self):
+class Test_test12_mstates(unittest.TestCase):
+    def test12_mstates(self):
         ################################
         # 2.) Specify data folder info ###
         ################################
@@ -35,12 +31,10 @@ class Test_test4_mstates(unittest.TestCase):
         library_path = os.path.dirname(os.path.abspath(__file__))
 
         #contains data loaded into hdf5 file with the preprocessing script
-        inputfolder = os.path.join(library_path, "..","data","test4")
+        inputfolder = os.path.join(library_path, "..","data","test12")
         #will be created to contain output hdf5 files from microstate processing
-        outputfolder = os.path.join(library_path, "..","data","test4_output")
+        outputfolder = inputfolder
 
-        if not os.path.exists(outputfolder):
-            os.makedirs(outputfolder)
 
         #name of hdf5 that contains data
         inputhdf5 = os.path.join( inputfolder, 'all_recordings.hdf')
@@ -50,26 +44,14 @@ class Test_test4_mstates(unittest.TestCase):
         # 3.) Create EEG info object      ###
         #####################################
 
-        library_path = os.path.dirname(os.path.abspath(__file__))
-
-        #contains StudyInfo script
-        script_inputfolder = library_path
-
-        #exclude before committ
-        #execfile(os.path.join( script_inputfolder, 'study_info_test1.py'))
-        #include before committ
-        ###########################
-        ### Create EEG info object ###
-        ###########################
-
         #enter number of channels
-        nch=61
+        nch=64
         #enter number of time frames for each segment
         tf = 512
         #enter sampling rate
         sf = 256
         # enter your channel list in the same order as in your files
-        chlist=['FP1','AF7','AF3','F1','F3','F5','F7','FT7','FC5','FC3','FC1','C1','C3','C5','T7','TP7','CP5','CP3','CP1','P1','P3','P5','P7','PO7','PO3','O1','Oz','POz','Pz','CPz','FPz','FP2','AF8','AF4','AFz','Fz','F2','F4','F6','F8','FT8','FC6','FC4','FC2','FCz','Cz','C2','C4','C6','T8','TP8','CP6','CP4','CP2','P2','P4','P6','P8','PO8','PO4','O2']
+        chlist = ['Fp1','AF7','AF3','F1','F3','F5','F7','FT7','FC5','FC3','FC1','C1','C3','C5','T7','TP7','CP5','CP3','CP1','P1','P3','P5','P7','P9','PO7','PO3','O1','Iz','Oz','POz','Pz','CPz','Fpz','Fp2','AF8','AF4','AFz','Fz','F2','F4','F6','F8','FT8','FC6','FC4','FC2','FCz','Cz','C2','C4','C6','T8','TP8','CP6','CP4','CP2','P2','P4','P6','P8','P10','PO8','PO4','O2']
 
         #create object of EEG info information
         eeg_info_study_obj = EegInfo(nch, tf, sf, chlist)
@@ -78,15 +60,12 @@ class Test_test4_mstates(unittest.TestCase):
         ### Specify data folder info ###
         ################################
 
-        inputfolder = os.path.join(library_path, "..\\data\\test4")
-        outputfolder = inputfolder
-
-        if not os.path.exists(outputfolder):
-            os.makedirs(outputfolder)
-
-        hdf5_filename = 'all_recordings.hdf'
-        outputhdf5 = os.path.join( outputfolder, hdf5_filename)
+        outputhdf5 = os.path.join( outputfolder, 'all_recordings.hdf')
         loaddata_output = 'rawdata'
+        
+        if os.path.isfile(outputhdf5):
+            os.remove(outputhdf5)
+        self.assertFalse(os.path.isfile(outputhdf5))
 
         ########################
         ## Specify data info ###
@@ -99,22 +78,22 @@ class Test_test4_mstates(unittest.TestCase):
         #group
         group_indices_range = [0,1]
         group_folder_level = 0
-        has_group = 'folder' ###can be 'folder', 'filename', or 'none'
+        has_group = 'none' ###can be 'folder', 'filename', or 'none'
 
         #participant
-        participant_indices_range = [2,3]
+        participant_indices_range = [3,5]
         participant_folder_level = 0
-        has_participant = 'filename'
+        has_participant = 'none'
 
         #condition
-        condition_indices_range = [5,6]
+        condition_indices_range = [0,0]
         condition_folder_level = 1
-        has_condition = 'filename'
+        has_condition = 'none'
 
         #run
-        run_indices_range = [6,6]
+        run_indices_range = [0,0]
         run_folder_level = 0
-        has_run = 'filename'
+        has_run = 'none'
 
         file_ending = 'txt'
 
@@ -130,6 +109,61 @@ class Test_test4_mstates(unittest.TestCase):
 
         loaddata(inputfolder, outputhdf5, loaddata_output, file_name_obj, folder_structure_obj, filename_folder_obj, eeg_info_study_obj)
 
+        ########################
+        ###Compute Avg Ref   ###
+        ########################
+
+        inputhdf5 = os.path.join( outputfolder, 'all_recordings.hdf')
+
+        average_input = 'rawdata'
+        average_output = 'avg_ref'
+
+        averageref(inputhdf5, average_input, average_output )
+
+
+        #################################
+        ###  Filter for microstates   ###
+        #################################
+
+        ######
+        ###Use detrending before filtering?
+        ######
+        enable_detrending = False
+
+        ######
+        ###Choose Filter Settings
+        ######
+        filter_settings = {
+            "mstate1": {
+                "low": 2.0,
+                "high": 20
+            },
+            "mstate2": {
+                "low": 1.5,
+                "high": 30
+            },
+            "mstate3": {
+                "low": 1.5,
+                "high": 45
+            }
+        }
+
+
+        ######
+        ###HDF5 File Preparation
+        ######
+        #define processing stage of input and name of output
+        filter_input = 'avg_ref'
+        filter_output = filter_settings
+
+        ######
+        ###Inputhdf (Outputhdf from before)
+        ######
+
+        inputhdf5 = os.path.join( outputfolder, 'all_recordings.hdf')
+
+        boxkeyfilter(inputhdf5, eeg_info_study_obj, filter_input, filter_settings, enable_detrending = False)
+
         ################################################
         # 4.)  Get study info object from hdf5 file  ###
         ################################################
@@ -144,19 +178,20 @@ class Test_test4_mstates(unittest.TestCase):
         confobj = MstConfiguration(
                                 subtract_column_mean_at_start = False,
                                 debug = False,
-                                use_gfp_peaks = False,
+                                use_gfp_peaks = True,
                                 force_avgref = True,
                                 set_gfp_all_1 = False,
                                 use_smoothing = False,
                                 gfp_type_smoothing='hamming',
                                 smoothing_window=100,
                                 use_fancy_peaks = False,
-                                method_GFPpeak = 'GFPL1',
+                                method_GFPpeak = 'GFPL2',
                                 original_nr_of_maps = 4,
-                                seed_number = 1000,
+                                seed_number = 100,
                                 max_number_of_iterations = 100,
                                 ERP = False,
-                                correspondance_cutoff = 0.00)
+                                correspondance_cutoff = 0.00,
+                                fixed_seed = 1)
 
 
         #################
@@ -166,70 +201,27 @@ class Test_test4_mstates(unittest.TestCase):
         ######
         ###Define input processing stage and output hdf5 file group
         ######
-        inputhdf5 = os.path.join( outputfolder, 'all_recordings.hdf')
 
-        microstate_input = 'rawdata'
+        microstate_input = 'mstate1'
         microstate_output = 'microstate'
 
-
-        #include before commit
         run_microstates(confobj, eeg_info_study_obj, inputhdf5, microstate_input, microstate_output)
         #--------------------------------------------------------------------------------------------------------------------------------------------
 
+        dataset = None
+        with closing (h5py.File(outputhdf5, 'r')) as f:
+            g1 = f['/group_All_PTs']
+            g2 = g1['pt_PT']
+            g3 = g2['cond_Cond']
+            g4 = g3['run_1']
+            dataset = g4['microstate'][:]
 
-        #################
-        # 7.) #Run Modelmaps (run_modelmaps_for_modelmap_types computes modelmaps for all types selected)
-        #################
+        correct_solution = np.loadtxt(os.path.join(inputfolder, 'correct_output_test12.asc'))
 
-        ############
-        # Compute modelmaps: Series of input and output hdfs
-        ############
-
-        #Series_1
-        #means across runs for each group pt cond
-        #means across conds for each group pt
-        #means across pts for each group
-        #means across groups
-
-        #Series_2
-        #means across pts for each group cond run
-        #means across runs for each group cond
-
-        #Series_3
-        #means across runs for each group pt cond
-        #means across pts for each group cond
-        #means across groups for each cond
-        #means across conds
-
-        #Series_4
-        #means across runs for each group pt cond
-        #means across conds for each group pt
-        #means across pts for each group
-        #means across groups
-
-        #Series_5
-        #means across runs for each group pt cond
-        #means across conds for each group pt
-        #means across groups for each pt
-        #means across groups
-
-        confobj = MstConfiguration(
-                                seed_number = 20,
-                                max_number_of_iterations = 100)
-
-
-        #series_versions = ['Series_1', 'Series_2', 'Series_3', 'Series_4', 'Series_5']
-        series_versions = ['Series_2']
-
-        for series in series_versions:
-            first_input = 'microstate'
-
-            #create folder with name of series as outputfolder
-            outputfolder = os.path.join(library_path, "..\\data\\test4_output\\{0}" .format(series))
-            if not os.path.exists(outputfolder):
-                os.makedirs(outputfolder)
-
-            run_model_maps_series(series, inputfolder, hdf5_filename, outputfolder, first_input, confobj)
-
+        self.assertEqual(len(dataset), len(correct_solution))
+        for i in range(0, len(dataset)):
+            self.assertEqual(len(dataset[i]), len(correct_solution[i]))
+            for j in range(0, len(dataset[i])):
+                self.assertAlmostEqual(dataset[i][j], correct_solution[i][j])
 
 

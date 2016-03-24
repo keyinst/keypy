@@ -84,7 +84,8 @@ class Test_test5_mstates(unittest.TestCase):
         if not os.path.exists(outputfolder):
             os.makedirs(outputfolder)
 
-        outputhdf5 = os.path.join( outputfolder, 'all_recordings.hdf')
+        hdf5_filename = 'all_recordings.hdf'
+        outputhdf5 = os.path.join( outputfolder, hdf5_filename)
         loaddata_output = 'rawdata'
 
         ########################
@@ -227,7 +228,7 @@ class Test_test5_mstates(unittest.TestCase):
             if not os.path.exists(outputfolder):
                 os.makedirs(outputfolder)
 
-            run_model_maps_series(series, inputfolder, outputfolder, first_input, confobj)
+            run_model_maps_series(series, inputfolder, hdf5_filename, outputfolder, first_input, confobj)
 
 
 
