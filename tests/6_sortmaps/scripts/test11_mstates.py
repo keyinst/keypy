@@ -169,7 +169,9 @@ class Test_test11_mstates(unittest.TestCase):
         ######
         ###Define input processing stage and output hdf5 file group
         ######
-        inputhdf5 = os.path.join( outputfolder, 'all_recordings.hdf')
+        hdf5_filename = 'all_recordings.hdf'
+
+        inputhdf5 = os.path.join( outputfolder, hdf5_filename)
 
         microstate_input = 'rawdata'
         microstate_output = 'microstate'
@@ -234,7 +236,7 @@ class Test_test11_mstates(unittest.TestCase):
             if not os.path.exists(outputfolder_series):
                 os.makedirs(outputfolder_series)
 
-            run_model_maps_series(series, inputfolder, outputfolder_series, first_input, confobj)
+            run_model_maps_series(series, inputfolder, hdf5_filename, outputfolder_series, first_input, confobj)
 
         #--------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -242,6 +244,8 @@ class Test_test11_mstates(unittest.TestCase):
         #################
         # 7.) #Run Sortmaps (run_sortmaps_for_sortmap_types computes sortmaps for all types selected)
         #################
+
+        input_filename = hdf5_filename
 
         confobj = MstConfiguration()
 
@@ -256,5 +260,5 @@ class Test_test11_mstates(unittest.TestCase):
 
         for series in series_versions:
             
-            run_sort_maps_series(series, inputfolder, sortbyfolder, sortbyfile, sortbyfile_chlist, outputfolder, first_input, confobj, eeg_info_study_obj)                  
+            run_sort_maps_series(series, inputfolder, input_filename, sortbyfolder, sortbyfile, sortbyfile_chlist, outputfolder, first_input, confobj, eeg_info_study_obj)                  
         #--------------------------------------------------------------------------------------------------------------------------------------------

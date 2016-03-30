@@ -228,7 +228,8 @@ class Test_test10_mstates(unittest.TestCase):
             if not os.path.exists(outputfolder_series):
                 os.makedirs(outputfolder_series)
 
-            run_model_maps_series(series, inputfolder, hdf5_filename, outputfolder, first_input, confobj)
+            run_model_maps_series(series, inputfolder, hdf5_filename, outputfolder_series, first_input, confobj)
+
         
         #--------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -248,7 +249,7 @@ class Test_test10_mstates(unittest.TestCase):
         sortbyfile_chlist = 'mean_models_koenig_et_al_2002_chlist.asc'
 
         for series in series_versions:   
-            run_sort_maps_series(series, inputfolder, sortbyfolder, sortbyfile, sortbyfile_chlist, outputfolder, first_input, confobj, eeg_info_study_obj)
+            run_sort_maps_series(series, inputfolder, hdf5_filename, sortbyfolder, sortbyfile, sortbyfile_chlist, outputfolder, first_input, confobj, eeg_info_study_obj)
            
         #--------------------------------------------------------------------------------------------------------------------------------------------
 
