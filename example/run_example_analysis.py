@@ -88,11 +88,13 @@ run_folder_level = 0
 
 file_ending = 'txt'
 
-##the more reruns the better, we suggest at least 3 times the number of GFP peaks you would like to compute your microstates based on
-user_defined_reruns_microstate = 2000
-##the more reruns the better (but slows computation down), we suggest approximately 4 times your number of participants
-user_defined_reruns_modelmaps = 100
+# Specify the number of reruns for clustering
 
+# the more reruns the better, we suggest at least 3 times the number of GFP peaks you would like to compute your microstates based on
+user_defined_reruns_microstate = 100
+
+# the more reruns the better (but slows computation down), we suggest approximately 4 times your number of participants
+user_defined_reruns_modelmaps = 50
 #--------------------------------------------------------------------------------------------------------------------------------------------
 
 ##########################
@@ -182,6 +184,9 @@ boxkeyfilter(inputhdf5, eeg_info_study_obj, filter_input, filter_settings, enabl
 # 5.) Create Configuration Object   ###
 #######################################
 
+
+
+
 ### Warning: Do not change ERP = False. Keypy has only been optimized to work with EEG and not ERP data.
 confobj = MstConfiguration(
                         subtract_column_mean_at_start = False,
@@ -198,8 +203,7 @@ confobj = MstConfiguration(
                         seed_number = user_defined_reruns_microstate,
                         max_number_of_iterations = 100,
                         ERP = False,
-                        correspondance_cutoff = 0.00,
-                        fixed_seed = 100)
+                        correspondance_cutoff = 0.00)
 
 #################
 # 6.) #Run Microstates (computes 1 microstate for each dataset in inputfile)
@@ -269,8 +273,7 @@ confobj = MstConfiguration(
                         seed_number = user_defined_reruns_modelmaps,
                         max_number_of_iterations = 200,
                         ERP = False,
-                        correspondance_cutoff = 0.00,
-                        fixed_seed = 100)
+                        correspondance_cutoff = 0.00)
 
 series_versions = ['Series_3']
 
@@ -299,14 +302,13 @@ confobj = MstConfiguration()
 series_versions = ['Series_3']
 
 first_input = 'microstate'
-sortbyfile = 'mean_models_milz_etal_2015.asc'
-sortbyfile_chlist = 'mean_models_milz_etal_2015_chlist.asc'
+sortbyfile = "mean_models_milz_etal_2015.asc"
+sortbyfile_chlist = "mean_models_milz_etal_2015_chlist.asc"
+
 
 for series in series_versions:
-    run_sort_maps_series(series, inputfolder, sortbyfolder, sortbyfile, sortbyfile_chlist, outputfolder, first_input, confobj, eeg_info_study_obj)  
+    run_sort_maps_series(series, inputfolder, hdf5_filename, sortbyfolder, sortbyfile, sortbyfile_chlist, outputfolder, first_input, confobj, eeg_info_study_obj)  
 
-
-    series_versions = ['Series_3']
 
 #################
 # 7.) #Run Parameters
