@@ -53,3 +53,8 @@ Temporary Items
 *.hdf
 *.pyc
 *.htm
+*.ldf
+TestResults/keypy.TE.Tests.mdf
+*.tmp
+tests/4_microstates/data/test13_private/01.dat
+tests/4_microstates/data/test13_private/correct_output_test13.asci

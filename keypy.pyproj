@@ -24,21 +24,29 @@
     <PtvsTargetsFile>$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets</PtvsTargetsFile>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="example\run_Travis_analysis.py" />
     <Compile Include="example\run_file_concatenating.py" />
+    <Compile Include="keypy\io\__init__.py" />
     <Compile Include="keypy\microstates\modelmaps.py" />
     <Compile Include="keypy\microstates\parameters.py" />
+    <Compile Include="keypy\microstates\parameters_provider.py" />
     <Compile Include="keypy\microstates\sortmaps.py" />
+    <Compile Include="keypy\microstates\sortmaps_provider.py" />
     <Compile Include="keypy\preprocessing\concatenating_segments.py" />
     <Compile Include="setup.py" />
     <Compile Include="example\run_example_analysis.py" />
     <Compile Include="keypy\__init__.py" />
+    <Compile Include="tests\4_microstates\scripts\test13_mstates_private.py" />
     <Compile Include="tests\5_modelmaps\scripts\generate_testdata.py" />
+    <Compile Include="tests\7_parameters\scripts\test17_mstates_private.py" />
+    <Compile Include="tests\7_parameters\scripts\test16_mstates_private.py" />
+    <Compile Include="tests\5_modelmaps\scripts\test15_mstates_private.py" />
     <Compile Include="tests\5_modelmaps\scripts\test2_mstates.py" />
     <Compile Include="tests\5_modelmaps\scripts\test4_mstates.py" />
     <Compile Include="tests\5_modelmaps\scripts\test3_mstates.py" />
     <Compile Include="tests\5_modelmaps\scripts\test5_mstates.py" />
+    <Compile Include="tests\5_modelmaps\scripts\test14_mstates_private.py" />
     <Compile Include="tests\5_modelmaps\scripts\test6_mstates.py" />
+    <Compile Include="tests\6_sortmaps\scripts\test11_mstates.py" />
     <Compile Include="tests\6_sortmaps\scripts\test7_mstates.py" />
     <Compile Include="tests\7_parameters\scripts\test10_mstates.py" />
     <Compile Include="tests\7_parameters\scripts\test8_mstates.py" />
@@ -73,7 +81,7 @@
     <Content Include="example\data\input\groups\PT\Task\vp06_2.txt" />
     <Content Include="example\data\input\groups\PT\Task\vp06_3.txt" />
     <Compile Include="keypy\microstates\configuration.py" />
-    <Compile Include="keypy\microstates\data_provider.py" />
+    <Compile Include="keypy\microstates\modelmaps_provider.py" />
     <Compile Include="keypy\microstates\microstates.py" />
     <Compile Include="keypy\microstates\microstates_helper.py" />
     <Compile Include="keypy\microstates\__init__.py" />
@@ -303,6 +311,7 @@
     <Folder Include="example\data\input\groups\PT\Task" />
     <Folder Include="keypy" />
     <Folder Include="keypy\microstates" />
+    <Folder Include="keypy\io\" />
     <Folder Include="keypy\preprocessing" />
     <Folder Include="keypy\signal" />
     <Folder Include="tests\" />

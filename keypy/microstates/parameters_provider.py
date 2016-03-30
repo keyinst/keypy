@@ -123,8 +123,7 @@ def create_parameter_spss_sheets(confobj, eeg_info_study_obj, outputfolder, outp
                                         list_to_avg.append(mapwise_data[meas][epochnr][mapnr])
                                     ###Attention: Special case for mean duration in ms. If mean duration is zero, the mstate of this class never occurred. It should not be considered for the mean across epochs computation.
                                     if meas == 'Mean duration in ms':
-                                        x=list_to_avg
-                                        list_to_avg_nozero=filter(lambda a: a != 2, x)
+                                        list_to_avg_nozero=[x for x in list_to_avg if x != 0]
                                         parameters_mean[meas][pti][condi][runi][mapnr]=np.mean(list_to_avg_nozero)
                                     else:
                                         parameters_mean[meas][pti][condi][runi][mapnr]=np.mean(list_to_avg)

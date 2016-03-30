@@ -121,7 +121,7 @@ def sort_maps(confobj, input, sortby, input_original):
 ####--------------------------------------------------------------------------####
 ####--------------------------------------------------------------------------####
 
-def get_io_sortmap_for_series(series, iteration, inputfolder, sortbyfolder, sortbyfile, sortbyfile_chlist, outputfolder, first_input):
+def get_io_sortmap_for_series(series, iteration, inputfolder, inputfile_name, sortbyfolder, sortbyfile, sortbyfile_chlist, outputfolder, first_input):
     """
     Gets inputs and outputs of modelmaps for the series of modelmap computations specified.
  
@@ -132,7 +132,9 @@ def get_io_sortmap_for_series(series, iteration, inputfolder, sortbyfolder, sort
     iteration : int
 		number of iterations for which different seeds are used
     inputfolder :
-		folder of input hdf5, inputhdf must be called: 'all_recordings.hdf'
+		folder of input hdf5
+    inputfile_name :
+        name of hdf5 file in inputfolder
     sortbyfolder :
         folder of sortby hdf5 / external file
     sortbyfile :
@@ -213,9 +215,9 @@ def get_io_sortmap_for_series(series, iteration, inputfolder, sortbyfolder, sort
             ######
             ##sort microstates by modelmaps_across_runs_sorted
             ######
-            inputhdf5 = os.path.join( outputfolder, 'all_recordings.hdf')
+            inputhdf5 = os.path.join( inputfolder, inputfile_name)
             sortbyhdf5 = os.path.join( outputfolder, 'Series_1', 'modelmaps_across_runs_sorted.hdf')
-            outputhdf5 = os.path.join( outputfolder, 'all_recordings.hdf')
+            outputhdf5 = os.path.join( inputfolder, inputfile_name)
             inputdataset = first_input
             sortbydataset = 'modelmap'
             outputdataset = '{0}{1}' .format(first_input, '_Series_1_sorted')
@@ -251,9 +253,9 @@ def get_io_sortmap_for_series(series, iteration, inputfolder, sortbyfolder, sort
             ######
             ##sort microstates by modelmaps_across_pts_sorted
             ######
-            inputhdf5 = os.path.join( outputfolder, 'all_recordings.hdf')
+            inputhdf5 = os.path.join( inputfolder, inputfile_name)
             sortbyhdf5 = os.path.join( outputfolder, 'Series_2', 'modelmaps_across_pts_sorted.hdf')
-            outputhdf5 = os.path.join( outputfolder, 'all_recordings.hdf')
+            outputhdf5 = os.path.join( inputfolder, inputfile_name)
             inputdataset = first_input
             sortbydataset = 'modelmap'
             outputdataset = '{0}{1}' .format(first_input, '_Series_2_sorted')
@@ -310,9 +312,9 @@ def get_io_sortmap_for_series(series, iteration, inputfolder, sortbyfolder, sort
             ######
             ##sort microstates by modelmaps_across_runs_sorted
             ######
-            inputhdf5 = os.path.join( outputfolder, 'all_recordings.hdf')
+            inputhdf5 = os.path.join( inputfolder, inputfile_name)
             sortbyhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_runs_sorted.hdf')
-            outputhdf5 = os.path.join( outputfolder, 'all_recordings.hdf')
+            outputhdf5 = os.path.join( inputfolder, inputfile_name)
             inputdataset = first_input
             sortbydataset = 'modelmap'
             outputdataset = '{0}{1}' .format(first_input, '_Series_3_sorted')
@@ -369,9 +371,9 @@ def get_io_sortmap_for_series(series, iteration, inputfolder, sortbyfolder, sort
             ######
             ##means across groups
             ######
-            inputhdf5 = os.path.join( outputfolder, 'all_recordings.hdf')
+            inputhdf5 = os.path.join( inputfolder, inputfile_name)
             sortbyhdf5 = os.path.join( outputfolder, 'Series_4', 'modelmaps_across_runs_sorted.hdf')
-            outputhdf5 = os.path.join( outputfolder, 'all_recordings.hdf')
+            outputhdf5 = os.path.join( inputfolder, inputfile_name)
             inputdataset = first_input
             sortbydataset = 'modelmap'
             outputdataset = '{0}{1}' .format(first_input, '_Series_4_sorted')
@@ -430,9 +432,9 @@ def get_io_sortmap_for_series(series, iteration, inputfolder, sortbyfolder, sort
             ######
             ##means across groups
             ######
-            inputhdf5 = os.path.join( outputfolder, 'all_recordings.hdf')
+            inputhdf5 = os.path.join( inputfolder, inputfile_name)
             sortbyhdf5 = os.path.join( outputfolder, 'Series_5', 'modelmaps_across_runs_sorted.hdf')
-            outputhdf5 = os.path.join( outputfolder, 'all_recordings.hdf')
+            outputhdf5 = os.path.join( inputfolder, inputfile_name)
             inputdataset = first_input
             sortbydataset = 'modelmap'
             outputdataset = '{0}{1}' .format(first_input, '_Series_5_sorted')
@@ -460,7 +462,7 @@ def run_sort_maps(data_provider, confobj, eeg_info_study_obj):
 ####--------------------------------------------------------------------------####
 
 
-def run_sort_maps_series(series, inputfolder, sortbyfolder, sortbyfile, sortbyfile_chlist, outputfolder, first_input, confobj, eeg_info_study_obj) :
+def run_sort_maps_series(series, inputfolder, inputfile_name, sortbyfolder, sortbyfile, sortbyfile_chlist, outputfolder, first_input, confobj, eeg_info_study_obj) :
     """
     Runs run_model_maps for each input of the series.
  
@@ -475,6 +477,8 @@ def run_sort_maps_series(series, inputfolder, sortbyfolder, sortbyfile, sortbyfi
         'Series_5' : (1) , (2)  , (3) , (4) 
     inputfolder : str
         path to folder that contains the input hdf5 file
+    inputfile_name : str
+        hdf5 file name in input folder
     sortbyfolder :
         folder of sortby hdf5 / external file
     sortbyfile :
@@ -492,7 +496,7 @@ def run_sort_maps_series(series, inputfolder, sortbyfolder, sortbyfile, sortbyfi
     stop = False
     iteration = 0
     while True:
-        sortdata_provider, stop = get_io_sortmap_for_series(series, iteration, inputfolder, sortbyfolder, sortbyfile, sortbyfile_chlist, outputfolder, first_input)
+        sortdata_provider, stop = get_io_sortmap_for_series(series, iteration, inputfolder, inputfile_name, sortbyfolder, sortbyfile, sortbyfile_chlist, outputfolder, first_input)
         if stop:
             break
 

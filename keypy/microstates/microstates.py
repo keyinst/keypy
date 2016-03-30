@@ -159,7 +159,7 @@ def mstate_preprocess(confobj, eeg, eeg_info_study_obj):
     gfp_curve = compute_gfp(eeg, confobj.method_GFPpeak)
     if confobj.debug:
         print('GFP Curve computed')
-        numpy.savetxt("gfp_curve_{0}" .format(eeg[0,0]), gfp_curve)
+        #numpy.savetxt("gfp_curve_{0}" .format(eeg[0,0]), gfp_curve)
 
     #################
     #4.) Compute GFP Peaks (if the whole EEG is taken (use_gfp_peaks = False) it just returns the indices for the whole EEG
