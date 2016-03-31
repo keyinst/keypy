@@ -49,8 +49,9 @@ outputfolder = os.path.join(library_path,"data","output")
 # the folder path of the external .asc file that contains the microstate maps that the obtained maps are to be sorted by
 sortbyfolder = os.path.join(library_path,"data","sortby")
 
-#filenmae of external .asc file that contains the microstate maps that the obtained maps are to be sorted by
-sortbyfile_external = os.path.join(sortbyfolder, 'mean_models_milz_etal_2015.asc')
+#filename of external .asc file that contains the microstate maps that the obtained maps are to be sorted by (and corresponding channel list)
+sortbyfile_external = os.path.join(sortbyfolder, 'mean_models_milz_et_al_2015.asc')
+sortbychlist_external = os.path.join(sortbyfolder, 'mean_models_milz_et_al_2015_chlist.asc')
 
 # Specify the information of your study
 ##Where in the filename is the following information (at which index of the string)? inclusive
@@ -339,8 +340,8 @@ parameter_type = 'series' #can be external, series, inputhdf
 ###
 if parameter_type == 'external' : 
     parameter_by = 'external_norm'
-    sortbyfile ='mean_models_milz_etal_2015.asc'
-    external_chlist='mean_models_milz_etal_2015_chlist.asc'
+    sortbyfile =sortbyfile_external
+    external_chlist=sortbychlist_external
     sortbydataset = None
     sortbyseries = None
 
