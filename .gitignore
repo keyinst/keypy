@@ -63,3 +63,6 @@ tests/4_microstates/data/test13_private/correct_output_test13.asci
 tests/6_sortmaps/data/sortby/mean_models_milz_etal_2015_reduced.asc
 tests/7_parameters/data/sortby/mean_models_milz_etal_2015_reduced.asc
 tests/7_parameters/data/sortby/mean_models_milz_etal_2015/
+example/data/output/Series_3/modelmaps_across_conds_sorted/cov_means.csv
+example/data/output/Series_3/modelmaps_across_conds_sorted/occ_means.csv
+example/data/output/Series_3/modelmaps_across_conds_sorted/dur_means.csv
