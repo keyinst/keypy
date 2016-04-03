@@ -12,6 +12,7 @@ import os
 from sets import Set
 import numpy as np
 from keypy.microstates.parameters import *
+from contextlib import closing
 ####-------------------------------------####
 
 ##########################
