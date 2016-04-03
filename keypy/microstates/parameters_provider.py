@@ -1,11 +1,10 @@
-##################################
+﻿##################################
 #######  Parameters Provider  ####
 ##################################
 
 from __future__ import print_function
 
 from scipy.stats import nanmean, pearsonr
-from keypy.microstates.data_provider import *
 from keypy.microstates.microstates_helper import *
 from numpy import sqrt
 import os.path as op

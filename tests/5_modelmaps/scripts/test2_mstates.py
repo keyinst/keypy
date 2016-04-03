@@ -24,7 +24,6 @@ from keypy.microstates.modelmaps import *
 
 ####   Classes     ####
 from keypy.microstates.configuration import *
-from keypy.microstates.data_provider import *
 
 
 class Test_test2_mstates(unittest.TestCase):
