@@ -21,7 +21,7 @@ class MstConfiguration(object):
         set_gfp_all_1 : bool
 			set global field power to 1 before microstate computation
         use_smoothing : bool
-			smoothe global field power curve before peak extraction
+			smoothe global field power curve before peak extraction (default = False)
         gfp_type_smoothing : {'hamming', 'hanning'}
             `hamming` : use hamming window to smooth global field power curve before peak identification
             `hanning` : use hanning window to smooth global field power curve before peak identification		
@@ -31,23 +31,27 @@ class MstConfiguration(object):
             Whether a particular smoothing algorithm from scipy.signal.find_peaks_cwt is applied before peak computation or not.
             Reference: Bioinformatics (2006) 22 (17): 2059-2065. doi: 10.1093/bioinformatics/btl355 http://bioinformatics.oxfordjournals.org/content/22/17/2059.long)           
         method_GFPpeak : {'GFPL1', 'GFPL2'}
-            `GFPL1` : use L1-Norm to compute GFP peaks
+            `GFPL1` : use L1-Norm to compute GFP peaks (default)
             `GFPL2` : use L2-Norm to compute GFP peaks
         original_nr_of_maps : int
-            Number of maps to compute from microstate algorithm, e.g. 4.
+            Number of maps to compute from microstate algorithm (default = 4).
         seed_number : int
-            Number of seeds used for microstate algorithms (default = 1000).
+            Number of seeds used for microstate algorithms (default = 3000). It should be at least 3 times larger than the average number of GFP peaks you would like to compute the microstates based on.
         max_number_of_iterations : int
-            The maximal number of iterations performed to increase the variance explained by the defined N microstates (default = 1000).
+            The maximal number of iterations performed to increase the variance explained by the defined N microstates (default = 500). 
         ERP : bool
-            Whether microstate computation is done based on ERP (time-locked) data (in this case map polarity is considered).
+            Whether microstate computation is done based on ERP (time-locked) data (in this case map polarity is considered). (default = False)
         correspondance_cutoff : double
-            Pearson correlation coefficient minimum that is regarded as the microstate of a particular class (used for microstate class visualization across time).
+            Pearson correlation coefficient minimum or dissimilarity maximum that is regarded as the microstate of a particular class (used for microstate class visualization across time) (default = 0 which means no cutoff).
         fixed_seed : int
-            Fixate seed for testing for microstate and modelmaps algorithms (default=1).
+            Fixate seed for testing for microstate and modelmaps algorithms (default=100). Can be None!
+        dissimilarity_measure : {'correlation', 'dissimilarity'}
+            Determines the measure to assess similarity between two maps (default='dissimilarity').
+        modelmaps_normalization_type : {'vector_norm_1','gfp1','none'}
+            Specifies how microstates and modelmaps are normalized during microstate and modelmap computation (defualt='vector_norm_1').
     """
 
-    def __init__(self, subtract_column_mean_at_start = False, debug = True, use_gfp_peaks = True, force_avgref = True, set_gfp_all_1 = False, use_smoothing = False, gfp_type_smoothing='hamming', smoothing_window=100, use_fancy_peaks = False, method_GFPpeak = 'GFPL1', original_nr_of_maps = 4, seed_number = 100, max_number_of_iterations = 100, ERP = False, correspondance_cutoff = 0.00, fixed_seed = None):
+    def __init__(self, subtract_column_mean_at_start = False, debug = True, use_gfp_peaks = True, force_avgref = True, set_gfp_all_1 = False, use_smoothing = False, gfp_type_smoothing='hamming', smoothing_window=100, use_fancy_peaks = False, method_GFPpeak = 'GFPL1', original_nr_of_maps = 4, seed_number = 3000, max_number_of_iterations = 500, ERP = False, correspondance_cutoff = 0, fixed_seed = 100, similarity_measure = 'dissimilarity', modelmaps_normalization_type ='vector_norm_1'):
         """ This constructor initializes the class members with the corresponding parameter values. 
         """
         self.subtract_column_mean_at_start = subtract_column_mean_at_start
@@ -66,5 +70,7 @@ class MstConfiguration(object):
         self.ERP = ERP
         self.correspondance_cutoff = correspondance_cutoff
         self.fixed_seed = fixed_seed
+        self.similarity_measure = similarity_measure
+        self.modelmaps_normalization_type = modelmaps_normalization_type
 
 #---------------------------------

@@ -1,10 +1,14 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
+
 from contextlib import closing
 
 import h5py
 
 from keypy.preprocessing.file_info_classes import *
+
+import numpy as np
 
 #############################################################################
 ##Get study info object from hdf5 file
@@ -86,19 +90,14 @@ def del_channels(inputhdf5, ch_to_delete, del_channels_input, del_channels_outpu
                         try:
                             timeframe_channel_dset = f['/{0}/{1}/{2}/{3}/{4}' .format(groupi, pti, cond, run, del_channels_input)]
                         except:
-                            print 'not found',  ['/{0}/{1}/{2}/{3}/{4}' .format(groupi, pti, cond, run, del_channels_input)]
+                            print('not found',  ['/{0}/{1}/{2}/{3}/{4}' .format(groupi, pti, cond, run, del_channels_input)])
                             continue
                     
                         path = '/{0}/{1}/{2}/{3}/{4}' .format(groupi, pti, cond, run, del_channels_input)
                 
-                        print 'deleting channels for ', pti, cond, run
+                        print('deleting channels for ', pti, cond, run)
                         timeframe_channel_dset = f[path]    
-                        
-                        if not del_channels_output in f['/{0}/{1}/{2}/{3}' .format(groupi, pti, cond, run)].keys():
-                            i_channels_output = f['/{0}/{1}/{2}/{3}' .format(groupi, pti, cond, run)].create_dataset(del_channels_output, data = timeframe_channel_dset.value)
-                        else:
-                            i_channels_output = f['/{0}/{1}/{2}/{3}' .format(groupi, pti, cond, run, del_channels_output)]
-                
+               
                         timeframe_channel=timeframe_channel_dset.value
 
                         chlist_process = list(chlist)
@@ -110,7 +109,15 @@ def del_channels(inputhdf5, ch_to_delete, del_channels_input, del_channels_outpu
                             timeframe_channel=np.delete(timeframe_channel, index, 1)
                             chlist_process.remove(channi)
 
-                        i_channels_output[:] = timeframe_channel                        
+
+                        
+                        if not del_channels_output in f['/{0}/{1}/{2}/{3}' .format(groupi, pti, cond, run)].keys():
+                            i_channels_output = f['/{0}/{1}/{2}/{3}' .format(groupi, pti, cond, run)].create_dataset(del_channels_output, data = timeframe_channel)
+                        else:
+                            i_channels_output = f['/{0}/{1}/{2}/{3}' .format(groupi, pti, cond, run, del_channels_output)]
+
+
+                        #i_channels_output[:] = timeframe_channel                        
 
     return chlist_process
 
@@ -137,5 +144,5 @@ def del_participants(inputhdf5, pts_to_delete):
         for groupi in f['/'].keys():
             for pti in f['/%s' % (groupi)].keys():
                 if pti in pts_to_delete:
-                    print 'Deleting ....', group, pti
+                    print('Deleting ....', group, pti)
                     del f['/%s/%s' % (groupi, pti)]

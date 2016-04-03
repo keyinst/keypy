@@ -4,13 +4,19 @@
 #######   load packages   ########
 ##################################
 
+from __future__ import print_function
+
 from contextlib import closing
 from math import sqrt
 
 import h5py
 import numpy
+import random
 
-from keypy.microstates. microstates_helper import compute_gfp, gfp_peaks_indices, princomp_B
+from keypy.microstates. microstates_helper import compute_gfp, gfp_peaks_indices, princomp_B, compute_gfp_peaks, set_gfp_all_1
+
+####-----------------------------------------------------------------------------------------------------------------------####
+
 
 ##################################
 #######  run_microstates  ########
@@ -31,7 +37,7 @@ def run_microstates(confobj, eeg_info_study_obj, inputhdf5, microstate_input = '
         smoothing_window (int), use_fancy_peaks (bool), method_GFPpeak (string), original_nr_of_maps (int), seed_number (int), max_number_of_iterations (int), ERP (bool), correspondance_cutoff (double):
     eeg_info_study_obj : object of type EegInfo
         Contains the following attributes: nch (number of channels), tf (number of time frames per epoch), sf (sampling frequency), chlist (channel list)
-    inputhdf5 : str
+    inputhdf5 : path
        Input path of the hdf5 file that contains the data to be processed, e.g. 'C:\\Users\\Patricia\\libs\\keypy\\example\\data\\input\\rawdata.hdf'
     microstate_input : str
         Name of the dataset in the hdf5 file that the microstate computation is based on ('mstate1' by default). 
@@ -39,8 +45,18 @@ def run_microstates(confobj, eeg_info_study_obj, inputhdf5, microstate_input = '
         Name of the output dataset that contains the EEG microstates ('microstate' by default). 
     """
 
+    if confobj.use_smoothing == True:
+        print('To use smoothing prior to GFP peak extraction deviates from the published algorithm. The option was added for exploratory purposes.')
+
+    
+    #specify seed: allows you to get the same result each time you run it with the same number of seeds
+    fixed_seed = confobj.fixed_seed
+    if fixed_seed != None:
+        random.seed(fixed_seed)   
+
+    #gets data, preprocesses and computes mstate maps for each input map
     with closing( h5py.File(inputhdf5) ) as f:
-        print 'Computing Microstates ....'
+        print('Computing Microstates ....')
         for groupi in f['/'].keys():
             group_group = f['/%s' % (groupi)]
             for pti in group_group.keys():
@@ -53,19 +69,19 @@ def run_microstates(confobj, eeg_info_study_obj, inputhdf5, microstate_input = '
                         try:
                             timeframe_channel_dset = f['/%s/%s/%s/%s/%s' % (groupi, pti, condi, runi, microstate_input)]
                         except:
-                            print 'not found', groupi, pti, condi, runi, microstate_input
+                            print('not found', groupi, pti, condi, runi, microstate_input)
                             continue
 
-                        print 'computing microstates', groupi, pti, condi, runi, microstate_input
+                        print('computing microstates', groupi, pti, condi, runi, microstate_input)
                         path = '/%s/%s/%s/%s/%s' % (groupi, pti, condi, runi, microstate_input)  
                         eeg = f[path].value
 
                         if microstate_output in f['/%s/%s/%s/%s' % (groupi, pti, condi, runi)].keys():
-                            print groupi, pti, condi, runi, 'microstates not recomputed'
+                            print(groupi, pti, condi, runi, 'microstates not recomputed')
                             continue         
 
                         if eeg_info_study_obj.nch !=eeg.shape[1]:
-                            print 'Channel number in eeg_info_obj does not match EEG shape!'
+                            print('Channel number in eeg_info_obj does not match EEG shape!')
 
                         #################
                         #6.) Preprocess eeg, compute gfp_peak_indices and gfp_curve based on confobj specifications          
@@ -95,10 +111,13 @@ def run_microstates(confobj, eeg_info_study_obj, inputhdf5, microstate_input = '
                         microstate.attrs['explained variance of all gfp peaks'] = '%.2f' % (exp_var)
                         microstate.attrs['explained variance of all eeg timeframes'] = '%.2f' % (exp_var_tot) 
 
- 
+ ####-----------------------------------------------------------------------------------------------------------------------####
+ ####-----------------------------------------------------------------------------------------------------------------------####
+ ####-----------------------------------------------------------------------------------------------------------------------####
+
 
 ##################################
-#######  mstate_preprocess  ########
+#######  mstate_preprocess  ######
 ##################################
 def mstate_preprocess(confobj, eeg, eeg_info_study_obj):
     """
@@ -125,12 +144,12 @@ def mstate_preprocess(confobj, eeg, eeg_info_study_obj):
     """
 
     #################
-    # 2.)a Subtract mean across columns (the mean map) [must be done for each 2 sec segment] (not done by default)
+    # 2.) Subtract mean across columns (the mean map) [must be done for each 2 sec segment] (not done by default)
     #################              
 
     if confobj.subtract_column_mean_at_start:
         if confobj.debug:
-            print 'column mean subtracted, does yield different results from published algorithm'
+            print('column mean subtracted, does yield different results from published algorithm')
         eeg=subtract_column_mean_epochwise(eeg, eeg_info_study_obj.TF)
          
     #################   
@@ -139,37 +158,65 @@ def mstate_preprocess(confobj, eeg, eeg_info_study_obj):
 
     gfp_curve = compute_gfp(eeg, confobj.method_GFPpeak)
     if confobj.debug:
-        print 'GFP Curve computed'
+        print('GFP Curve computed')
+        #numpy.savetxt("gfp_curve_{0}" .format(eeg[0,0]), gfp_curve)
 
     #################
     #4.) Compute GFP Peaks (if the whole EEG is taken (use_gfp_peaks = False) it just returns the indices for the whole EEG
     #################
 
-    gfp_peak_indices, gfp_curve = compute_gfp_peaks(gfp_curve, confobj.use_gfp_peaks, confobj.use_smoothing, confobj.gfp_type_smoothing, confobj.smoothing_window, confobj.use_fancy_peaks)
+    gfp_peak_indices_pre, gfp_curve = compute_gfp_peaks(gfp_curve, confobj.use_gfp_peaks, confobj.use_smoothing, confobj.gfp_type_smoothing, confobj.smoothing_window, confobj.use_fancy_peaks)
+    
+    #correction for artifical peaks at epoch transitions  
+    #excludes all peaks that are divisible by 512: e.g. 0, 512, 1024 [beginning of an epoch if tf=512] or that are 1 smaller than a divisible: e.g. 511, 1023,... [ends of epochs if tf=511]
+    gfp_peak_indices = numpy.array([x for x in gfp_peak_indices_pre if not x % eeg_info_study_obj.tf == 0 and not (x+1) % eeg_info_study_obj.tf == 0])
+    
+    #make sure that there are at least as many gfp peaks as confobj.original_nr_of_maps
+    if not len(gfp_peak_indices)>=confobj.original_nr_of_maps:
+        #add correct error type
+        raise IndexError("Number of GFP peaks need to be larger than number of maps extracted. Number of maps extracted is set to:" + confobj.original_nr_of_maps + ". Only " + len(gfp_peak_indices) + " GFP Peak Indices are available for computation.")    
+
+    if confobj.debug:
+        print('GFP Peak Indices identified')
+        #numpy.savetxt("gfp_peak_indices_{0}" .format(eeg[0,0]), gfp_peak_indices)
+        #numpy.savetxt("gfp_peaks_{0}" .format(eeg[0,0]), eeg[gfp_peak_indices])
 
     #################
-    # 2.) AVG REF
+    # 5.) AVG REF (done by default)
     #################
 
     if confobj.force_avgref:
-        if confobj.debug:
-            print 'Forced average reference'
         eeg=TK_norm(eeg, gfp_peak_indices, eeg_info_study_obj.nch)
-                                     
+        if confobj.debug:
+            print('Forced average reference')
+            #numpy.savetxt("eeg_TKnorm_{0}" .format(eeg[0,0]), eeg)
+                                            
     #################
-    #5.) Set all Maps to GFP=1 (sets the maps for each timeframe to gfp=1)
+    # 6.) Set all Maps to GFP=1 (sets the maps for each timeframe to gfp=1) (not done by default)
     #################
 
     if confobj.set_gfp_all_1:
-        print "GFP all maps set to 1"
+        print("GFP all maps set to 1")
         eeg = set_gfp_all_1(eeg, gfp_curve)
 
     return eeg, gfp_peak_indices, gfp_curve
 
+    #################
+    # 6.) Compute vectornorm for all maps -- is done for modelmaps as well ---> Test!
+    #################
 
-##################################
+    normalize_maps(eeg, 'vector_norm_1')
+
+    return eeg, gfp_peak_indices, gfp_curve
+
+ ####-----------------------------------------------------------------------------------------------------------------------####
+ ####-----------------------------------------------------------------------------------------------------------------------####
+ ####-----------------------------------------------------------------------------------------------------------------------####
+
+
+##############################################
 #######  compute average ref version  ########
-##################################
+##############################################
 def TK_norm(eeg, gfp_peak_indices, nch):
     """
     Average referencing prior to microstate computation based on gfp_peak_indices (or whole EEG depending on confobj).
@@ -194,78 +241,9 @@ def TK_norm(eeg, gfp_peak_indices, nch):
 
     return eeg
 
-
-##################################
-#######  set_gfp_all_1  ########
-##################################
-def set_gfp_all_1(eeg, gfp_curve):        
-    """
-    Normalizes EEG to set GFP to 1 for each time frame.
-
-    Parameters
-    ----------
-    eeg : array
-        Shape ntf*nch, conatains the EEG data the average referencing is to be computed on.
-    gfp_curve : 1D array
-        Global field power for each time frame.
-
-    Returns
-    -------
-    eeg: array
-        EEG with GFP set to 1.
-    """
-    for i in range(eeg.shape[0]):
-        eeg[i,:] = eeg[i,:]/gfp_curve[i]
-    return eeg
+ ####-----------------------------------------------------####
 
 
-##################################
-#######  compute_gfp_peaks  ########
-##################################
-def compute_gfp_peaks(gfp_curve, use_gfp_peaks, use_smoothing, gfp_type_smoothing, smoothing_window, use_fancy_peaks):
-    """
-    Computes GFP peaks from global field power curve.
-
-    Parameters
-    ----------
-    gfp_curve : 1D array
-        Global field power for each time frame.
-    use_gfp_peaks : bool
-        Option whether whole GFP peaks are used or not.
-    use_smoothing : bool
-        Option whether smoothing is to be applied to the GFP curve before peak computation or not.
-    gfp_type_smoothing : {'hamming', 'hanning'}
-        `hamming` : use hamming window to smooth
-        `hanning` : use hanning window to smooth
-    smoothing_window : int
-		window for smoothing, e.g. 100.
-    use_fancy_peaks : bool
-        Whether a particular smoothing algorithm from scipy.signal.find_peaks_cwt is applied before peak computation or not.
-        Reference: Bioinformatics (2006) 22 (17): 2059-2065. doi: 10.1093/bioinformatics/btl355 http://bioinformatics.oxfordjournals.org/content/22/17/2059.long)
-
-    Returns
-    -------
-    gfp_peak_indices : list
-        List of indices of the EEG that qualify as global field power peaks.
-    gfp_curve : 1D array
-        GFP curve after smoothing (if smoothing was applied).
-    """
-    if use_gfp_peaks:
-        if use_smoothing:
-            gfp_curve=gfp_smoothing(gfp_curve, gfp_type_smoothing, smoothing_window)
-        if use_fancy_peaks:
-            peakind = scipy.signal.find_peaks_cwt(gfp_curve, numpy.arange(1,10))
-            gfp_peak_indices=numpy.asarray(peakind) #we would expect a peak at about each 50 ms
-            gfp_curve = gfp_curve
-        else:
-            gfp_peak_indices=gfp_peaks_indices(gfp_curve) #we would expect a peak at about each 50 ms
-            gfp_curve = gfp_curve
-    else:
-        gfp_peak_indices=numpy.array(range(len(gfp_curve)))   #when we take all maps, we still call the array gfp_peak_indices
-        gfp_curve = gfp_curve
-        print 'all maps used'
-
-    return gfp_peak_indices, gfp_curve
 
 
 ##################################
@@ -292,7 +270,7 @@ def subtract_column_mean_epochwise(eeg, TF):
             epoch_mean_subtracted = (epoch-mean(epoch.T,axis=1))
             eeg[i*TF:(i+1)*TF,:] = epoch_mean_subtracted
     return eeg
-
+ ####-----------------------------------------------------####
 
 ##################################
 #######  find mstates maps  ########
@@ -337,30 +315,32 @@ def find_mstates_maps(confobj, nch, eeg, gfp_peak_indices, gfp_curve):
     #only necessary if we do not want to use the whole EEG but for example only a random selection of its gfp peaks to compute the microstates
     org_data = eeg
     if confobj.debug:
-        print org_data.shape
+        print(org_data.shape)
     best_fit = 0
+
     #max_n refers to the maximal number of GFP peaks used for computation, here the default is all gfp peaks
     max_n = len(gfp_peak_indices)
-
-    fixed_seed = confobj.fixed_seed
-        
+            
     #loop across runs
     for run in range(confobj.seed_number):
         if confobj.debug:
-            print "-----------------"
-            print "Seed_number", run
-            print "-----------------"
+            print("-----------------")
+            print("Seed_number", run)
+            print("-----------------")
         
         #Pick 4 random map indices based on all gfp peaks
-        #fix sequence of seeds for testing
-        if fixed_seed != None:
-            numpy.random.seed(fixed_seed)
-        random_map_indices = numpy.random.random_integers(0, len(gfp_peak_indices) - 1, (confobj.original_nr_of_maps,) )      
-        
-        #the first model is based on the above random selection    
-        model = eeg[gfp_peak_indices[random_map_indices]]
+        random_map_indices = numpy.array(random.sample(set(gfp_peak_indices),confobj.original_nr_of_maps))
+
+        #Make sure that the four seeds are unique
+        if len(random_map_indices)!=len(set(random_map_indices)):
+            #add correct error type
+            raise IndexError("No unique" + confobj.original_nr_of_maps + " maps could be randomly drawn from the set of GFP Peaks.")
+     
+        #the first model is based on the above random selection 
+        model = eeg[random_map_indices]
+
         if confobj.debug:
-            print 'random_map_indices', random_map_indices
+            print('random_map_indices', random_map_indices)
                               
         #Computation of norm vector (set all to vector length 1)
         b=numpy.sum(numpy.abs(model)**2,axis=-1)**(1./2)
@@ -395,6 +375,8 @@ def find_mstates_maps(confobj, nch, eeg, gfp_peak_indices, gfp_curve):
             for mm_index in range(confobj.original_nr_of_maps):
                 P=numpy.array(eeg[gfp_peak_indices[ind==mm_index],:])   
                 coeff = princomp_B(P,1)
+                assert coeff.real.all() == abs(coeff).all()
+                coeff = coeff.real
                 model[mm_index,:] = coeff.ravel()
                             
             #avg ref and norm        
@@ -446,3 +428,4 @@ def find_mstates_maps(confobj, nch, eeg, gfp_peak_indices, gfp_curve):
             exp_var_tot=sum(b_loading_all)/sum(eeg.std(axis=1))
 
     return b_model, b_ind, b_loading, best_fit, exp_var, exp_var_tot
+ ####--------------------------------------------------------------####

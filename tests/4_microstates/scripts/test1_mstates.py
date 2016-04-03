@@ -20,6 +20,7 @@ from keypy.preprocessing.helper_functions import *
 from keypy.microstates.configuration import *
 from keypy.preprocessing.file_info_classes import *
 
+from keypy.microstates.microstates import *
 
 class Test_test1_mstates(unittest.TestCase):
     def test1_mstates(self):
@@ -203,8 +204,6 @@ class Test_test1_mstates(unittest.TestCase):
 
         microstate_input = 'mstate1'
         microstate_output = 'microstate'
-
-        from keypy.microstates.microstates import * 
 
         run_microstates(confobj, eeg_info_study_obj, inputhdf5, microstate_input, microstate_output)
         #--------------------------------------------------------------------------------------------------------------------------------------------

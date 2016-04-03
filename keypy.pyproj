@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <SchemaVersion>2.0</SchemaVersion>
@@ -20,10 +20,37 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
   <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
+  <PropertyGroup>
+    <PtvsTargetsFile>$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets</PtvsTargetsFile>
+  </PropertyGroup>
   <ItemGroup>
+    <Compile Include="example\run_file_concatenating.py" />
+    <Compile Include="keypy\io\__init__.py" />
+    <Compile Include="keypy\microstates\modelmaps.py" />
+    <Compile Include="keypy\microstates\parameters.py" />
+    <Compile Include="keypy\microstates\parameters_provider.py" />
+    <Compile Include="keypy\microstates\sortmaps.py" />
+    <Compile Include="keypy\microstates\sortmaps_provider.py" />
+    <Compile Include="keypy\preprocessing\concatenating_segments.py" />
     <Compile Include="setup.py" />
     <Compile Include="example\run_example_analysis.py" />
     <Compile Include="keypy\__init__.py" />
+    <Compile Include="tests\4_microstates\scripts\test13_mstates_private.py" />
+    <Compile Include="tests\5_modelmaps\scripts\generate_testdata.py" />
+    <Compile Include="tests\7_parameters\scripts\test17_mstates_private.py" />
+    <Compile Include="tests\7_parameters\scripts\test16_mstates_private.py" />
+    <Compile Include="tests\5_modelmaps\scripts\test15_mstates_private.py" />
+    <Compile Include="tests\5_modelmaps\scripts\test2_mstates.py" />
+    <Compile Include="tests\5_modelmaps\scripts\test4_mstates.py" />
+    <Compile Include="tests\5_modelmaps\scripts\test3_mstates.py" />
+    <Compile Include="tests\5_modelmaps\scripts\test5_mstates.py" />
+    <Compile Include="tests\5_modelmaps\scripts\test14_mstates_private.py" />
+    <Compile Include="tests\5_modelmaps\scripts\test6_mstates.py" />
+    <Compile Include="tests\6_sortmaps\scripts\test11_mstates.py" />
+    <Compile Include="tests\6_sortmaps\scripts\test7_mstates.py" />
+    <Compile Include="tests\7_parameters\scripts\test10_mstates.py" />
+    <Compile Include="tests\7_parameters\scripts\test8_mstates.py" />
+    <Compile Include="tests\7_parameters\scripts\test9_mstates.py" />
     <Content Include="example\data\input\groups\HC\Rest\vp01_1.txt" />
     <Content Include="example\data\input\groups\HC\Rest\vp01_2.txt" />
     <Content Include="example\data\input\groups\HC\Rest\vp01_3.txt" />
@@ -54,7 +81,7 @@
     <Content Include="example\data\input\groups\PT\Task\vp06_2.txt" />
     <Content Include="example\data\input\groups\PT\Task\vp06_3.txt" />
     <Compile Include="keypy\microstates\configuration.py" />
-    <Compile Include="keypy\microstates\data_provider.py" />
+    <Compile Include="keypy\microstates\modelmaps_provider.py" />
     <Compile Include="keypy\microstates\microstates.py" />
     <Compile Include="keypy\microstates\microstates_helper.py" />
     <Compile Include="keypy\microstates\__init__.py" />
@@ -200,6 +227,76 @@
     <Content Include="tests\3_filtering\data\test10\vp01.txt" />
     <Compile Include="tests\4_microstates\scripts\test1_mstates.py" />
     <Content Include="tests\4_microstates\data\test1\vp01.txt" />
+    <Content Include="tests\5_modelmaps\data\test23\HC\vp01_O1.txt" />
+    <Content Include="tests\5_modelmaps\data\test23\HC\vp01_O2.txt" />
+    <Content Include="tests\5_modelmaps\data\test23\HC\vp01_R1.txt" />
+    <Content Include="tests\5_modelmaps\data\test23\HC\vp01_R2.txt" />
+    <Content Include="tests\5_modelmaps\data\test23\HC\vp01_S1.txt" />
+    <Content Include="tests\5_modelmaps\data\test23\HC\vp01_S2.txt" />
+    <Content Include="tests\5_modelmaps\data\test23\HC\vp01_V1.txt" />
+    <Content Include="tests\5_modelmaps\data\test23\HC\vp01_V2.txt" />
+    <Content Include="tests\5_modelmaps\data\test23\HC\vp02_O1.txt" />
+    <Content Include="tests\5_modelmaps\data\test23\HC\vp02_O2.txt" />
+    <Content Include="tests\5_modelmaps\data\test23\HC\vp02_R1.txt" />
+    <Content Include="tests\5_modelmaps\data\test23\HC\vp02_R2.txt" />
+    <Content Include="tests\5_modelmaps\data\test23\HC\vp02_S1.txt" />
+    <Content Include="tests\5_modelmaps\data\test23\HC\vp02_S2.txt" />
+    <Content Include="tests\5_modelmaps\data\test23\HC\vp02_V1.txt" />
+    <Content Include="tests\5_modelmaps\data\test23\HC\vp02_V2.txt" />
+    <Content Include="tests\5_modelmaps\data\test23\SZ\vp03_O1.txt" />
+    <Content Include="tests\5_modelmaps\data\test23\SZ\vp03_O2.txt" />
+    <Content Include="tests\5_modelmaps\data\test23\SZ\vp03_R1.txt" />
+    <Content Include="tests\5_modelmaps\data\test23\SZ\vp03_R2.txt" />
+    <Content Include="tests\5_modelmaps\data\test23\SZ\vp03_S1.txt" />
+    <Content Include="tests\5_modelmaps\data\test23\SZ\vp03_S2.txt" />
+    <Content Include="tests\5_modelmaps\data\test23\SZ\vp03_V1.txt" />
+    <Content Include="tests\5_modelmaps\data\test23\SZ\vp03_V2.txt" />
+    <Content Include="tests\5_modelmaps\data\test23\SZ\vp05_O1.txt" />
+    <Content Include="tests\5_modelmaps\data\test23\SZ\vp05_O2.txt" />
+    <Content Include="tests\5_modelmaps\data\test23\SZ\vp05_R1.txt" />
+    <Content Include="tests\5_modelmaps\data\test23\SZ\vp05_R2.txt" />
+    <Content Include="tests\5_modelmaps\data\test23\SZ\vp05_S1.txt" />
+    <Content Include="tests\5_modelmaps\data\test23\SZ\vp05_S2.txt" />
+    <Content Include="tests\5_modelmaps\data\test23\SZ\vp05_V1.txt" />
+    <Content Include="tests\5_modelmaps\data\test23\SZ\vp05_V2.txt" />
+    <Content Include="tests\5_modelmaps\data\test23\SZ\vp06_O1.txt" />
+    <Content Include="tests\5_modelmaps\data\test23\SZ\vp06_O2.txt" />
+    <Content Include="tests\5_modelmaps\data\test4\HC\vp01_O1.txt" />
+    <Content Include="tests\5_modelmaps\data\test4\HC\vp02_O1.txt" />
+    <Content Include="tests\5_modelmaps\data\test4\HC\vp03_O1.txt" />
+    <Content Include="tests\5_modelmaps\data\test4\HC\vp04_O1.txt" />
+    <Content Include="tests\7_parameters\data\test8\HEA_vp01_Rest_0.txt" />
+    <Content Include="tests\7_parameters\data\test8\HEA_vp01_Test_0.txt" />
+    <Content Include="tests\7_parameters\data\test8\HEA_vp01_Test_1.txt" />
+    <Content Include="tests\7_parameters\data\test8\HEA_vp01_Test_2.txt" />
+    <Content Include="tests\7_parameters\data\test8\HEA_vp02_Rest_0.txt" />
+    <Content Include="tests\7_parameters\data\test8\HEA_vp02_Rest_1.txt" />
+    <Content Include="tests\7_parameters\data\test8\HEA_vp02_Rest_2.txt" />
+    <Content Include="tests\7_parameters\data\test8\HEA_vp03_Rest_0.txt" />
+    <Content Include="tests\7_parameters\data\test8\HEA_vp03_Rest_1.txt" />
+    <Content Include="tests\7_parameters\data\test8\HEA_vp03_Rest_2.txt" />
+    <Content Include="tests\7_parameters\data\test8\HEA_vp03_Test_0.txt" />
+    <Content Include="tests\7_parameters\data\test8\HEA_vp03_Test_1.txt" />
+    <Content Include="tests\7_parameters\data\test8\HEA_vp03_Test_2.txt" />
+    <Content Include="tests\7_parameters\data\test8\HEA_vp04_Rest_0.txt" />
+    <Content Include="tests\7_parameters\data\test8\HEA_vp04_Rest_1.txt" />
+    <Content Include="tests\7_parameters\data\test8\HEA_vp04_Rest_2.txt" />
+    <Content Include="tests\7_parameters\data\test8\HEA_vp04_Test_1.txt" />
+    <Content Include="tests\7_parameters\data\test8\HEA_vp04_Test_2.txt" />
+    <Content Include="tests\7_parameters\data\test8\PAT_vp01_Rest_0.txt" />
+    <Content Include="tests\7_parameters\data\test8\PAT_vp01_Rest_2.txt" />
+    <Content Include="tests\7_parameters\data\test8\PAT_vp01_Test_0.txt" />
+    <Content Include="tests\7_parameters\data\test8\PAT_vp01_Test_1.txt" />
+    <Content Include="tests\7_parameters\data\test8\PAT_vp01_Test_2.txt" />
+    <Content Include="tests\7_parameters\data\test8\PAT_vp02_Rest_0.txt" />
+    <Content Include="tests\7_parameters\data\test8\PAT_vp02_Rest_1.txt" />
+    <Content Include="tests\7_parameters\data\test8\PAT_vp02_Test_0.txt" />
+    <Content Include="tests\7_parameters\data\test8\PAT_vp02_Test_1.txt" />
+    <Content Include="tests\7_parameters\data\test8\PAT_vp02_Test_2.txt" />
+    <Content Include="tests\7_parameters\data\test8\PAT_vp04_Rest_0.txt" />
+    <Content Include="tests\7_parameters\data\test8\PAT_vp04_Rest_2.txt" />
+    <Content Include="tests\7_parameters\data\test8\PAT_vp04_Test_0.txt" />
+    <Content Include="tests\7_parameters\data\test8\PAT_vp04_Test_2.txt" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="example" />
@@ -214,6 +311,7 @@
     <Folder Include="example\data\input\groups\PT\Task" />
     <Folder Include="keypy" />
     <Folder Include="keypy\microstates" />
+    <Folder Include="keypy\io\" />
     <Folder Include="keypy\preprocessing" />
     <Folder Include="keypy\signal" />
     <Folder Include="tests\" />
@@ -361,6 +459,21 @@
     <Folder Include="tests\4_microstates\data\" />
     <Folder Include="tests\4_microstates\data\test1" />
     <Folder Include="tests\4_microstates\scripts" />
+    <Folder Include="tests\5_modelmaps\" />
+    <Folder Include="tests\5_modelmaps\data\" />
+    <Folder Include="tests\5_modelmaps\data\test23\" />
+    <Folder Include="tests\5_modelmaps\data\test23\HC\" />
+    <Folder Include="tests\5_modelmaps\data\test23\SZ\" />
+    <Folder Include="tests\5_modelmaps\data\test4\" />
+    <Folder Include="tests\5_modelmaps\data\test4\HC\" />
+    <Folder Include="tests\5_modelmaps\scripts\" />
+    <Folder Include="tests\6_sortmaps\" />
+    <Folder Include="tests\6_sortmaps\scripts\" />
+    <Folder Include="tests\7_parameters\" />
+    <Folder Include="tests\7_parameters\data\" />
+    <Folder Include="tests\7_parameters\data\test8\" />
+    <Folder Include="tests\7_parameters\scripts\" />
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" />
+  <Import Project="$(PtvsTargetsFile)" Condition="Exists($(PtvsTargetsFile))" />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" Condition="!Exists($(PtvsTargetsFile))" />
 </Project>

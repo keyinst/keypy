@@ -8,7 +8,10 @@ import os
 import os.path
 import sys
 import unittest
-from StringIO import StringIO
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 
 from keypy.preprocessing.file_info_classes import *
 from keypy.preprocessing.data_loading import *
@@ -178,5 +181,5 @@ class Test_a_mstates_preprocessing_test9(unittest.TestCase):
         finally:
             sys.stdout = saved_stdout
 
-        print out.getvalue()
+        print(out.getvalue())
 

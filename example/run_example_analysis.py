@@ -4,6 +4,7 @@
 
 import os
 import os.path
+from os.path import basename
 
 from keypy.preprocessing.file_info_classes import *
 from keypy.preprocessing.data_loading import *
@@ -13,8 +14,9 @@ from keypy.preprocessing.helper_functions import *
 
 from keypy.microstates.microstates import * 
 from keypy.microstates.configuration import *
-#from keypy.microstates.modelmaps import *
-#from keypy.microstates.sortmaps import *
+from keypy.microstates.modelmaps import *
+from keypy.microstates.sortmaps import *
+from keypy.microstates.parameters import *
 #--------------------------------------------------------------------------------------------------------------------------------------------
 
 ###################################
@@ -43,6 +45,13 @@ hdf5_filename = 'all_recordings.hdf'
 
 # the folder path for the output where the HDF5 file is stored
 outputfolder = os.path.join(library_path,"data","output")
+
+# the folder path of the external .asc file that contains the microstate maps that the obtained maps are to be sorted by
+sortbyfolder = os.path.join(library_path,"data","sortby")
+
+#filename of external .asc file that contains the microstate maps that the obtained maps are to be sorted by (and corresponding channel list)
+sortbyfile_external = os.path.join(sortbyfolder, 'mean_models_milz_et_al_2015.asc')
+sortbychlist_external = os.path.join(sortbyfolder, 'mean_models_milz_et_al_2015_chlist.asc')
 
 # Specify the information of your study
 ##Where in the filename is the following information (at which index of the string)? inclusive
@@ -79,6 +88,14 @@ run_indices_range = [5,5]
 run_folder_level = 0
 
 file_ending = 'txt'
+
+# Specify the number of reruns for clustering
+
+# the more reruns the better, we suggest at least 3 times the number of GFP peaks you would like to compute your microstates based on
+user_defined_reruns_microstate = 100
+
+# the more reruns the better (but slows computation down), we suggest approximately 4 times your number of participants
+user_defined_reruns_modelmaps = 50
 #--------------------------------------------------------------------------------------------------------------------------------------------
 
 ##########################
@@ -157,7 +174,8 @@ filter_output = filter_settings
 ###Inputhdf (Outputhdf from before)
 ######
 
-inputhdf5 = os.path.join( outputfolder, 'all_recordings.hdf')
+
+inputhdf5 = os.path.join( outputfolder, hdf5_filename)
 
 boxkeyfilter(inputhdf5, eeg_info_study_obj, filter_input, filter_settings, enable_detrending = False)
 
@@ -167,6 +185,10 @@ boxkeyfilter(inputhdf5, eeg_info_study_obj, filter_input, filter_settings, enabl
 # 5.) Create Configuration Object   ###
 #######################################
 
+
+
+
+### Warning: Do not change ERP = False. Keypy has only been optimized to work with EEG and not ERP data.
 confobj = MstConfiguration(
                         subtract_column_mean_at_start = False,
                         debug = False,
@@ -179,11 +201,10 @@ confobj = MstConfiguration(
                         use_fancy_peaks = False,
                         method_GFPpeak = 'GFPL1',
                         original_nr_of_maps = 4,
-                        seed_number = 50,
+                        seed_number = user_defined_reruns_microstate,
                         max_number_of_iterations = 100,
                         ERP = False,
                         correspondance_cutoff = 0.00)
-
 
 #################
 # 6.) #Run Microstates (computes 1 microstate for each dataset in inputfile)
@@ -196,13 +217,11 @@ confobj = MstConfiguration(
 microstate_input = 'mstate1'
 microstate_output = 'microstate'
 
-#fixed_seed = 100
-
 run_microstates(confobj, eeg_info_study_obj, inputhdf5, microstate_input, microstate_output)
 
 #--------------------------------------------------------------------------------------------------------------------------------------------
 
-'''
+
 #################
 # 7.) #Run Modelmaps (run_modelmaps_for_modelmap_types computes modelmaps for all types selected)
 #################
@@ -239,6 +258,24 @@ run_microstates(confobj, eeg_info_study_obj, inputhdf5, microstate_input, micros
 #means across groups for each pt
 #means across groups
 
+
+confobj = MstConfiguration(
+                        subtract_column_mean_at_start = False,
+                        debug = False,
+                        use_gfp_peaks = True,
+                        force_avgref = True,
+                        set_gfp_all_1 = False,
+                        use_smoothing = False,
+                        gfp_type_smoothing='hamming',
+                        smoothing_window=100,
+                        use_fancy_peaks = False,
+                        method_GFPpeak = 'GFPL2',
+                        original_nr_of_maps = 4,
+                        seed_number = user_defined_reruns_modelmaps,
+                        max_number_of_iterations = 200,
+                        ERP = False,
+                        correspondance_cutoff = 0.00)
+
 series_versions = ['Series_3']
 
 first_modelmap_series_input = microstate_output
@@ -249,11 +286,97 @@ for series in series_versions:
     first_input = first_modelmap_series_input
 
     #create folder with name of series as outputfolder
-    outputfolder = os.path.join(outputfolder,"{0}".format(series))
-    if not os.path.exists(outputfolder):
-        os.makedirs(outputfolder)
+    outputfolder_series = os.path.join(outputfolder,"{0}".format(series))
+    if not os.path.exists(outputfolder_series):
+        os.makedirs(outputfolder_series)
 
-    run_model_maps_series(series, inputfolder, outputfolder, first_input, confobj)
+    run_model_maps_series(series, inputfolder, hdf5_filename, outputfolder_series, first_input, confobj)
 
 #--------------------------------------------------------------------------------------------------------------------------------------------
-'''
+
+#################
+# 7.) #Run Sortmaps (run_sortmaps_for_sortmap_types computes sortmaps for all types selected)
+#################
+
+confobj = MstConfiguration()
+
+series_versions = ['Series_3']
+
+first_input = 'microstate'
+sortbyfile = "mean_models_milz_etal_2015.asc"
+sortbyfile_chlist = "mean_models_milz_etal_2015_chlist.asc"
+
+
+for series in series_versions:
+    run_sort_maps_series(series, inputfolder, hdf5_filename, sortbyfolder, sortbyfile, sortbyfile_chlist, outputfolder, first_input, confobj, eeg_info_study_obj)  
+
+
+#################
+# 7.) #Run Parameters
+#################
+
+################################
+#### Options for parameters ####
+################################
+
+#############################
+#### Continuous EEG data ####
+#############################
+
+##info needed to know which data the parameters are to be computed upon
+inputfolder = outputfolder
+hdf5_filename = hdf5_filename
+inputdataset = 'mstate1'
+
+############################
+####    Parameter by    ####
+############################
+
+##info needed to know which data the parameters are to be "sorted" upon (modelmaps)
+sortbyfolder = sortbyfolder
+parameter_type = 'series' #can be external, series, inputhdf
+###
+#if you use an external asci file to sort your data by
+###
+if parameter_type == 'external' : 
+    parameter_by = 'external_norm'
+    sortbyfile =sortbyfile_external
+    external_chlist=sortbychlist_external
+    sortbydataset = None
+    sortbyseries = None
+
+###
+#if you use a previously computed hdf5 file (from Series)
+###
+elif parameter_type == 'series': 
+    sortbyseries = 'Series_3'
+    sortbyfile = 'modelmaps_across_conds_sorted.hdf'
+    #sortbydataset = 'microstate_Series_1_sorted'
+    sortbydataset = 'modelmap'
+    external_chlist = False
+
+    #specify the number of layers of your sortbyfile
+    #parameter_by = '4Levels'
+    #parameter_by = '3Levels'
+    #parameter_by = '2Levels'
+    parameter_by = '1Level'
+
+###
+#if you use input hdf5 file sort
+###
+elif parameter_type == 'inputhdf':
+    parameter_by = 'own_hdf'
+    sortbyfile = hdf5_filename
+    sortbydataset = 'microstate_Series_1_sorted'
+    sortbyseries = None
+    external_chlist = False
+    
+
+else:
+    'Error, type not correctly specified for parameter computation.'
+
+
+data_provider=get_data_provider_for_parameter_by(parameter_by, inputfolder, hdf5_filename, inputdataset, sortbyfolder, sortbyfile, sortbydataset, sortbyseries, external_chlist)
+
+run_parameters(data_provider, confobj, eeg_info_study_obj)
+#--------------------------------------------------------------------------------------------------------------------------------------------

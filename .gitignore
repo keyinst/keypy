@@ -19,6 +19,11 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
+# Other
+mean_models_koenig_et_al_2002.asc
+mean_models_koenig_et_al_2002_chlist.asc
+*koenig*
+
 # =========================
 # Operating System Files
 # =========================
@@ -47,3 +52,10 @@ Temporary Items
 *.user
 *.hdf
 *.pyc
+*.htm
+*.ldf
+TestResults/keypy.TE.Tests.mdf
+*.tmp
+tests/4_microstates/data/test13_private/01.dat
+tests/4_microstates/data/test13_private/correct_output_test13.asci
+*.hdf5
