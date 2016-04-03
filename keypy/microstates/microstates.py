@@ -375,6 +375,8 @@ def find_mstates_maps(confobj, nch, eeg, gfp_peak_indices, gfp_curve):
             for mm_index in range(confobj.original_nr_of_maps):
                 P=numpy.array(eeg[gfp_peak_indices[ind==mm_index],:])   
                 coeff = princomp_B(P,1)
+                assert coeff.real.all() == abs(coeff).all()
+                coeff = coeff.real
                 model[mm_index,:] = coeff.ravel()
                             
             #avg ref and norm        
