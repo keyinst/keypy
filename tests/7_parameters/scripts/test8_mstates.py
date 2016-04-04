@@ -13,6 +13,7 @@
 import os
 import os.path
 import unittest
+import h5py
 
 #integrated in the key.py library
 from keypy.preprocessing.helper_functions import *

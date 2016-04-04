@@ -221,7 +221,8 @@ class Test_test1_mstates(unittest.TestCase):
         self.assertEqual(len(dataset), len(correct_solution))
         for i in range(0, len(dataset)):
             self.assertEqual(len(dataset[i]), len(correct_solution[i]))
-            for j in range(0, len(dataset[i])):
-                self.assertAlmostEqual(dataset[i][j], correct_solution[i][j])
-
-
+            exists = False
+            for rowi in range(0, len(dataset)):
+                exists = exists or dataset[i].all() == correct_solution[rowi].all()
+            assert exists
+            #for almost equal compare column by column with self.assertAlmostEqual
