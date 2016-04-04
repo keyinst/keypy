@@ -55,39 +55,51 @@ If you store the data in a raw data folder, the Analyzer reads it in like a norm
 #nch: number of channels
 #database: name of hdf5 group of input processing stage (e.g. i_avgref)
 
-def hdf5_to_besa(inputhdf, VP, Cond, outputfolder, TSB, Fs, SB, SC, nch, database):
-    with closing( h5py.File(inputhdf, 'a') ) as f:
-        for vpi in VP:
-            print 'subject', vpi, '-------------------'
-            for condi, cond in enumerate(Cond):
-                if not vpi in f.keys():
-                    continue
-                if not cond in f['/%s' % vpi].keys():
-                    continue
 
-                group = f["/%s/%s" % (vpi, cond)]
-                dset = group[database].value
-               
-                print 'processing', "/%s/%s" % (vpi, cond), 'shape', dset.shape
+def hdf5_to_besa(inputhdf5, outputfolder, database, eeg_info_study_obj, TSB=0.00, SB=1.00, SC=200.0, fmt='%10.6f'):
+    Fs= eeg_info_study_obj.sf
+    nch = eeg_info_study_obj.nch
+    TF = eeg_info_study_obj.tf
+    chlist = eeg_info_study_obj.chlist
+
+    with closing( h5py.File(inputhdf5) ) as f:
+        for groupi in f['/'].keys():
+            for pti in f['/%s' % (groupi)].keys():
+                for cond in f['/%s/%s' % (groupi, pti)].keys():
+                    for run in f['/%s/%s/%s' % (groupi, pti, cond)].keys():
+                        try:
+                            timeframe_channel_dset = f['/{0}/{1}/{2}/{3}/{4}' .format(groupi, pti, cond, run, database)]
+                        except:
+                            print('not found',  ['/{0}/{1}/{2}/{3}/{4}' .format(groupi, pti, cond, run, database)])
+                            continue
+                    
+                        path = '/{0}/{1}/{2}/{3}/{4}' .format(groupi, pti, cond, run, database)
                 
-                #test if nch user matches nch file
-                if nch != len(dset[0]):
-                    print 'Channel number mismatch between inputhdf and manually specified number of channels'
-                #number of timeframes in the whole file
-                nodp=len(dset)
-                #Line 1
-                line1='NPTS=%d TSB=%d DI=%f SB=%d SC=%d NCHAN=%d' % (nodp, TSB, 1./Fs*1000, SB, SC, nch)
-                #Line 2: channel names: Fp1 Fp2 F3 F4....
-                #Line 3 space separated data points
-                filename = '%s_%s' % (vpi, cond)
-                with open( op.join( outputfolder, filename+'.txt'), 'w') as kk:
-                    kk.writelines(line1)
-                    kk.write('\n')
-                    for ele in chlist:
-                        kk.write('%s'%ele)
-                        kk.write(' ')
-                    kk.write('\n')
-                    np.savetxt(fname=kk, X=dset.T, fmt=fmt, delimiter=' ')
+                        timeframe_channel_dset = f[path]    
+               
+                        timeframe_channel=timeframe_channel_dset.value
+                        dset = timeframe_channel
+
+                        print 'writing to besa', '{0} {1} {2} {3}' .format(groupi, pti, cond, run), 'shape', dset.shape
+
+                        #test if nch user matches nch file
+                        if nch != len(dset[0]):
+                            print 'Channel number mismatch between inputhdf and manually specified number of channels'
+                        #number of timeframes in the whole file
+                        nodp=len(dset)
+                        #Line 1
+                        line1='NPTS=%d TSB=%d DI=%f SB=%d SC=%d NCHAN=%d' % (nodp, TSB, 1./Fs*1000, SB, SC, nch)
+                        #Line 2: channel names: Fp1 Fp2 F3 F4....
+                        #Line 3 space separated data points
+                        filename = '{0}_{1}_{2}_{3}' .format(groupi, pti, cond, run)
+                        with open( op.join( outputfolder, filename+'.txt'), 'w') as kk:
+                            kk.writelines(line1)
+                            kk.write('\n')
+                            for ele in chlist:
+                                kk.write('%s'%ele)
+                                kk.write(' ')
+                            kk.write('\n')
+                            np.savetxt(fname=kk, X=dset.T, fmt=fmt, delimiter=' ')
 
 
 
