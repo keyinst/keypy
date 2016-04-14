@@ -12,7 +12,7 @@
 
 import h5py
 import numpy as np
-import matplotlib.mlab as mlab
+#import matplotlib.mlab as mlab
 import os.path as op
 import glob
 from contextlib import closing
@@ -132,7 +132,7 @@ def hdf5_to_ascii(inputhdf5, database, eeg_info_study_obj, outputfolder, numbero
                     
                         path = '/{0}/{1}/{2}/{3}/{4}' .format(groupi, pti, cond, run, database)
                 
-                        print('writing to asci ', group, pti, cond, run)
+                        print('writing to asci ', groupi, pti, cond, run)
                         timeframe_channel_dset = f[path]    
                
                         timeframe_channel=timeframe_channel_dset.value

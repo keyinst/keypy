@@ -593,7 +593,7 @@ class SortAllByNormDataProvider2(SortDataProvider):
             else:
                 model_map=microstate_run_value[:]
 
-            #reduce channels of input model_map to match sortby modelmap PPPP
+            #reduce channels of input model_map to match sortby modelmap
             sortbyfolder = os.path.dirname(self._sortbyfile)
             sortbychlist_path = os.path.join(sortbyfolder,self._sortbychlist)
             model_map_new, _ = reduce_channels(model_map, self._sortbyfile, own_chlist, sortbychlist_path)
@@ -604,7 +604,7 @@ class SortAllByNormDataProvider2(SortDataProvider):
     ### group pt cond
     #ein Aufruf pro Output, gets a list of all modelmaps which are to be sorted by
     def get_sortby_data(self, output_path):
-        microstate_run_value = np.loadtxt(self._sortbyfile)
+        microstate_run_value = np.loadtxt(os.path.join(os.path.dirname(self._sortbyfile),"{0}_reduced.asc".format(os.path.splitext(os.path.basename(self._sortbyfile))[0])))
 
         if all(microstate_run_value[0,:] == 0):
             print('Error!', sortbyhdf5, 'has all zeros', 'group, pt, cond ignored.')    

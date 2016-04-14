@@ -224,7 +224,7 @@ class CondDataProvider1(DataProvider):
             for microstate_run in f[path].keys():
                 microstate_run_value = f['/{0}/{1}/{2}' .format(path, microstate_run, self._inputdataset)] 
                 if all(microstate_run_value[0,:] == 0):
-                    print('Error!', path, current_run, 'has all zeros', 'group, pt, cond ignored.')    
+                    print('Error!', path, microstate_run, 'has all zeros', 'group, pt, cond ignored.')    
                 else:
                     model_maps_all.append(microstate_run_value[:])
         return model_maps_all
