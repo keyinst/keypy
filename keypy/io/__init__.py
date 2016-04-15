@@ -117,7 +117,7 @@ rows = timeframes
 columns = channels
 '''
 
-def hdf5_to_ascii(inputhdf5, database, eeg_info_study_obj, outputfolder, numberofepochs='all', fmt='%10.6f'):
+def hdf5_to_ascii(inputhdf5, database, eeg_info_study_obj, outputfolder, numberofepochs='all', fmt='%10.6f', shortname=False):
     TF = eeg_info_study_obj.tf
     with closing( h5py.File(inputhdf5) ) as f:
         for groupi in f['/'].keys():
@@ -145,7 +145,11 @@ def hdf5_to_ascii(inputhdf5, database, eeg_info_study_obj, outputfolder, numbero
                             else:
                                 print 'inputhdf: ', inputhdf, 'processing stage: ', database, 'did only contain: ', len(dset), 'timeframes. ', 'when a minimum of number of time frames per epoch times epoch length was expected: ', TF*numberofepochs 
                                     
-                        filename = '%s_%s_%s_%s' % (groupi, pti, cond, run)
+                        if shortname:
+                            filename = '%s' % (pti)
+                        else:
+                            filename = '%s_%s_%s_%s' % (groupi, pti, cond, run) 
+ 
                         with open( op.join( outputfolder, filename+'.txt'), 'w') as kk:
                             np.savetxt(fname=kk, X=dset, fmt=fmt, delimiter=' ')
 
