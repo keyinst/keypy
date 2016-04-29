@@ -336,12 +336,16 @@ def reduce_channels(eeg_own, eeg_ext_path, own_chlist, external_chlist_path):
     ext_chlist = np.genfromtxt(external_chlist_path,dtype='str')
     eeg_ext=np.loadtxt(eeg_ext_path)
 
+
     ##Find overlap between chlists
     common_list=set(own_chlist).intersection(ext_chlist)
 
     #if there is no overlap, raise Error
     if not common_list:
         raise AssertionError('Your channel list has no overlap with the channel list which is to be sorted / parameters computed by. Processing failed.')   
+
+    else:
+        'Common List between your channels and the external list:', common_list, ' Watch out for case sensitivity!'
 
     ##Get indices of common_list order for own_chlist
     index_of_common_list_in_own_chlist = []
