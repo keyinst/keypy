@@ -427,8 +427,13 @@ def find_model_maps(confobj, model_maps_foundation):
                     P=best_fit[k]
                     if confobj.ERP:
                         coeff = P.mean(axis=0)  #ERP: mean computed instead of PC1
+                        assert coeff.real.all() == abs(coeff).all()
+                        coeff = coeff.real
                     else:
                         coeff = princomp_B(P,1)
+                        assert coeff.real.all() == abs(coeff).all()
+                        coeff = coeff.real
+
                     randmap[k,:] = coeff.ravel()
         
                 ##get user-requested normalization for modelmaps
