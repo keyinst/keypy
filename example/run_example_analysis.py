@@ -96,6 +96,68 @@ user_defined_reruns_microstate = 100
 
 # the more reruns the better (but slows computation down), we suggest approximately 4 times your number of participants
 user_defined_reruns_modelmaps = 50
+
+
+#################################################################################################
+###    Advanced Configuration Options    (only modify if you truly know what you are doing    ###
+#################################################################################################
+
+# Specify the series you would like to compute means based on, to sort your maps by, and to compute the parameters by
+
+#Series_1
+#means across runs for each group pt cond
+#means across conds for each group pt
+#means across pts for each group
+#means across groups
+
+#Series_2
+#means across pts for each group cond run
+#means across runs for each group cond
+
+#Series_3
+#means across runs for each group pt cond
+#means across pts for each group cond
+#means across groups for each cond
+#means across conds
+
+#Series_4
+#means across runs for each group pt cond
+#means across conds for each group pt
+#means across pts for each group
+#means across groups
+
+#Series_5
+#means across runs for each group pt cond
+#means across conds for each group pt
+#means across groups for each pt
+#means across groups
+
+#multiple series at once possible (for modelmaps and sortmaps only), those used in sortmaps must be contained in modelmaps, those used in parameters must be contained in sortmaps
+
+#compute means based on the following series
+user_defined_series_modelmaps=['Series_3']
+#sort maps based on the following series
+user_defined_series_sortmaps = ['Series_3']
+
+#Additional settings for parameter computation
+#specify whether you would like to compute parameters based on an external file, a level of a hdf series, or your hdf5_filename (default: 'all_recordings.hdf')
+user_defined_parameter_type = 'series' #can be external, series, inputhdf
+
+#compute parameters based on particular level of the following series
+user_defined_series_parameters = 'Series_3'
+
+#specify the hdf file the parameters should be computed upon
+user_defined_sortbyfile_parameters='modelmaps_across_conds_sorted.hdf'
+#specify the dataset name that the model maps in the above hdf are stored in
+user_defined_sortbydataset_parameters='modelmap'
+
+#specify the number of layers of your sortbyfile
+#parameter_by = '4Levels'
+#parameter_by = '3Levels'
+#parameter_by = '2Levels'
+user_defined_parameter_by_parameters='1Level'
+	
+	
 #--------------------------------------------------------------------------------------------------------------------------------------------
 
 ##########################
@@ -185,9 +247,6 @@ boxkeyfilter(inputhdf5, eeg_info_study_obj, filter_input, filter_settings, enabl
 # 5.) Create Configuration Object   ###
 #######################################
 
-
-
-
 ### Warning: Do not change ERP = False. Keypy has only been optimized to work with EEG and not ERP data.
 confobj = MstConfiguration(
                         subtract_column_mean_at_start = False,
@@ -226,39 +285,6 @@ run_microstates(confobj, eeg_info_study_obj, inputhdf5, microstate_input, micros
 # 7.) #Run Modelmaps (run_modelmaps_for_modelmap_types computes modelmaps for all types selected)
 #################
 
-############
-# Compute modelmaps: Series of input and output hdfs
-############
-
-#Series_1
-#means across runs for each group pt cond
-#means across conds for each group pt
-#means across pts for each group
-#means across groups
-
-#Series_2
-#means across pts for each group cond run
-#means across runs for each group cond
-
-#Series_3
-#means across runs for each group pt cond
-#means across pts for each group cond
-#means across groups for each cond
-#means across conds
-
-#Series_4
-#means across runs for each group pt cond
-#means across conds for each group pt
-#means across pts for each group
-#means across groups
-
-#Series_5
-#means across runs for each group pt cond
-#means across conds for each group pt
-#means across groups for each pt
-#means across groups
-
-
 confobj = MstConfiguration(
                         subtract_column_mean_at_start = False,
                         debug = False,
@@ -276,7 +302,7 @@ confobj = MstConfiguration(
                         ERP = False,
                         correspondance_cutoff = 0.00)
 
-series_versions = ['Series_3']
+series_versions = user_defined_series_modelmaps
 
 first_modelmap_series_input = microstate_output
 
@@ -300,7 +326,7 @@ for series in series_versions:
 
 confobj = MstConfiguration()
 
-series_versions = ['Series_3']
+series_versions = user_defined_series_sortmaps
 
 first_input = 'microstate'
 sortbyfile = "mean_models_milz_etal_2015.asc"
@@ -334,7 +360,8 @@ inputdataset = 'mstate1'
 
 ##info needed to know which data the parameters are to be "sorted" upon (modelmaps)
 sortbyfolder = sortbyfolder
-parameter_type = 'series' #can be external, series, inputhdf
+parameter_type = user_defined_parameter_type #can be external, series, inputhdf
+
 ###
 #if you use an external asci file to sort your data by
 ###
@@ -349,17 +376,18 @@ if parameter_type == 'external' :
 #if you use a previously computed hdf5 file (from Series)
 ###
 elif parameter_type == 'series': 
-    sortbyseries = 'Series_3'
-    sortbyfile = 'modelmaps_across_conds_sorted.hdf'
+    sortbyseries = user_defined_series_parameters
+    sortbyfile = user_defined_sortbyfile_parameters
     #sortbydataset = 'microstate_Series_1_sorted'
-    sortbydataset = 'modelmap'
+    sortbydataset = user_defined_sortbydataset_parameters
     external_chlist = False
 
     #specify the number of layers of your sortbyfile
     #parameter_by = '4Levels'
     #parameter_by = '3Levels'
     #parameter_by = '2Levels'
-    parameter_by = '1Level'
+    parameter_by = user_defined_parameter_by_parameters
+	
 
 ###
 #if you use input hdf5 file sort
