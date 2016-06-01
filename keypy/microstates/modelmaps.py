@@ -372,7 +372,7 @@ def find_model_maps(confobj, model_maps_foundation):
             #########  
   
             while (ii < max_number_of_iterations) and abs(delta_correlation) > 0.0002:
-                print('iteration:', ii)
+                #print('iteration:', ii)
                 best_results[iii][ii] = []       
                 #intitialize attribution_matrix
                 #attribution_matrix=numpy.zeros( (number_of_basic_maps ,original_nr_of_maps) )
