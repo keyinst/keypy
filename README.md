@@ -36,7 +36,7 @@ Developer
 ---------
 * Patricia Milz
 
-Acknowledgement
+Contributers
 ---------------
 * Christian Oberholzer
 * Stephan Gerhard
@@ -45,4 +45,4 @@ Acknowledgement
 * Dietrich Lehmann
 
 
-
+I am most thankful to all contributers!
