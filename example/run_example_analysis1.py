@@ -12,9 +12,9 @@ from keypy.preprocessing.avg_referencing import *
 from keypy.preprocessing.filtering import *
 from keypy.preprocessing.helper_functions import *
 
-from keypy.microstates.microstates import * 
+from keypy.microstates.modelmaps import * 
 from keypy.microstates.configuration import *
-from keypy.microstates.modelmaps import *
+from keypy.microstates.meanmods import *
 from keypy.microstates.sortmaps import *
 from keypy.microstates.parameters import *
 #--------------------------------------------------------------------------------------------------------------------------------------------
@@ -38,20 +38,20 @@ chlist=['FP1','AF7','AF3','F1','F3','F5','F7','FT7','FC5','FC3','FC1','C1','C3',
 
 # the folder path to the raw EEG data
 library_path = os.path.dirname(os.path.abspath(__file__))
-inputfolder = os.path.join(library_path,"data","input","groups")
+inputfolder = os.path.join(library_path,"data","input","dataset1", "groups")
 
 # the name of the generated HDF5 file containing all the data
 hdf5_filename = 'all_recordings.hdf'
 
 # the folder path for the output where the HDF5 file is stored
-outputfolder = os.path.join(library_path,"data","output")
+outputfolder = os.path.join(library_path,"data","output","dataset1")
 
 # the folder path of the external .asc file that contains the microstate maps that the obtained maps are to be sorted by
 sortbyfolder = os.path.join(library_path,"data","sortby")
 
 #filename of external .asc file that contains the microstate maps that the obtained maps are to be sorted by (and corresponding channel list)
-sortbyfile_external = os.path.join(sortbyfolder, 'mean_models_milz_et_al_2015.asc')
-sortbychlist_external = os.path.join(sortbyfolder, 'mean_models_milz_et_al_2015_chlist.asc')
+sortbyfile_external = os.path.join(sortbyfolder, 'mean_models_milz_et_al_2016.asc')
+sortbychlist_external = os.path.join(sortbyfolder, 'mean_models_milz_et_al_2016_chlist.asc')
 
 # Specify the information of your study
 ##Where in the filename is the following information (at which index of the string)? inclusive
@@ -89,13 +89,19 @@ run_folder_level = 0
 
 file_ending = 'txt'
 
-# Specify the number of reruns for clustering
 
-# the more reruns the better, we suggest at least 3 times the number of GFP peaks you would like to compute your microstates based on
-user_defined_reruns_microstate = 100
+### Specify microstate analysis specific information
 
-# the more reruns the better (but slows computation down), we suggest approximately 4 times your number of participants
-user_defined_reruns_modelmaps = 50
+# Specify the number of maps
+map_number = 4
+
+### Specify the number of reruns for clustering
+
+# the more reruns the better, we suggest at least 3 times the number of GFP peaks you would like to compute your microstates based on (default: 200)
+user_defined_reruns_modmaps = 100
+
+# the more reruns the better (but slows computation down), we suggest approximately 4 times your number of participants (default: 50)
+user_defined_reruns_meanmods = 50
 
 
 #################################################################################################
@@ -135,21 +141,21 @@ user_defined_reruns_modelmaps = 50
 #multiple series at once possible (for modelmaps and sortmaps only), those used in sortmaps must be contained in modelmaps, those used in parameters must be contained in sortmaps
 
 #compute means based on the following series
-user_defined_series_modelmaps=['Series_3']
+user_defined_series_meanmods=['Series_4']
 #sort maps based on the following series
-user_defined_series_sortmaps = ['Series_3']
+user_defined_series_sortmaps = ['Series_4']
 
 #Additional settings for parameter computation
 #specify whether you would like to compute parameters based on an external file, a level of a hdf series, or your hdf5_filename (default: 'all_recordings.hdf')
 user_defined_parameter_type = 'series' #can be external, series, inputhdf
 
 #compute parameters based on particular level of the following series
-user_defined_series_parameters = 'Series_3'
+user_defined_series_parameters = 'Series_4'
 
 #specify the hdf file the parameters should be computed upon
-user_defined_sortbyfile_parameters='modelmaps_across_conds_sorted.hdf'
+user_defined_sortbyfile_parameters='meanmods_across_groups_sorted.hdf'
 #specify the dataset name that the model maps in the above hdf are stored in
-user_defined_sortbydataset_parameters='modelmap'
+user_defined_sortbydataset_parameters='meanmod'
 
 #specify the number of layers of your sortbyfile
 #parameter_by = '4Levels'
@@ -157,6 +163,8 @@ user_defined_sortbydataset_parameters='modelmap'
 #parameter_by = '2Levels'
 user_defined_parameter_by_parameters='1Level'
 	
+#for inputhdf sort only    
+user_defined_individual_level_sort_dataset = 'modelmap_Series_3_sorted'	
 	
 #--------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -259,30 +267,30 @@ confobj = MstConfiguration(
                         smoothing_window=100,
                         use_fancy_peaks = False,
                         method_GFPpeak = 'GFPL1',
-                        original_nr_of_maps = 4,
-                        seed_number = user_defined_reruns_microstate,
+                        original_nr_of_maps = map_number,
+                        seed_number = user_defined_reruns_modmaps,
                         max_number_of_iterations = 100,
                         ERP = False,
                         correspondance_cutoff = 0.00)
 
 #################
-# 6.) #Run Microstates (computes 1 microstate for each dataset in inputfile)
+# 6.) #Run Modmaps (computes 1 microstate for each dataset in inputfile)
 #################
 
 ######
 ###Define input processing stage and output hdf5 file group
 ######
 
-microstate_input = 'mstate1'
-microstate_output = 'microstate'
+modmaps_input = 'mstate1'
+modmaps_output = 'modelmap'
 
-run_microstates(confobj, eeg_info_study_obj, inputhdf5, microstate_input, microstate_output)
+run_modmaps(confobj, eeg_info_study_obj, inputhdf5, modmaps_input, modmaps_output)
 
 #--------------------------------------------------------------------------------------------------------------------------------------------
 
 
 #################
-# 7.) #Run Modelmaps (run_modelmaps_for_modelmap_types computes modelmaps for all types selected)
+# 7.) #Run meanmods (run_meanmods_for_modelmap_types computes meanmods for all types selected)
 #################
 
 confobj = MstConfiguration(
@@ -295,28 +303,28 @@ confobj = MstConfiguration(
                         gfp_type_smoothing='hamming',
                         smoothing_window=100,
                         use_fancy_peaks = False,
-                        method_GFPpeak = 'GFPL2',
-                        original_nr_of_maps = 4,
-                        seed_number = user_defined_reruns_modelmaps,
+                        method_GFPpeak = 'GFPL1',
+                        original_nr_of_maps = map_number,
+                        seed_number = user_defined_reruns_meanmods,
                         max_number_of_iterations = 200,
                         ERP = False,
                         correspondance_cutoff = 0.00)
 
-series_versions = user_defined_series_modelmaps
+series_versions = user_defined_series_meanmods
 
-first_modelmap_series_input = microstate_output
+first_meanmods_series_input = modmaps_output
 
 inputfolder = outputfolder
 
 for series in series_versions:
-    first_input = first_modelmap_series_input
+    first_input = first_meanmods_series_input
 
     #create folder with name of series as outputfolder
     outputfolder_series = os.path.join(outputfolder,"{0}".format(series))
     if not os.path.exists(outputfolder_series):
         os.makedirs(outputfolder_series)
 
-    run_model_maps_series(series, inputfolder, hdf5_filename, outputfolder_series, first_input, confobj)
+    run_meanmods_series(series, inputfolder, hdf5_filename, outputfolder_series, first_input, confobj)
 
 #--------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -324,17 +332,14 @@ for series in series_versions:
 # 7.) #Run Sortmaps (run_sortmaps_for_sortmap_types computes sortmaps for all types selected)
 #################
 
-confobj = MstConfiguration()
-
 series_versions = user_defined_series_sortmaps
 
-first_input = 'microstate'
-sortbyfile = "mean_models_milz_etal_2015.asc"
-sortbyfile_chlist = "mean_models_milz_etal_2015_chlist.asc"
-
+first_input = modmaps_output
+sortbyfile = sortbyfile_external
+sortbyfile_chlist = sortbychlist_external
 
 for series in series_versions:
-    run_sort_maps_series(series, inputfolder, hdf5_filename, sortbyfolder, sortbyfile, sortbyfile_chlist, outputfolder, first_input, confobj, eeg_info_study_obj)  
+    run_sortmaps_series(series, inputfolder, hdf5_filename, sortbyfolder, sortbyfile, sortbyfile_chlist, outputfolder, first_input, confobj, eeg_info_study_obj)  
 
 
 #################
@@ -358,7 +363,7 @@ inputdataset = 'mstate1'
 ####    Parameter by    ####
 ############################
 
-##info needed to know which data the parameters are to be "sorted" upon (modelmaps)
+##info needed to know which data the parameters are to be "sorted" upon (meanmods)
 sortbyfolder = sortbyfolder
 parameter_type = user_defined_parameter_type #can be external, series, inputhdf
 
@@ -395,11 +400,9 @@ elif parameter_type == 'series':
 elif parameter_type == 'inputhdf':
     parameter_by = 'own_hdf'
     sortbyfile = hdf5_filename
-    sortbydataset = 'microstate_Series_1_sorted'
+    sortbydataset = user_defined_individual_level_sort_dataset
     sortbyseries = None
     external_chlist = False
-    
-
 else:
     'Error, type not correctly specified for parameter computation.'
 

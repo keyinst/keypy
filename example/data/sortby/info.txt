@@ -1,0 +1,27 @@
+
+Modelmaps to sortby:
+
+Option 1:
+
+mean_models_koenig_et_al_2002.asc
+mean_models_koenig_et_al_2002_chlist.asc
+
+Normative maps (four microstate classes) and channel list published by Koenig et al in 2002.
+
+Please cite the following reference should you use them:
+
+Koenig T, Prichep L, Lehmann D, Sosa PV, Braeker E, Kleinlogel H, Isenhart R, John ER (2002). Millisecond by millisecond, year by year: normative EEG microstates and developmental stages. Neuroimage, 16(1):41-8.
+
+-----------
+
+Option 2:
+
+mean_models_milz_etal_2016.asc
+mean_models_milz_etal_2016_chlist.asc
+
+Mean models obtaind from 61 male, healthy, student participants (aged 18-32) across four eyes closed conditions (7* resting runs, 6* object visualization runs, 6* spatial visualization runs, and 6 verbalization runs à 50 s each).
+
+Please cite the following reference should you use them:
+
+Milz P, Faber PL, Lehmann D, Koenig T, Kochi K, Pascual-Marqui RD (2016). The functional significance of EEG microstates - Associations with modalities of thinking. Neuroimage, 125:643-56.
+

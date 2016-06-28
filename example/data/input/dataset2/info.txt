@@ -1,0 +1,44 @@
+
+Data provided by:
+Dr. Patricia Milz
+The KEY Institute for Brain-Mind Research
+University Hospital of Psychiatry
+Lenggstr. 31
+CH-8032 Zurich, Switzerland
+tel  ++41-44-388-4939
+e-mail: patricia.milz@key.uzh.ch
+
+
+Each file (*.asc) is an EEG file in plain text format, with 4 seconds worth of data.
+nch=61 (number of electrodes)
+tf=512 (number of time frames)
+sf=256 (sampling rate in Hz)
+
+List with electrode names in correct order: List61e.txt
+
+Recordings were performed under two different eyes-closed conditions of three runs each:
+Object visualization (visualizing a detailed image of an object, e.g. a deer)
+Verbalization (internally formulating a verbal definition of an abstract noun, e.g. "Familiarization")
+
+
+Possible analyses:
+1. Compare EEG microstate parameters (coverage, duration, occurrance) during object visualization vs. verbalization
+2. Compare EEG microstate topographies obtaind from object visualization vs. verbalization
+
+
+Subdirectory and data structure:
+
+1 folder, 29 datafiles (4 s each)
+
+File name convention:
+
+Filename example: vp01_O2.asc
+
+vp01*: participant number
+*_O*: condition (here object visualization)
+*2*: run (here O2, second run of object visualization)
+
+
+--- Note
+
+Originally, 50 s of EEG were recorded during 6/7 runs in 70 participants (see Milz et al. 2016). This dataset was created from a small extract of the pilot dataset.
