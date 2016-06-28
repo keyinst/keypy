@@ -203,7 +203,7 @@ def compute_mstate_parameters(confobj, eeg, maps, eeg_info_study_obj):
         freq_dict=dict.fromkeys(list(range(confobj.original_nr_of_maps)))
         for mapnr in range(confobj.original_nr_of_maps):
             if dur_state[mapnr] == None:
-                print('epochnr, mapnr no content', epochnr, mapnr)
+                print('In epoch ', epochnr, ', mapnr ', mapnr, 'does not occur. Frequency set to 0.')
                 freq_dict[mapnr] = 0
             else:
                 #freq corrected by smaller epoch size (returns # of occurrences per second based on info from whole epoch)
@@ -312,8 +312,12 @@ def compute_mstate_parameters(confobj, eeg, maps, eeg_info_study_obj):
                 if ele[1] == float(keyli):
                     state_match_percentage[keyli].append(ele[2])
             #compute mean across percentages of same state
-            state_match_percentage_std[keyli]=np.std(state_match_percentage[keyli])
-            state_match_percentage[keyli]=np.mean(state_match_percentage[keyli])
+            if not state_match_percentage[keyli]:
+                state_match_percentage_std[keyli]=float('nan')
+                state_match_percentage[keyli]=float('nan')
+            else:
+                state_match_percentage_std[keyli]=np.std(state_match_percentage[keyli])
+                state_match_percentage[keyli]=np.mean(state_match_percentage[keyli])
             
             ##Coversion dict to array
             s_m_p=np.zeros((len(state_match_percentage),2))
@@ -556,6 +560,7 @@ def run_parameters(data_provider, confobj, eeg_info_study_obj):
     output_data_all = {}
 
     for output_path in data_provider.get_outputs():
+        print('computing parameters', output_path.level0, output_path.level1, output_path.level2, output_path.level3)
         input = data_provider.get_input_data(output_path, eeg_info_study_obj.chlist)
         sortby = data_provider.get_sortby_data(output_path)
         #compute_mstate_parameters demands that input and sortby are in the same data format (equal nch)

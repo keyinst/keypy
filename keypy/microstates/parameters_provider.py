@@ -46,8 +46,11 @@ def parameter_preprocessing(confobj, state_match_percentage_all_epochs):
         for epochnr in state_match_percentage_all_epochs.keys():
             listli.append(state_match_percentage_all_epochs[epochnr][map,1])
         map_avg_perc[map,0]=map
-        map_avg_perc[map,1]=nanmean(listli)
-
+        if np.isnan(listli).all():
+            map_avg_perc[map,1]=float('nan')
+        else:
+            map_avg_perc[map,1]=nanmean(listli)
+           
      return map_avg_perc
 ####-------------------------------------####
 
@@ -126,9 +129,15 @@ def create_parameter_spss_sheets(confobj, eeg_info_study_obj, outputfolder, outp
                                     ###Attention: Special case for mean duration in ms. If mean duration is zero, the mstate of this class never occurred. It should not be considered for the mean across epochs computation.
                                     if meas == 'Mean duration in ms':
                                         list_to_avg_nozero=[x for x in list_to_avg if x != 0]
-                                        parameters_mean[meas][pti][condi][runi][mapnr]=np.mean(list_to_avg_nozero)
+                                        if not list_to_avg_nozero:
+                                            parameters_mean[meas][pti][condi][runi][mapnr]=float('nan')
+                                        else:
+                                            parameters_mean[meas][pti][condi][runi][mapnr]=np.mean(list_to_avg_nozero)
                                     else:
-                                        parameters_mean[meas][pti][condi][runi][mapnr]=np.mean(list_to_avg)
+                                        if not list_to_avg:
+                                            parameters_mean[meas][pti][condi][runi][mapnr]=float('nan')
+                                        else:
+                                            parameters_mean[meas][pti][condi][runi][mapnr]=np.mean(list_to_avg)
                             else:
                                 print("Warning for {0} {1} {2} {3}".format(output_data_path.level0, output_data_path.level1, output_data_path.level2, output_data_path.level3))
 
