@@ -3,7 +3,7 @@
 from distutils.core import setup
 
 setup(name='keypy',
-      version='1.2.2',
+      version='2.0.0',
       description='The KEY Institute for Brain-Mind Research - EEG Analysis Toolbox',
       author='Patricia Milz',
       author_email='patricia.milz@key.uzh.ch',
