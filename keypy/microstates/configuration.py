@@ -6,7 +6,7 @@
 
 class MstConfiguration(object):
     """
-    Class that defines the parameters used for microstate computation and visualization.
+    Class that defines the parameters used for microstate model computation and visualization.
 
     Attributes
     ----------
@@ -34,21 +34,21 @@ class MstConfiguration(object):
             `GFPL1` : use L1-Norm to compute GFP peaks (default)
             `GFPL2` : use L2-Norm to compute GFP peaks
         original_nr_of_maps : int
-            Number of maps to compute from microstate algorithm (default = 4).
+            Number of maps to compute from microstate modelmaps algorithm (default = 4).
         seed_number : int
-            Number of seeds used for microstate algorithms (default = 3000). It should be at least 3 times larger than the average number of GFP peaks you would like to compute the microstates based on.
+            Number of seeds used for modelmap algorithms (default = 200). It should be at least 3 times larger than the average number of GFP peaks you would like to compute the modelmaps based on.
         max_number_of_iterations : int
-            The maximal number of iterations performed to increase the variance explained by the defined N microstates (default = 500). 
+            The maximal number of iterations performed to increase the variance explained by the defined N modelmaps (not implemented). 
         ERP : bool
-            Whether microstate computation is done based on ERP (time-locked) data (in this case map polarity is considered). (default = False)
+            Whether microstate computation is done based on ERP (time-locked) data (in this case map polarity is considered). (default = False, ERP not implemented)
         correspondance_cutoff : double
             Pearson correlation coefficient minimum or dissimilarity maximum that is regarded as the microstate of a particular class (used for microstate class visualization across time) (default = 0 which means no cutoff).
         fixed_seed : int
-            Fixate seed for testing for microstate and modelmaps algorithms (default=100). Can be None!
+            Fixate seed for testing for modelmaps and mean models algorithms (default=100). Can be None!
         dissimilarity_measure : {'correlation', 'dissimilarity'}
             Determines the measure to assess similarity between two maps (default='dissimilarity').
         modelmaps_normalization_type : {'vector_norm_1','gfp1','none'}
-            Specifies how microstates and modelmaps are normalized during microstate and modelmap computation (defualt='vector_norm_1').
+            Specifies how modelmaps and mean models are normalized during microstate and modelmap computation (defualt='vector_norm_1').
     """
 
     def __init__(self, subtract_column_mean_at_start = False, debug = True, use_gfp_peaks = True, force_avgref = True, set_gfp_all_1 = False, use_smoothing = False, gfp_type_smoothing='hamming', smoothing_window=100, use_fancy_peaks = False, method_GFPpeak = 'GFPL1', original_nr_of_maps = 4, seed_number = 3000, max_number_of_iterations = 500, ERP = False, correspondance_cutoff = 0, fixed_seed = 100, similarity_measure = 'dissimilarity', modelmaps_normalization_type ='vector_norm_1'):

@@ -1,582 +1,430 @@
 ﻿# -*- coding: utf-8 -*-
 
 ##################################
-#######  Import Packages  ########
+#######   load packages   ########
 ##################################
 
 from __future__ import print_function
 
-import os.path
-import math
-import itertools
-import operator
+from contextlib import closing
+from math import sqrt
 
+import h5py
 import numpy
-import scipy.stats
-
-from numpy import linalg as LA
-
 import random
-from random import randrange
 
-from keypy.microstates.modelmaps_provider import *
-from keypy.microstates.microstates_helper import princomp_B, compute_gfp
-####--------------------------------------------------------------------------####
+from keypy.microstates.microstates_helper import compute_gfp, gfp_peaks_indices, princomp_B, compute_gfp_peaks, set_gfp_all_1
+
+####-----------------------------------------------------------------------------------------------------------------------####
 
 
 ##################################
-#######  find_model_maps  ########
+#######  run_modelmaps  ########
 ##################################
 
+#################
+# 1.) LOAD data from hdf5 & Create modmaps_output dataset in hdf5   (TODO simplyfy confobj)
+#################
 
-def get_io_modelmap_for_series(series, iteration, inputfolder, hdf5_filename, outputfolder, first_input):
+def run_modmaps(confobj, eeg_info_study_obj, inputhdf5, modmaps_input = 'mstate1', modmaps_output = 'modelmap'):
     """
-    Gets inputs and outputs of modelmaps for the series of modelmap computations specified.
- 
-    Parameters
-    ----------
-    series : {Series_1, Series_2, ...}
-		Type of modelmap computation, e.g. 'Series_1' (means across runs for each group pt cond)
-    iteration : int
-		number of iterations for which different seeds are used
-    inputfolder : path
-		folder of input hdf5
-    hdf5_filename : str
-        filename of the input hdf5 file
-    outputfolder: path
-		folder of output hd5
-    first_input: str
-		name of dataset of input hdf5 for first model map computation (e.g. 'microstate' or 'modelmaps')
+    Compute EEG modelmaps for each dataset in inputhdf5 of name modmaps_input.
 
-    Returns
-    ----------
-	inputhdf5 : str
-		input hdf5 path
-	outputhdf5 : str
-		output hdf5 path
-	modelmap_input : str
-		dataset name of input
-	modelmap_output : str
-		dataset name of output
-	computation_version : str
-		type of computation to be performed
-	stop : bool
-		parameter that stops series when it is done
-
-    """
-
-    stop = False
-    inputhdf5 = False
-    outputhdf5 = False
-    modelmap_input= False
-    modelmap_output= False
-    computation_version= False
-
-    if series == 'Series_1':
-        if iteration == 0:
-            ######
-            ##means across runs for each group pt cond
-            ######
-            inputhdf5 = os.path.join( inputfolder, hdf5_filename)
-            outputhdf5 = os.path.join( outputfolder, 'modelmaps_across_runs.hdf')
-            modelmap_input = first_input
-            modelmap_output = 'modelmap'
-            computation_version ='means across runs for each group pt cond'
-        elif iteration == 1:
-            ######
-            ##means across conds for each group pt
-            ######
-            inputhdf5 = os.path.join( outputfolder, 'modelmaps_across_runs.hdf')
-            outputhdf5 = os.path.join( outputfolder, 'modelmaps_across_conds.hdf')
-            modelmap_input = 'modelmap'
-            modelmap_output = 'modelmap'
-            computation_version ='means across conds for each group pt'
-        elif iteration == 2:
-            ######
-            ##means across pts for each group
-            ######
-            inputhdf5 = os.path.join( outputfolder, 'modelmaps_across_conds.hdf')
-            outputhdf5 = os.path.join( outputfolder, 'modelmaps_across_pts.hdf')
-            modelmap_input = 'modelmap'
-            modelmap_output = 'modelmap'
-            computation_version ='means across pts for each group'
-        elif iteration == 3:
-            ######
-            ##means across groups
-            ######
-            inputhdf5 = os.path.join( outputfolder, 'modelmaps_across_pts.hdf')
-            outputhdf5 = os.path.join( outputfolder, 'modelmaps_across_groups.hdf')
-            modelmap_input = 'modelmap'
-            modelmap_output = 'modelmap'
-            computation_version ='means across groups'
-        else:
-            stop = True
-
-    elif series == 'Series_2':
-        if iteration == 0:
-            ######
-            ##means across pts for each group cond run
-            ######
-            inputhdf5 = os.path.join( inputfolder, hdf5_filename)
-            outputhdf5 = os.path.join( outputfolder, 'modelmaps_across_pts.hdf')
-            modelmap_input = first_input
-            modelmap_output = 'modelmap'
-            computation_version ='means across pts for each group cond run'
-        elif iteration == 1:
-            ######
-            ##means across runs for each group cond
-            ######
-            inputhdf5 = os.path.join( outputfolder, 'modelmaps_across_pts.hdf')
-            outputhdf5 = os.path.join( outputfolder, 'modelmaps_across_runs.hdf')
-            modelmap_input = 'modelmap'
-            modelmap_output = 'modelmap'
-            computation_version ='means across runs for each group cond'
-        else:
-            stop = True
-
-    elif series == 'Series_3':
-        if iteration == 0:
-            ######
-            ##means across runs for each group pt cond
-            ######
-            inputhdf5 = os.path.join( inputfolder, hdf5_filename)
-            outputhdf5 = os.path.join( outputfolder, 'modelmaps_across_runs.hdf')
-            modelmap_input = first_input
-            modelmap_output = 'modelmap'
-            computation_version ='means across runs for each group pt cond'
-        elif iteration == 1:
-            ######
-            ##means across pts for each group cond
-            ######
-            inputhdf5 = os.path.join( outputfolder, 'modelmaps_across_runs.hdf')
-            outputhdf5 = os.path.join( outputfolder, 'modelmaps_across_pts.hdf')
-            modelmap_input = 'modelmap'
-            modelmap_output = 'modelmap'
-            computation_version ='means across pts for each group cond'
-        elif iteration == 2:
-            ######
-            ##means across groups for each cond
-            ######
-            inputhdf5 = os.path.join( outputfolder, 'modelmaps_across_pts.hdf')
-            outputhdf5 = os.path.join( outputfolder, 'modelmaps_across_groups.hdf')
-            modelmap_input = 'modelmap'
-            modelmap_output = 'modelmap'
-            computation_version ='means across groups for each cond'
-        elif iteration == 3:
-            ######
-            ##means across conds
-            ######
-            inputhdf5 = os.path.join( outputfolder, 'modelmaps_across_groups.hdf')
-            outputhdf5 = os.path.join( outputfolder, 'modelmaps_across_conds.hdf')
-            modelmap_input = 'modelmap'
-            modelmap_output = 'modelmap'
-            computation_version ='means across conds'
-        else:
-            stop = True
-
-    elif series == 'Series_4':
-        if iteration == 0:
-            ######
-            ##means across runs for each group pt cond
-            ######
-            inputhdf5 = os.path.join( inputfolder, hdf5_filename)
-            outputhdf5 = os.path.join( outputfolder, 'modelmaps_across_runs.hdf')
-            modelmap_input = first_input
-            modelmap_output = 'modelmap'
-            computation_version ='means across runs for each group pt cond'
-        elif iteration == 1:
-            ######
-            ##means across pts for each group cond
-            ######
-            inputhdf5 = os.path.join( outputfolder, 'modelmaps_across_runs.hdf')
-            outputhdf5 = os.path.join( outputfolder, 'modelmaps_across_pts.hdf')
-            modelmap_input = 'modelmap'
-            modelmap_output = 'modelmap'
-            computation_version ='means across pts for each group cond'
-        elif iteration == 2:
-            ######
-            ##means across pts for each group
-            ######
-            inputhdf5 = os.path.join( outputfolder, 'modelmaps_across_pts.hdf')
-            outputhdf5 = os.path.join( outputfolder, 'modelmaps_across_conds.hdf')
-            modelmap_input = 'modelmap'
-            modelmap_output = 'modelmap'
-            computation_version ='means across conds for each group'
-        elif iteration == 3:
-            ######
-            ##means across groups
-            ######
-            inputhdf5 = os.path.join( outputfolder, 'modelmaps_across_conds.hdf')
-            outputhdf5 = os.path.join( outputfolder, 'modelmaps_across_groups.hdf')
-            modelmap_input = 'modelmap'
-            modelmap_output = 'modelmap'
-            computation_version ='means across groups'
-        else:
-            stop = True
-
-    elif series == 'Series_5':
-        if iteration == 0:
-            ######
-            ##means across runs for each group pt cond
-            ######
-            inputhdf5 = os.path.join( inputfolder, hdf5_filename)
-            outputhdf5 = os.path.join( outputfolder, 'modelmaps_across_runs.hdf')
-            modelmap_input = first_input
-            modelmap_output = 'modelmap'
-            computation_version ='means across runs for each group pt cond'
-        elif iteration == 1:
-            ######
-            ##means across conds for each group pt
-            ######
-            inputhdf5 = os.path.join( outputfolder, 'modelmaps_across_runs.hdf')
-            outputhdf5 = os.path.join( outputfolder, 'modelmaps_across_conds.hdf')
-            modelmap_input = 'modelmap'
-            modelmap_output = 'modelmap'
-            computation_version ='means across conds for each group pt'
-        elif iteration == 2:
-            ######
-            ##means across groups for each pt
-            ######
-            inputhdf5 = os.path.join( outputfolder, 'modelmaps_across_conds.hdf')
-            outputhdf5 = os.path.join( outputfolder, 'modelmaps_across_groups.hdf')
-            modelmap_input = 'modelmap'
-            modelmap_output = 'modelmap'
-            computation_version ='means across groups for each pt'
-        elif iteration == 3:
-            ######
-            ##means across groups
-            ######
-            inputhdf5 = os.path.join( outputfolder, 'modelmaps_across_groups.hdf')
-            outputhdf5 = os.path.join( outputfolder, 'modelmaps_across_pts.hdf')
-            modelmap_input = 'modelmap'
-            modelmap_output = 'modelmap'
-            computation_version ='means across groups'
-        else:
-            stop = True
-    else:
-        print('series not defined:', series)
-
-    return inputhdf5, outputhdf5, modelmap_input, modelmap_output, computation_version, stop
-
-####-------------------------------------------------------------------------------------------####
-####-------------------------------------------------------------------------------------------####
-####-------------------------------------------------------------------------------------------####
-
-##################################
-#######  find_model_maps  ########
-##################################
-
-def find_model_maps(confobj, model_maps_foundation):
-    """
-    Finds best modelmaps for input maps.
- 
     Parameters
     ----------
     confobj : object of type MstConfiguration
-         Contains the parameters used for microstate computation and visualization. 
-    model_maps_foundation : array
-        Contains the input maps for the modelmap computation.
-
-    Returns
-    ----------
-	bestresmm : array
-		best modelmaps for the input maps
-	attributes_dict : dict
-		includes ['Mean Correlation'] = best_mean_correlation
+        Contains the following attributes: subtract_column_mean_at_start (bool), debug (bool), use_gfp_peaks (bool), force_avgref (bool), set_gfp_all_1 (bool), use_smoothing (bool), gfp_type_smoothing (string),
+        smoothing_window (int), use_fancy_peaks (bool), method_GFPpeak (string), original_nr_of_maps (int), seed_number (int), max_number_of_iterations (int), ERP (bool), correspondance_cutoff (double):
+    eeg_info_study_obj : object of type EegInfo
+        Contains the following attributes: nch (number of channels), tf (number of time frames per epoch), sf (sampling frequency), chlist (channel list)
+    inputhdf5 : path
+       Input path of the hdf5 file that contains the data to be processed, e.g. 'C:\\Users\\Patricia\\libs\\keypy\\example\\data\\input\\rawdata.hdf'
+    modmaps_input : str
+        Name of the dataset in the hdf5 file that the modelmap computation is based on ('mstate1' by default). 
+    modmaps_output : str
+        Name of the output dataset that contains the EEG modelmaps ('modelmap' by default). 
     """
 
-    #get number of original_nr_of_maps*nch modelmaps in model_maps_foundation list
-    number_of_basic_maps = len(model_maps_foundation)
+    if confobj.use_smoothing == True:
+        print('To use smoothing prior to GFP peak extraction deviates from the published algorithm. The option was added for exploratory purposes.')
 
-    #get configuration info from confobj
-    original_nr_of_maps = confobj.original_nr_of_maps
-    seed_number=confobj.seed_number
-    max_number_of_iterations=confobj.max_number_of_iterations
-
-    #get number of channel from first modelmap in model_maps_foundation list
-    nch = model_maps_foundation[0].shape[1]
-
-    #initialize variables for modelmap computation
-    iii=0
-    best_results = {}
-    bestcorr = {}
     
-    best_mean_correlation = 0
-    found_best = False
- 
-    ##get fixed seed from confobj if not None
+    #specify seed: allows you to get the same result each time you run it with the same number of seeds
     fixed_seed = confobj.fixed_seed
     if fixed_seed != None:
-        numpy.random.seed(fixed_seed)
-    
-    ##get user-requested normalization for model_maps_foundation
-    for elenr, ele in enumerate(model_maps_foundation):
-        model_maps_foundation[elenr]=normalize_maps(ele, confobj.modelmaps_normalization_type)    
+        random.seed(fixed_seed)   
 
-    #if there is only one map in the model_maps_foundation list, skip procedure and return output directly
-    if len(model_maps_foundation) == 1:
-        bestresmm =  model_maps_foundation[0]
-        attributes_dict = {}
-        attributes_dict['Mean Correlation'] = 1
+    #gets data, preprocesses and computes mstate modelmaps for each input map
+    with closing( h5py.File(inputhdf5) ) as f:
+        print('Computing Modelmaps ....')
+        for groupi in f['/'].keys():
+            group_group = f['/%s' % (groupi)]
+            for pti in group_group.keys():
+                pt_group = f['/%s/%s' % (groupi, pti)]
+                for condi in pt_group.keys():
+                    cond_group = f['/%s/%s/%s' % (groupi, pti, condi)]
+                    for runi in cond_group.keys():
+                        run_group = f['/%s/%s/%s/%s' % (groupi, pti, condi, runi)]
 
+                        try:
+                            timeframe_channel_dset = f['/%s/%s/%s/%s/%s' % (groupi, pti, condi, runi, modmaps_input)]
+                        except:
+                            print('not found', groupi, pti, condi, runi, modmaps_input)
+                            continue
 
-    else:           
-        while iii < seed_number:
-        
-            print('------------')
-            print('SEED', iii, ':')
-        
-            delta_correlation = 0.1
-            mean_correlation=0.1
-            ii = 0
-            delta_attribution_matrix=1
-    
-            # create an empty list for iteration iii and add the best found maps
-            best_results[iii] = {}
-                
-            # intitialize model_maps_mean array
-            model_maps_mean=numpy.zeros( (original_nr_of_maps, nch) )
+                        print('computing modelmaps', groupi, pti, condi, runi, modmaps_input)
+                        path = '/%s/%s/%s/%s/%s' % (groupi, pti, condi, runi, modmaps_input)  
+                        eeg = f[path].value
 
-            # intitialize attribution_matrix_old
-            attribution_matrix_old=numpy.zeros( (number_of_basic_maps,original_nr_of_maps) )
-              
-    
-            #########
-            ### create original_nr_of_maps x nch array with 4 random maps  
-            #########   
-            randmap=numpy.zeros((original_nr_of_maps, nch))
-            #selects from array: model_maps_foundation, the EEG of original_nr_of_maps random keys and random maps
+                        if modmaps_output in f['/%s/%s/%s/%s' % (groupi, pti, condi, runi)].keys():
+                            print(groupi, pti, condi, runi, 'modelmaps not recomputed')
+                            continue         
 
-            if iii <= 10:
-                #Take all maps of one participant as seed
-                random_vp= random.choice(list(range(len(model_maps_foundation))))
-                for i in range(original_nr_of_maps):
-                    randmap[i,:]=model_maps_foundation[random_vp][i,:]
+                        if eeg_info_study_obj.nch !=eeg.shape[1]:
+                            print('Channel number in eeg_info_obj does not match EEG shape!')
 
-                    print('seed', iii, 'random_vp', random_vp, 'random_map', i)
-            else:
-                #Completely random
-                for i in range(original_nr_of_maps):
-                    random_vp= random.choice(list(range(len(model_maps_foundation))))
-                    random_map= randrange(original_nr_of_maps)
-                    randmap[i,:]=model_maps_foundation[random_vp][random_map,:]
+                        #################
+                        #6.) Preprocess eeg, compute gfp_peak_indices and gfp_curve based on confobj specifications          
+                        #################
 
-                    print('seed', iii, 'random_vp', random_vp, 'random_map', random_map)
-        
-            if number_of_basic_maps < original_nr_of_maps:
-                print('Attention, you have only', number_of_basic_maps ,'participants/conditions/runs to select your', original_nr_of_maps ,'random maps from')
+                        eeg, gfp_peak_indices, gfp_curve = modmaps_preprocess(confobj, eeg, eeg_info_study_obj)
 
 
-            #########
-            ### Loop Across Iterations
-            #########  
-  
-            while (ii < max_number_of_iterations) and abs(delta_correlation) > 0.0002:
-                #print('iteration:', ii)
-                best_results[iii][ii] = []       
-                #intitialize attribution_matrix
-                #attribution_matrix=numpy.zeros( (number_of_basic_maps ,original_nr_of_maps) )
-                attribution_matrix= dict.fromkeys(list(range(len(model_maps_foundation))))  
-                        
-                #Find best map attribution for VP, save its indices and the corresponding correlation
-                #for ivpi, vpi in enumerate(VP): (SO WARS VORHER)
-                for numberi, number in enumerate((list(range(len(model_maps_foundation))))):
-                    #get maps from VP with key number
-                    maps=model_maps_foundation[number]
-                    #initialize dict for all permuations to later save mean correlation of that permutation
-                    mean_correlations = dict.fromkeys( list(range(math.factorial(original_nr_of_maps))) )
-                
-                    #for ithperm, perm in enumerate(itertools.permutations([0,1,2,3])):
-                    for ithperm, perm in enumerate(itertools.permutations((list(range(original_nr_of_maps))))):    
-                        pearsons=[]
-                        pearsons2=[]
-                        for i in range(original_nr_of_maps):
-                            pr, pp=scipy.stats.pearsonr( maps[i,:], randmap[perm[i],:])
-                        
-                            pearsons.append(pr)
-                            if confobj.ERP:
-                                pearsons2.append(float(pearsons[i]))            
-                            else:
-                                pearsons2.append([abs(float(pearsons[i]))])
-                        
-                        mean_correlationo =numpy.mean(pearsons2)
-                    
-                        mean_correlations[ithperm] = mean_correlationo
-                
-                    bestpermi=max(mean_correlations.iteritems(), key=operator.itemgetter(1))[0]
-                
-                    attribution_matrix[number] = list(itertools.permutations((list(range(original_nr_of_maps)))))[bestpermi]
-        
-                    #save bestcorrelation which corresponds to the one of the best attribution for VP
-                    bestcorr[number]=mean_correlations[bestpermi]
-                
+                        #################
+                        #6.) Compute Microstate Model Maps            
+                        #################
                                 
-                #generate a dictionary, where keys 0, 1, 2, 3 and arrays nVP x nch (best map that corresponds for each vp)
-                best_fit = dict.fromkeys( list(range( 0, original_nr_of_maps)) )
+                        b_model, b_ind, b_loading, best_fit, exp_var, exp_var_tot=find_modmaps(confobj, eeg_info_study_obj.nch, eeg, gfp_peak_indices, gfp_curve)
 
-                for i in best_fit:
-                    b=numpy.zeros(( number_of_basic_maps , nch))
-                    for vpnr, vpi in enumerate(attribution_matrix.keys()):           
-                        vpindex=list(attribution_matrix[vpi]).index(i)                   
-                        b[vpnr,:]=model_maps_foundation[vpi][vpindex,:]
-                    best_fit[i]=b
+
+                        if not modmaps_output in f['/%s/%s/%s/%s' % (groupi, pti, condi, runi)].keys():
+                            modelmap = f['/%s/%s/%s/%s' % (groupi, pti, condi, runi)].create_dataset(modmaps_output, shape=(confobj.original_nr_of_maps,eeg.shape[1]))
+                        else:
+                            modelmap = f['/%s/%s/%s/%s/%s' % (groupi, pti, condi, runi, modmaps_output)]
+
+                        # dataset.value retrieves the array into memory for read access only
+                        # for writes you replace the whole array with [:], or subsets with slicing [1:3, 3:]
+                        # the numpy shapes (on the right side of the assignment) need to match
+                        modelmap[:] = b_model
+
+                        modelmap.attrs['number of gfp peaks'] = len(b_ind)
+                        modelmap.attrs['explained variance of all gfp peaks'] = '%.2f' % (exp_var)
+                        modelmap.attrs['explained variance of all eeg timeframes'] = '%.2f' % (exp_var_tot) 
+
+ ####-----------------------------------------------------------------------------------------------------------------------####
+ ####-----------------------------------------------------------------------------------------------------------------------####
+ ####-----------------------------------------------------------------------------------------------------------------------####
+
+##################################
+#######  modmaps_preprocess  ######
+##################################
+def modmaps_preprocess(confobj, eeg, eeg_info_study_obj):
+    """
+    Preprocesses (normalization option, GFP peak extraction, average referencing) EEG to prepare data for modelmap computation.
+
+    Parameters
+    ----------
+    confobj : object of type MstConfiguration
+        Contains the following attributes: subtract_column_mean_at_start (bool), debug (bool), use_gfp_peaks (bool), force_avgref (bool), set_gfp_all_1 (bool), use_smoothing (bool), gfp_type_smoothing (string),
+        smoothing_window (int), use_fancy_peaks (bool), method_GFPpeak (string), original_nr_of_maps (int), seed_number (int), max_number_of_iterations (int), ERP (bool), correspondance_cutoff (double):
+    eeg : array
+        Shape ntf*nch, conatains the EEG data the microstate modelmap analysis is to be computed on.
+    eeg_info_study_obj : object of type EegInfo
+        Contains the following attributes: nch (number of channels), tf (number of time frames per epoch), sf (sampling frequency), chlist (channel list)
+
+    Returns
+    -------
+    eeg: array
+        Preprocessed EEG.
+    gfp_peak_indices: list
+        List of indices of the EEG that qualify as global field power peaks.
+    gfp_curve: 1D array
+        Global field power for each time frame.
+    """
+
+    #################
+    # 2.) Subtract mean across columns (the mean map) [must be done for each 2 sec segment] (not done by default)
+    #################              
+
+    if confobj.subtract_column_mean_at_start:
+        if confobj.debug:
+            print('column mean subtracted, does yield different results from published algorithm')
+        eeg=subtract_column_mean_epochwise(eeg, eeg_info_study_obj.TF)
+         
+    #################   
+    # 3.) COMPUTE GFP (ln1 or ln2)
+    #################
+
+    gfp_curve = compute_gfp(eeg, confobj.method_GFPpeak)
+    if confobj.debug:
+        print('GFP Curve computed')
+        #numpy.savetxt("gfp_curve_{0}" .format(eeg[0,0]), gfp_curve)
+
+    #################
+    #4.) Compute GFP Peaks (if the whole EEG is taken (use_gfp_peaks = False) it just returns the indices for the whole EEG
+    #################
+
+    gfp_peak_indices_pre, gfp_curve = compute_gfp_peaks(gfp_curve, confobj.use_gfp_peaks, confobj.use_smoothing, confobj.gfp_type_smoothing, confobj.smoothing_window, confobj.use_fancy_peaks)
+    
+    #correction for artifical peaks at epoch transitions  
+    #excludes all peaks that are divisible by 512: e.g. 0, 512, 1024 [beginning of an epoch if tf=512] or that are 1 smaller than a divisible: e.g. 511, 1023,... [ends of epochs if tf=511]
+    gfp_peak_indices = numpy.array([x for x in gfp_peak_indices_pre if not x % eeg_info_study_obj.tf == 0 and not (x+1) % eeg_info_study_obj.tf == 0])
+    
+    #make sure that there are at least as many gfp peaks as confobj.original_nr_of_maps
+    if not len(gfp_peak_indices)>=confobj.original_nr_of_maps:
+        #add correct error type
+        raise IndexError("Number of GFP peaks need to be larger than number of maps extracted. Number of maps extracted is set to:" + confobj.original_nr_of_maps + ". Only " + len(gfp_peak_indices) + " GFP Peak Indices are available for computation.")    
+
+    if confobj.debug:
+        print('GFP Peak Indices identified')
+        #numpy.savetxt("gfp_peak_indices_{0}" .format(eeg[0,0]), gfp_peak_indices)
+        #numpy.savetxt("gfp_peaks_{0}" .format(eeg[0,0]), eeg[gfp_peak_indices])
+
+    #################
+    # 5.) AVG REF (done by default)
+    #################
+
+    if confobj.force_avgref:
+        eeg=TK_norm(eeg, gfp_peak_indices, eeg_info_study_obj.nch)
+        if confobj.debug:
+            print('Forced average reference')
+            #numpy.savetxt("eeg_TKnorm_{0}" .format(eeg[0,0]), eeg)
+                                            
+    #################
+    # 6.) Set all Maps to GFP=1 (sets the maps for each timeframe to gfp=1) (not done by default)
+    #################
+
+    if confobj.set_gfp_all_1:
+        print("GFP all maps set to 1")
+        eeg = set_gfp_all_1(eeg, gfp_curve)
+
+    return eeg, gfp_peak_indices, gfp_curve
+
+    #################
+    # 6.) Compute vectornorm for all maps -- is done for meanmods as well ---> Test!
+    #################
+
+    normalize_maps(eeg, 'vector_norm_1')
+
+    return eeg, gfp_peak_indices, gfp_curve
+
+ ####-----------------------------------------------------------------------------------------------------------------------####
+ ####-----------------------------------------------------------------------------------------------------------------------####
+ ####-----------------------------------------------------------------------------------------------------------------------####
+
+
+##############################################
+#######  compute average ref version  ########
+##############################################
+def TK_norm(eeg, gfp_peak_indices, nch):
+    """
+    Average referencing prior to modelmap computation based on gfp_peak_indices (or whole EEG depending on confobj).
+
+    Parameters
+    ----------
+    eeg : array
+        Shape ntf*nch, conatains the EEG data the average referencing is to be computed on.
+    gfp_peak_indices : list
+        List of indices of the EEG that qualify as global field power peaks.
+    nch : int
+        Number of channels (TO DO: simplify function to derive nch based on EEG shape).
+
+    Returns
+    -------
+    eeg: array
+        Average-referenced EEG.
+    """
+
+    h=numpy.eye(nch)-1.0/nch                 
+    eeg[gfp_peak_indices]=numpy.dot(eeg[gfp_peak_indices],h)
+
+    return eeg
+
+ ####-----------------------------------------------------####
+
+
+
+
+##################################
+#######  subtract_column_mean_epochwise  ########
+##################################
+def subtract_column_mean_epochwise(eeg, TF):
+    """
+    Normalizes EEG (subtracts column mean for each epoch)
+
+    Parameters
+    ----------
+    eeg : array
+        Shape ntf*nch, conatains the EEG data the average referencing is to be computed on.
+    TF : int
+        Number of time frames per epoch.
+
+    Returns
+    -------
+    eeg : array
+        Normalized EEG.
+    """
+    for i in range(len(eeg)/TF):
+            epoch = eeg[i*TF:(i+1)*TF]
+            epoch_mean_subtracted = (epoch-mean(epoch.T,axis=1))
+            eeg[i*TF:(i+1)*TF,:] = epoch_mean_subtracted
+    return eeg
+ ####-----------------------------------------------------####
+
+##################################
+#######  find mstates maps  ########
+##################################
+def find_modmaps(confobj, nch, eeg, gfp_peak_indices, gfp_curve):
+    """
+    Finds N-M number of modelmaps from dataset based on all tfs or only gfp_peaks
+
+    Parameters
+    ----------
+    confobj : object of type MstConfiguration
+        object that defines the parameters for the microstate modelmap computation 
+    nch : int
+        number of channels from eeg_info_study_obj
+    eeg : ndarray
+        Array containing values for all time frames and channels.
+    gfp_peak_indices : ndarray
+        Array containing indices for all GFP peaks in eeg / all tfs if all tfs are used
+    gfp_curve : array
+		ntf length of GFP across all nch
+
+    Returns
+    -------
+    b_model : array
+        original_nr_of_maps x nch array containing the retrieved microstate modelmap
+    b_ind : double
+
+    b_loading : double
+
+    best_fit : double
+		highest mean correlation between the N modelmaps and the M GFP peak maps
+    exp_var : double
+		explained variance of all GFP peaks
+    exp_var_tot : 
+		explained variance of the whole EEG
+
+    """ 
+    #################
+    # 0.) ###Configuration for modelmaps.py
+    #################
+    
+    #only necessary if we do not want to use the whole EEG but for example only a random selection of its gfp peaks to compute the modelmaps
+    org_data = eeg
+    if confobj.debug:
+        print(org_data.shape)
+    best_fit = 0
+
+    #max_n refers to the maximal number of GFP peaks used for computation, here the default is all gfp peaks
+    max_n = len(gfp_peak_indices)
             
-                # for each key you have an array where you have to compute the first PC across participants                      
-                # extract the first principal component of the array across participants
-                for k in best_fit:
-                    P=best_fit[k]
-                    if confobj.ERP:
-                        coeff = P.mean(axis=0)  #ERP: mean computed instead of PC1
-                        assert coeff.real.all() == abs(coeff).all()
-                        coeff = coeff.real
-                    else:
-                        coeff = princomp_B(P,1)
-                        assert coeff.real.all() == abs(coeff).all()
-                        coeff = coeff.real
-
-                    randmap[k,:] = coeff.ravel()
+    #loop across runs
+    for run in range(confobj.seed_number):
+        if confobj.debug:
+            print("-----------------")
+            print("Seed_number", run)
+            print("-----------------")
         
-                ##get user-requested normalization for modelmaps
-                randmap=normalize_maps(randmap, confobj.modelmaps_normalization_type)    
+        #Pick 4 random map indices based on all gfp peaks
+        random_map_indices = numpy.array(random.sample(set(gfp_peak_indices),confobj.original_nr_of_maps))
 
-                #compute delta_correlation compared to last iteration     
-                list_bestcorr_values= list(bestcorr.values())
-                bc_v_arr = numpy.asarray(list_bestcorr_values)
-                bc_v_arr_mean=bc_v_arr[~numpy.isnan(bc_v_arr)].mean()
+        #Make sure that the four seeds are unique
+        if len(random_map_indices)!=len(set(random_map_indices)):
+            #add correct error type
+            raise IndexError("No unique" + confobj.original_nr_of_maps + " maps could be randomly drawn from the set of GFP Peaks.")
+     
+        #the first model is based on the above random selection 
+        model = eeg[random_map_indices]
 
-                delta_correlation=bc_v_arr_mean-mean_correlation   
-
-                #Update attribution matrix
-                attribution_matrix_old=attribution_matrix
+        if confobj.debug:
+            print('random_map_indices', random_map_indices)
+                              
+        #Computation of norm vector (set all to vector length 1)
+        b=numpy.sum(numpy.abs(model)**2,axis=-1)**(1./2)
+        
+        #Divide all elements by the norm vector
+        for col in range(nch):
+            model[:,col]=model[:,col]/b
+    
+        #Some initialization for the attribution matrix (shape: number of global field power peaks x 1)
+        #max_n: maximal number of gfp peaks used, by default all gfp_peaks
+        o_ind= numpy.zeros((max_n))
+        ind=numpy.ones((max_n))
+        
+        #Loop until the attribution matrix does not change anymore
+        while numpy.allclose(o_ind, ind, rtol=1.0000000000000001e-05, atol=1e-08)==False:
             
-                #save attribution_matrix, mean_correlation and randmap IF delta_correlation >0
-                if (delta_correlation >0):
-                    #print 'delta correlation bigger than zero, append to best result'
-                    #update mean_correlation of current iteration
-                    mean_correlation=numpy.mean(bestcorr.values())
-                    best_results[iii][ii]=[mean_correlation, randmap, attribution_matrix]     
+            #Update attribution matrix from last loop
+            o_ind   = ind
+            if confobj.ERP:
+                #Get signed covariance matrix for ERP
+                covm= numpy.dot(eeg[gfp_peak_indices],model.T)  
+                       
+            else:
+                #Get unsigned covariance matrix for EEG
+                covm= abs(numpy.dot(eeg[gfp_peak_indices],model.T))
+          
+            #Look for the best fit (gives maximum value of axis = 1 of covm)
+            ind = covm.argmax(axis=1)
+            
+            #Compute PC1
+            #uses function "princomp_B" from keypy.ressources
+            for mm_index in range(confobj.original_nr_of_maps):
+                P=numpy.array(eeg[gfp_peak_indices[ind==mm_index],:])   
+                coeff = princomp_B(P,1)
+                assert coeff.real.all() == abs(coeff).all()
+                coeff = coeff.real
+                model[mm_index,:] = coeff.ravel()
+                            
+            #avg ref and norm        
+            b=numpy.sum(numpy.abs(model)**2,axis=-1)**(1./2)
+        
+            for col in range(nch):
+                model[:,col]=model[:,col]/b
+            
+            #Get unsigned covariance matrix
+            covm= numpy.dot(eeg[gfp_peak_indices],model.T)
                 
-                ii += 1
-
-            iii += 1
-           
-                  
-        #extract the best randmap and attribution_matrix for each seed       
-        best_mean_correlation = 0.1
-
-        for seednr in best_results.keys():
-            for iterationnr in best_results[seednr].keys():
-
-                if len(best_results[seednr][iterationnr]) == 0:
-                    print('value is zero')
-            
-                else:
-                    corr, resmm, attrmatrix = best_results[seednr][iterationnr]
-                      
-                    #print 'current best', best_mean_correlation, ' current corr', corr
-                    if corr > best_mean_correlation :
-                        found_best = True
-                        best_mean_correlation = corr
-                        bestresmm = resmm
-                        bestattr_matrix = attrmatrix              
-
-        if found_best:
-            if confobj.debug:
-                #print 'best of all resmm and attr matrix', bestresmm.shape, bestattr_matrix
-                #print 'best of all correlations', best_mean_correlation
-                #print 'for condition', ci
-                pass
-        else:
-            if confobj.debug:
-                print('for SEED', iii, 'not found best')
-        #save attributes in dictionary
-        attributes_dict = {}
-        attributes_dict['Mean Correlation'] = best_mean_correlation
-
-    return bestresmm, attributes_dict
-
-####--------------------------------------------------------------------------####
-####--------------------------------------------------------------------------####
-####--------------------------------------------------------------------------####
-
-##################################
-#######  run_model_maps   ########
-##################################
+            if confobj.ERP:
+                #Look for the best fit
+                ind = (covm).argmax(axis=1)
+            else:
+                #Look for the best fit
+                ind = abs(covm).argmax(axis=1)               
         
-               
-def run_model_maps(data_provider, find_model_maps, confobj):
-    """
-    This function performs calculations/transformations on a set of data. The algorithm
-    uses the data provider to enumerate the desired output artifacts. For each output it lets
-    the data provider enumerate the input data, calls the algorithm to run with the given input
-    and writes the generated output through the data provider.
+        #Get the unsigned covariance
+        covm=numpy.dot(org_data[gfp_peak_indices],model.T)
+        covm_all=numpy.dot(org_data,model.T)
+        
+        if confobj.ERP:
+            # Look for the best fit
+            ind = covm.argmax(axis=1)	
+            loading=covm.max(axis=1)
+            #Indices for all timeframes
+            #ind_all = covm_all.argmax(axis=1)	
+            loading_all=covm_all.max(axis=1)
+        else:
+            # Look for the best fit
+            ind = abs(covm).argmax(axis=1)
+            loading=abs(covm).max(axis=1)
+            #Indices for all timeframes
+            #ind_all = abs(covm_all).argmax(axis=1)
+            loading_all=abs(covm_all).max(axis=1)
+          
+        tot_fit = sum(loading)
+        
+        if tot_fit > best_fit:
+            b_model=model
+            b_ind=ind
+            b_loading=loading/sqrt(nch)
+            b_loading_all=loading_all/sqrt(nch)
+            best_fit=tot_fit
+            #exp var based on gfp peaks only
+            exp_var=sum(b_loading)/sum(eeg[gfp_peak_indices].std(axis=1))
+            #exp var based on all eeg timeframes
+            exp_var_tot=sum(b_loading_all)/sum(eeg.std(axis=1))
 
-    This is an abstraction of both the data source (which could e.g. be an hdf5 file) and the different
-    types of collecting input data and enumerating desired outputs.
- 
-    Parameters
-    ----------
-    data_provider : subclass of type DataProvider
-         The data provider is responsible to generate a list of all outputs and to collect input data for each of the output elements
-    find_model_maps : function
-        The algorithm to run on the data.
-    confobj : object of type MstConfiguration
-        Contains the parameters used for microstate computation and visualization. 
-    """
-
-    for output_path in data_provider.get_outputs():
-        #print 'output_paths in list', output_path.all
-        inputs = data_provider.get_input_data(output_path)
-        output_data, output_attributes = find_model_maps(confobj, inputs)
-        if not output_data == []:
-            data_provider.write_output_data(output_path, output_data, output_attributes)
-
-####--------------------------------------------------------------------------####
-####--------------------------------------------------------------------------####
-####--------------------------------------------------------------------------####
-
-##################################
-#######  run_model_maps_series   ########
-##################################
-
-def run_model_maps_series(series, inputfolder, hdf5_filename, outputfolder, first_input, confobj):
-    """
-    Runs run_model_maps for each input of the series.
- 
-    Parameters
-    ----------
-    series : {'Series_1', .... 'Series_5'}
-        Defines the order of modelmap computation based on the input microstates.
-        'Series_1' : (1) means across runs for each group pt cond, (2) means across conds for each group pt, (3) means across pts for each group, (4) means across groups
-        'Series_2' : (1) means across pts for each group cond run, (2) means across runs for each group cond
-        'Series_3' : (1) means across runs for each group pt cond, (2) means across pts for each group cond, (3) means across groups for each cond, (4) means across conds
-        'Series_4' : (1) means across runs for each group pt cond, (2) means across pts for each group cond, (3) means across conds for each group, (4) means across groups     
-        'Series_5' : (1) means across runs for each group pt cond, (2) means across conds for each group pt , (3) means across groups for each pt, (4) means across pts
-    inputfolder : str
-        path to folder that contains the input hdf5 file
-    hdf5_filename : str
-        filename of the input hdf5 file
-    outputfolder : str
-        path to folder that will contain the output hdf5 file
-    first_input : str
-        dataset name that contains the N microstates for each run that the modelmap computation should be based on, e.g. 'microstate'.
-    confobj : object of type MstConfiguration
-         Contains the parameters used for microstate computation and visualization. 
-    """
-
-    stop = False
-    iteration = 0
-    while True:
-        inputhdf5, outputhdf5, modelmap_input, modelmap_output, computation_version, stop = get_io_modelmap_for_series(series, iteration, inputfolder, hdf5_filename, outputfolder, first_input)
-        if stop:
-            break
-        selected_provider_class = get_data_provider_class(computation_version)
-        data_provider = selected_provider_class(inputhdf5, outputhdf5, modelmap_input, modelmap_output)
-        run_model_maps(data_provider, find_model_maps, confobj)
-
-        iteration = iteration + 1
-
-
-####--------------------------------------------------------------------------####
-####--------------------------------------------------------------------------####
-####--------------------------------------------------------------------------####
+    return b_model, b_ind, b_loading, best_fit, exp_var, exp_var_tot
+ ####--------------------------------------------------------------####

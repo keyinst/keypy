@@ -55,6 +55,6 @@ def concatenate(mydir, ntf, nch, id_start, id_end, ending_in, ending_out):
         conc_file = np.zeros((len(file_list_by_id[idi])*ntf, nch))
         for filenr, file in enumerate(file_list_by_id[idi]):
             file_content=np.loadtxt(file)
-            conc_file[filenr*512:(filenr*512)+ntf]=file_content
+            conc_file[filenr*ntf:(filenr*ntf)+ntf]=file_content
 
         np.savetxt('{0}.{1}' .format(idi, ending_out), conc_file)
