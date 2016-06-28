@@ -14,14 +14,15 @@ import os
 import os.path
 import unittest
 import h5py
+import filecmp
 
 #integrated in the key.py library
 from keypy.preprocessing.helper_functions import *
 from keypy.preprocessing.data_loading import *
 from keypy.preprocessing.avg_referencing import *
 from keypy.preprocessing.filtering import *
-from keypy.microstates.microstates import * 
 from keypy.microstates.modelmaps import * 
+from keypy.microstates.meanmods import * 
 from keypy.microstates.sortmaps import * 
 from keypy.microstates.parameters import * 
 
@@ -172,12 +173,12 @@ class Test_test9_mstates(unittest.TestCase):
         ######
         inputhdf5 = os.path.join( outputfolder, 'all_recordings.hdf')
 
-        microstate_input = 'rawdata'
-        microstate_output = 'microstate'
+        modmaps_input = 'rawdata'
+        modmaps_output = 'modelmap'
 
 
         #include before commit
-        run_microstates(confobj, eeg_info_study_obj, inputhdf5, microstate_input, microstate_output)
+        run_modmaps(confobj, eeg_info_study_obj, inputhdf5, modmaps_input, modmaps_output)
         #--------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -235,7 +236,7 @@ class Test_test9_mstates(unittest.TestCase):
             if not os.path.exists(outputfolder_series):
                 os.makedirs(outputfolder_series)
 
-            run_model_maps_series(series, inputfolder, outputfolder_series, first_input, confobj)
+            run_meanmods_series(series, inputfolder, outputfolder_series, first_input, confobj)
         '''
         #--------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -254,7 +255,7 @@ class Test_test9_mstates(unittest.TestCase):
 
         for series in series_versions:
             
-            run_sort_maps_series(series, inputfolder, sortbyfolder, outputfolder, first_input, confobj)      
+            run_sortmaps_series(series, inputfolder, sortbyfolder, outputfolder, first_input, confobj)      
         '''    
         #--------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -294,7 +295,7 @@ class Test_test9_mstates(unittest.TestCase):
         ###
         elif parameter_type == 'series': 
             sortbyseries = 'Series_3'
-            sortbyfile = 'modelmaps_across_runs_sorted.hdf'
+            sortbyfile = 'meanmods_across_runs_sorted.hdf'
             #sortbydataset = 'microstate_Series_1_sorted'
             sortbydataset = 'modelmap'
             external_chlist = False
@@ -567,6 +568,27 @@ class Test_test9_mstates(unittest.TestCase):
             self.assertAlmostEqual(GFP_curve.all(), gfp_curve_solution.all())
             self.assertAlmostEqual(numb_of_ms_for_each_state_0.all(), numb_ms_each_state_solution.all())
             
-                
+            #Mstate Label List Check
+            correct_solution_R0 = os.path.join(inputfolder, 'solutions', 'mstate_label_list_cond_Rest_run_0_solution.csv')
+            correct_solution_R1 = os.path.join(inputfolder, 'solutions', 'mstate_label_list_cond_Rest_run_1_solution.csv')
+            correct_solution_R2 = os.path.join(inputfolder, 'solutions', 'mstate_label_list_cond_Rest_run_2_solution.csv')
+            correct_solution_T0 = os.path.join(inputfolder, 'solutions', 'mstate_label_list_cond_Test_run_0_solution.csv')
+            correct_solution_T1 = os.path.join(inputfolder, 'solutions', 'mstate_label_list_cond_Test_run_1_solution.csv')
+            correct_solution_T2 = os.path.join(inputfolder, 'solutions', 'mstate_label_list_cond_Test_run_2_solution.csv')
+
+            retrieved_solution_R0 = os.path.join(sortbyfolder, 'mean_models_koenig_et_al_2002', 'mstate_label_list_cond_Rest_run_0.csv')
+            retrieved_solution_R1 = os.path.join(sortbyfolder, 'mean_models_koenig_et_al_2002', 'mstate_label_list_cond_Rest_run_1.csv')
+            retrieved_solution_R2 = os.path.join(sortbyfolder, 'mean_models_koenig_et_al_2002', 'mstate_label_list_cond_Rest_run_2.csv')
+            retrieved_solution_T0 = os.path.join(sortbyfolder, 'mean_models_koenig_et_al_2002', 'mstate_label_list_cond_Test_run_0.csv')
+            retrieved_solution_T1 = os.path.join(sortbyfolder, 'mean_models_koenig_et_al_2002', 'mstate_label_list_cond_Test_run_1.csv')
+            retrieved_solution_T2 = os.path.join(sortbyfolder, 'mean_models_koenig_et_al_2002', 'mstate_label_list_cond_Test_run_2.csv')
+
+            self.assertTrue(filecmp.cmp(correct_solution_R0, retrieved_solution_R0))
+            self.assertTrue(filecmp.cmp(correct_solution_R1, retrieved_solution_R1))
+            self.assertTrue(filecmp.cmp(correct_solution_R2, retrieved_solution_R2))         
+            self.assertTrue(filecmp.cmp(correct_solution_T0, retrieved_solution_T0))
+            self.assertTrue(filecmp.cmp(correct_solution_T1, retrieved_solution_T1))
+            self.assertTrue(filecmp.cmp(correct_solution_T2, retrieved_solution_T2))                       
+                              
         #--------------------------------------------------------------------------------------------------------------------------------------------
         

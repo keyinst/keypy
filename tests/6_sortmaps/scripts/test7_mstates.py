@@ -19,8 +19,8 @@ from keypy.preprocessing.helper_functions import *
 from keypy.preprocessing.data_loading import *
 from keypy.preprocessing.avg_referencing import *
 from keypy.preprocessing.filtering import *
-from keypy.microstates.microstates import * 
 from keypy.microstates.modelmaps import * 
+from keypy.microstates.meanmods import * 
 from keypy.microstates.sortmaps import * 
 
 ####   Classes     ####
@@ -169,12 +169,12 @@ class Test_test7_mstates(unittest.TestCase):
         ######
         inputhdf5 = os.path.join( outputfolder, 'all_recordings.hdf')
 
-        microstate_input = 'rawdata'
-        microstate_output = 'microstate'
+        modmaps_input = 'rawdata'
+        modmaps_output = 'microstate'
 
 
         #include before commit
-        run_microstates(confobj, eeg_info_study_obj, inputhdf5, microstate_input, microstate_output)
+        run_modmaps(confobj, eeg_info_study_obj, inputhdf5, modmaps_input, modmaps_output)
         #--------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -232,7 +232,7 @@ class Test_test7_mstates(unittest.TestCase):
             if not os.path.exists(outputfolder_series):
                 os.makedirs(outputfolder_series)
 
-            run_model_maps_series(series, inputfolder, hdf5_filename, outputfolder_series, first_input, confobj)
+            run_meanmods_series(series, inputfolder, hdf5_filename, outputfolder_series, first_input, confobj)
 
         #--------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -254,7 +254,7 @@ class Test_test7_mstates(unittest.TestCase):
 
         for series in series_versions:
             
-            run_sort_maps_series(series, inputfolder, hdf5_filename, sortbyfolder, sortbyfile, sortbyfile_chlist, outputfolder, first_input, confobj, eeg_info_study_obj)     
+            run_sortmaps_series(series, inputfolder, hdf5_filename, sortbyfolder, sortbyfile, sortbyfile_chlist, outputfolder, first_input, confobj, eeg_info_study_obj)     
             
                
         #--------------------------------------------------------------------------------------------------------------------------------------------

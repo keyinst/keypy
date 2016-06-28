@@ -19,8 +19,8 @@ from keypy.preprocessing.helper_functions import *
 from keypy.preprocessing.data_loading import *
 from keypy.preprocessing.avg_referencing import *
 from keypy.preprocessing.filtering import *
-from keypy.microstates.microstates import * 
 from keypy.microstates.modelmaps import * 
+from keypy.microstates.meanmods import * 
 
 ####   Classes     ####
 from keypy.microstates.configuration import *
@@ -222,12 +222,12 @@ class Test_test3_mstates(unittest.TestCase):
         ###Define input processing stage and output hdf5 file group
         ######
 
-        microstate_input = 'mstate1'
-        microstate_output = 'microstate'
+        modmaps_input = 'mstate1'
+        modmaps_output = 'microstate'
 
 
         #include before commit
-        run_microstates(confobj, eeg_info_study_obj, inputhdf5, microstate_input, microstate_output)
+        run_modmaps(confobj, eeg_info_study_obj, inputhdf5, modmaps_input, modmaps_output)
         #--------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -277,7 +277,7 @@ class Test_test3_mstates(unittest.TestCase):
             if not os.path.exists(outputfolder):
                 os.makedirs(outputfolder)
 
-            run_model_maps_series(series, inputfolder, hdf5_filename, outputfolder, first_input, confobj)
+            run_meanmods_series(series, inputfolder, hdf5_filename, outputfolder, first_input, confobj)
 
 
 

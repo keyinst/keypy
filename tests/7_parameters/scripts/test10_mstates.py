@@ -19,8 +19,8 @@ from keypy.preprocessing.helper_functions import *
 from keypy.preprocessing.data_loading import *
 from keypy.preprocessing.avg_referencing import *
 from keypy.preprocessing.filtering import *
-from keypy.microstates.microstates import * 
 from keypy.microstates.modelmaps import * 
+from keypy.microstates.meanmods import * 
 from keypy.microstates.sortmaps import * 
 from keypy.microstates.parameters import * 
 
@@ -170,17 +170,17 @@ class Test_test10_mstates(unittest.TestCase):
         ######
         inputhdf5 = os.path.join( outputfolder, 'all_recordings.hdf')
 
-        microstate_input = 'rawdata'
-        microstate_output = 'microstate'
+        modmaps_input = 'rawdata'
+        modmaps_output = 'modelmap'
 
 
         #include before commit
-        run_microstates(confobj, eeg_info_study_obj, inputhdf5, microstate_input, microstate_output)
+        run_modmaps(confobj, eeg_info_study_obj, inputhdf5, modmaps_input, modmaps_output)
         #--------------------------------------------------------------------------------------------------------------------------------------------
 
 
         #################
-        # 7.) #Run Modelmaps (run_modelmaps_for_modelmap_types computes modelmaps for all types selected)
+        # 7.) #Run Meanmods (run_modelmaps_for_modelmap_types computes modelmaps for all types selected)
         #################
 
         ############
@@ -221,14 +221,14 @@ class Test_test10_mstates(unittest.TestCase):
         inputfolder = outputfolder
 
         for series in series_versions:
-            first_input = 'microstate'
+            first_input = 'modelmap'
 
             #create folder with name of series as outputfolder
             outputfolder_series = os.path.join(library_path, "..\\data\\test10_output\\{0}" .format(series))
             if not os.path.exists(outputfolder_series):
                 os.makedirs(outputfolder_series)
 
-            run_model_maps_series(series, inputfolder, hdf5_filename, outputfolder_series, first_input, confobj)
+            run_meanmods_series(series, inputfolder, hdf5_filename, outputfolder_series, first_input, confobj)
 
         
         #--------------------------------------------------------------------------------------------------------------------------------------------
@@ -242,14 +242,14 @@ class Test_test10_mstates(unittest.TestCase):
         
         series_versions = ['Series_1', 'Series_2', 'Series_3', 'Series_4', 'Series_5']
 
-        first_input = 'microstate'
+        first_input = 'modelmap'
         sortbyfolder = os.path.join(library_path, "..","data","sortby")
         outputfolder = os.path.join(library_path, "..\\data\\test10_output")
         sortbyfile = 'mean_models_koenig_et_al_2002.asc'
         sortbyfile_chlist = 'mean_models_koenig_et_al_2002_chlist.asc'
 
         for series in series_versions:   
-            run_sort_maps_series(series, inputfolder, hdf5_filename, sortbyfolder, sortbyfile, sortbyfile_chlist, outputfolder, first_input, confobj, eeg_info_study_obj)
+            run_sortmaps_series(series, inputfolder, hdf5_filename, sortbyfolder, sortbyfile, sortbyfile_chlist, outputfolder, first_input, confobj, eeg_info_study_obj)
            
         #--------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -289,9 +289,9 @@ class Test_test10_mstates(unittest.TestCase):
         ###
         elif parameter_type == 'series': 
             sortbyseries = 'Series_3'
-            sortbyfile = 'modelmaps_across_runs_sorted.hdf'
+            sortbyfile = 'meanmods_across_runs_sorted.hdf'
             #sortbydataset = 'microstate_Series_1_sorted'
-            sortbydataset = 'modelmap'
+            sortbydataset = 'meanmod'
             external_chlist = False
 
             #specify the number of layers of your sortbyfile

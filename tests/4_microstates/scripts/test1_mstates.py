@@ -20,7 +20,7 @@ from keypy.preprocessing.helper_functions import *
 from keypy.microstates.configuration import *
 from keypy.preprocessing.file_info_classes import *
 
-from keypy.microstates.microstates import *
+from keypy.microstates.modelmaps import *
 
 class Test_test1_mstates(unittest.TestCase):
     def test1_mstates(self):
@@ -202,10 +202,10 @@ class Test_test1_mstates(unittest.TestCase):
         ###Define input processing stage and output hdf5 file group
         ######
 
-        microstate_input = 'mstate1'
-        microstate_output = 'microstate'
+        modmaps_input = 'mstate1'
+        modmaps_output = 'microstate'
 
-        run_microstates(confobj, eeg_info_study_obj, inputhdf5, microstate_input, microstate_output)
+        run_modmaps(confobj, eeg_info_study_obj, inputhdf5, modmaps_input, modmaps_output)
         #--------------------------------------------------------------------------------------------------------------------------------------------
 
         dataset = None
