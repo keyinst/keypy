@@ -19,8 +19,8 @@ from keypy.preprocessing.helper_functions import *
 from keypy.preprocessing.data_loading import *
 from keypy.preprocessing.avg_referencing import *
 from keypy.preprocessing.filtering import *
-from keypy.microstates.microstates import * 
 from keypy.microstates.modelmaps import * 
+from keypy.microstates.meanmods import * 
 
 ####   Classes     ####
 from keypy.microstates.configuration import *
@@ -223,11 +223,11 @@ class Test_test2_mstates(unittest.TestCase):
         ###Define input processing stage and output hdf5 file group
         ######
 
-        microstate_input = 'mstate1'
-        microstate_output = 'microstate'
+        modmaps_input = 'mstate1'
+        modmaps_output = 'microstate'
 
         #include before commit
-        run_microstates(confobj, eeg_info_study_obj, inputhdf5, microstate_input, microstate_output)
+        run_modmaps(confobj, eeg_info_study_obj, inputhdf5, modmaps_input, modmaps_output)
         #--------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -246,7 +246,7 @@ class Test_test2_mstates(unittest.TestCase):
         inputhdf5 = os.path.join( inputfolder, 'all_recordings.hdf')
 
         #name of hdf5 that contains output modelmaps
-        outputhdf5 = os.path.join( outputfolder, 'modelmaps_across_runs.hdf')
+        outputhdf5 = os.path.join( outputfolder, 'meanmods_across_runs.hdf')
 
         #input and output dataset names
         modelmap_input = 'microstate'
@@ -273,7 +273,7 @@ class Test_test2_mstates(unittest.TestCase):
 
         data_provider = selected_provider_class(inputhdf5, outputhdf5, modelmap_input, modelmap_output)
 
-        run_model_maps(data_provider, find_model_maps, confobj)
+        run_meanmods(data_provider, find_meanmods, confobj)
 
         dataset = None
         with closing (h5py.File(outputhdf5, 'r')) as f:

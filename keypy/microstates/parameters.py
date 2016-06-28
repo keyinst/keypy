@@ -86,7 +86,7 @@ def compute_mstate_parameters(confobj, eeg, maps, eeg_info_study_obj):
         maps = set_gfp_all_1(maps, gfp_curve_maps)
 
         #################   
-        #4.) Compute GFP Peaks (identical to microstates.py)
+        #4.) Compute GFP Peaks (identical to modelmaps.py)
         #################
         
         gfp_peak_indices, gfp_curve = compute_gfp_peaks(gfp_curve, confobj.use_gfp_peaks, confobj.use_smoothing, confobj.gfp_type_smoothing, confobj.smoothing_window, confobj.use_fancy_peaks)
@@ -391,12 +391,14 @@ def compute_mstate_parameters(confobj, eeg, maps, eeg_info_study_obj):
 
         #RETURN ABOVE DICTIONARIES
 
-    ##compute individual microstates via principal components
+    ##compute individual modelmaps via principal components
     for mstate in range(confobj.original_nr_of_maps):
         #skip first row because its zeros
         try:
             P=individu_dict[mstate][1:,:]
             coeff = princomp_B(P,1)
+            assert coeff.real.all() == abs(coeff).all()
+            coeff = coeff.real
             individu_mstate[mstate,:] = coeff.ravel()
         except:
             individu_mstate[mstate,:] = np.zeros((eeg.shape[1]))
@@ -471,7 +473,7 @@ def get_data_provider_for_parameter_by(parameter_by, inputfolder, hdf5_filename,
         inputhdf5 = os.path.join( inputfolder, hdf5_filename)
         inputdataset = inputdataset
 
-        # the folder path to the microstates to sortby (for parameter computation) file
+        # the folder path to the modelmaps to sortby (for parameter computation) file
         sortbyfolder = sortbyfolder
         sortbyhdf5 = os.path.join(sortbyfolder, sortbyfile)
         sortbydataset = sortbydataset 
@@ -490,7 +492,7 @@ def get_data_provider_for_parameter_by(parameter_by, inputfolder, hdf5_filename,
         inputhdf5 = os.path.join( inputfolder, hdf5_filename)
         inputdataset = inputdataset
 
-        # the folder path to the microstates to sortby (for parameter computation) file
+        # the folder path to the modelmaps to sortby (for parameter computation) file
         sortbyseries = sortbyseries
         sortbyfolder = inputfolder
         sortbyhdf5 = os.path.join(sortbyfolder, hdf5_filename)
@@ -514,7 +516,7 @@ def get_data_provider_for_parameter_by(parameter_by, inputfolder, hdf5_filename,
         inputhdf5 = os.path.join( inputfolder, hdf5_filename)
         inputdataset = inputdataset
 
-        # the folder path to the microstates to sortby (for parameter computation) file
+        # the folder path to the modelmaps to sortby (for parameter computation) file
         sortbyseries = sortbyseries
         sortbyfolder = os.path.join(inputfolder, '{0}' .format(sortbyseries))
         sortbyhdf5 = os.path.join(sortbyfolder, sortbyfile)
@@ -548,6 +550,8 @@ def get_data_provider_for_parameter_by(parameter_by, inputfolder, hdf5_filename,
 #######################
 
 def run_parameters(data_provider, confobj, eeg_info_study_obj):
+    print('Computing Parameters ....')
+
     #create dictionary with parameter statistics for all group cond pt run
     output_data_all = {}
 
@@ -562,10 +566,12 @@ def run_parameters(data_provider, confobj, eeg_info_study_obj):
         #add data for output_path to dictionary
         output_data_all[output_path]=output_data
 
-    #create spss sheets for all group cond pt run based on dictionary: output_data_all
+    #create csv sheets for all group cond pt run based on dictionary: output_data_all
     #get location for outputhdf5 for folder 
 
     data_provider.write_output_totext(confobj, eeg_info_study_obj, output_data_all)
+
+    print('Parameter results were written to outputfolder.')
 
 
 ####-------------------------------------####

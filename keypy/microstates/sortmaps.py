@@ -23,14 +23,14 @@ from keypy.microstates.sortmaps_provider import *
 ##############################
 
 
-def sort_maps(confobj, input, sortby, input_original):
+def sortmaps(confobj, input, sortby, input_original):
     """
     This function performs the sorting of a given input based on a given sortby. The sorted input_original is returned.
  
     Parameters
     ----------
     confobj : object of type MstConfiguration
-          Contains the parameters used for microstate computation and visualization. 
+          Contains the parameters used for microstate modelmap computation and visualization. 
     input : 
         Maps to be sorted reduced to the same number in the same order as sortby.
     sortby : 
@@ -144,7 +144,7 @@ def get_io_sortmap_for_series(series, iteration, inputfolder, inputfile_name, so
     outputfolder:
 		folder of output hd5
     first_input:
-		name of dataset of input hdf5 for first model map computation (e.g. 'microstate' or 'modelmaps')
+		name of dataset of input hdf5 for first model map computation (e.g. 'modelmap' or 'meanmod')
 
     Returns
     ----------
@@ -171,55 +171,55 @@ def get_io_sortmap_for_series(series, iteration, inputfolder, inputfile_name, so
             ######
             ##sort modelmaps across groups by sortbyfile
             ######
-            inputhdf5 = os.path.join( outputfolder, 'Series_1', 'modelmaps_across_groups.hdf')
+            inputhdf5 = os.path.join( outputfolder, 'Series_1', 'meanmods_across_groups.hdf')
             sortbyhdf5 = os.path.join(sortbyfolder, sortbyfile)
-            outputhdf5 = os.path.join( outputfolder, 'Series_1', 'modelmaps_across_groups{0}.hdf' .format('_sorted') )
-            inputdataset = 'modelmap'
-            sortbydataset = 'modelmap'
-            outputdataset = 'modelmap'
+            outputhdf5 = os.path.join( outputfolder, 'Series_1', 'meanmods_across_groups{0}.hdf' .format('_sorted') )
+            inputdataset = 'meanmod'
+            sortbydataset = 'meanmod'
+            outputdataset = 'meanmod'
             sortdata_provider = SortAllByNormDataProvider1(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset, sortbyfile_chlist)
         elif iteration == 1:
             ######
-            ##sort modelmaps_across_pts by modelmaps_across_groups_sorted
+            ##sort meanmods_across_pts by meanmods_across_groups_sorted
             ######
-            inputhdf5 = os.path.join( outputfolder, 'Series_1', 'modelmaps_across_pts.hdf')
-            sortbyhdf5 = os.path.join( outputfolder, 'Series_1', 'modelmaps_across_groups_sorted.hdf')
-            outputhdf5 = os.path.join( outputfolder, 'Series_1', 'modelmaps_across_pts{0}.hdf' .format('_sorted') )
-            inputdataset = 'modelmap'
-            sortbydataset = 'modelmap'
-            outputdataset = 'modelmap'
+            inputhdf5 = os.path.join( outputfolder, 'Series_1', 'meanmods_across_pts.hdf')
+            sortbyhdf5 = os.path.join( outputfolder, 'Series_1', 'meanmods_across_groups_sorted.hdf')
+            outputhdf5 = os.path.join( outputfolder, 'Series_1', 'meanmods_across_pts{0}.hdf' .format('_sorted') )
+            inputdataset = 'meanmod'
+            sortbydataset = 'meanmod'
+            outputdataset = 'meanmod'
             sortdata_provider = SortGroupByAllDataProvider1(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset, sortbyfile_chlist)
         elif iteration == 2:
             ######
-            ##sort modelmaps_across_conds by modelmaps_across_pts_sorted
+            ##sort meanmods_across_conds by meanmods_across_pts_sorted
             ######
-            inputhdf5 = os.path.join( outputfolder, 'Series_1', 'modelmaps_across_conds.hdf')
-            sortbyhdf5 = os.path.join( outputfolder, 'Series_1', 'modelmaps_across_pts_sorted.hdf')
-            outputhdf5 = os.path.join( outputfolder, 'Series_1', 'modelmaps_across_conds{0}.hdf' .format('_sorted') )
-            inputdataset = 'modelmap'
-            sortbydataset = 'modelmap'
-            outputdataset = 'modelmap'
+            inputhdf5 = os.path.join( outputfolder, 'Series_1', 'meanmods_across_conds.hdf')
+            sortbyhdf5 = os.path.join( outputfolder, 'Series_1', 'meanmods_across_pts_sorted.hdf')
+            outputhdf5 = os.path.join( outputfolder, 'Series_1', 'meanmods_across_conds{0}.hdf' .format('_sorted') )
+            inputdataset = 'meanmod'
+            sortbydataset = 'meanmod'
+            outputdataset = 'meanmod'
             sortdata_provider = SortPtByGroupDataProvider1(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset, sortbyfile_chlist)
         elif iteration == 3:
             ######
-            ##sort sort modelmaps_across_runs by modelmaps_across_conds_sorted
+            ##sort sort meanmods_across_runs by meanmods_across_conds_sorted
             ######
-            inputhdf5 = os.path.join( outputfolder, 'Series_1', 'modelmaps_across_runs.hdf')
-            sortbyhdf5 = os.path.join( outputfolder, 'Series_1', 'modelmaps_across_conds_sorted.hdf')
-            outputhdf5 = os.path.join( outputfolder, 'Series_1', 'modelmaps_across_runs{0}.hdf' .format('_sorted') )
-            inputdataset = 'modelmap'
-            sortbydataset = 'modelmap'
-            outputdataset = 'modelmap'
+            inputhdf5 = os.path.join( outputfolder, 'Series_1', 'meanmods_across_runs.hdf')
+            sortbyhdf5 = os.path.join( outputfolder, 'Series_1', 'meanmods_across_conds_sorted.hdf')
+            outputhdf5 = os.path.join( outputfolder, 'Series_1', 'meanmods_across_runs{0}.hdf' .format('_sorted') )
+            inputdataset = 'meanmod'
+            sortbydataset = 'meanmod'
+            outputdataset = 'meanmod'
             sortdata_provider = SortCondByPtDataProvider1(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset, sortbyfile_chlist)
         elif iteration == 4:
             ######
-            ##sort microstates by modelmaps_across_runs_sorted
+            ##sort modelmaps by meanmods_across_runs_sorted
             ######
             inputhdf5 = os.path.join( inputfolder, inputfile_name)
-            sortbyhdf5 = os.path.join( outputfolder, 'Series_1', 'modelmaps_across_runs_sorted.hdf')
+            sortbyhdf5 = os.path.join( outputfolder, 'Series_1', 'meanmods_across_runs_sorted.hdf')
             outputhdf5 = os.path.join( inputfolder, inputfile_name)
             inputdataset = first_input
-            sortbydataset = 'modelmap'
+            sortbydataset = 'meanmod'
             outputdataset = '{0}{1}' .format(first_input, '_Series_1_sorted')
             sortdata_provider = SortRunByCondDataProvider1(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset, sortbyfile_chlist)
         else:
@@ -231,33 +231,33 @@ def get_io_sortmap_for_series(series, iteration, inputfolder, inputfile_name, so
             ######
             ##sort modelmaps across runs by sortbyfile
             ######
-            inputhdf5 = os.path.join( outputfolder, 'Series_2', 'modelmaps_across_runs.hdf')
+            inputhdf5 = os.path.join( outputfolder, 'Series_2', 'meanmods_across_runs.hdf')
             sortbyhdf5 = os.path.join(sortbyfolder, sortbyfile)
-            outputhdf5 = os.path.join( outputfolder, 'Series_2', 'modelmaps_across_runs{0}.hdf' .format('_sorted') )
-            inputdataset = 'modelmap'
-            sortbydataset = 'modelmap'
-            outputdataset = 'modelmap'
+            outputhdf5 = os.path.join( outputfolder, 'Series_2', 'meanmods_across_runs{0}.hdf' .format('_sorted') )
+            inputdataset = 'meanmod'
+            sortbydataset = 'meanmod'
+            outputdataset = 'meanmod'
             sortdata_provider = SortAllByNormDataProvider2(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset, sortbyfile_chlist)
         elif iteration == 1:
             ######
-            ##sort modelmaps_across_pts by modelmaps_across_runs
+            ##sort meanmods_across_pts by meanmods_across_runs
             ######
-            inputhdf5 = os.path.join( outputfolder, 'Series_2', 'modelmaps_across_pts.hdf')
-            sortbyhdf5 = os.path.join( outputfolder, 'Series_2', 'modelmaps_across_runs_sorted.hdf')
-            outputhdf5 = os.path.join( outputfolder, 'Series_2', 'modelmaps_across_pts{0}.hdf' .format('_sorted') )
-            inputdataset = 'modelmap'
-            sortbydataset = 'modelmap'
-            outputdataset = 'modelmap'
+            inputhdf5 = os.path.join( outputfolder, 'Series_2', 'meanmods_across_pts.hdf')
+            sortbyhdf5 = os.path.join( outputfolder, 'Series_2', 'meanmods_across_runs_sorted.hdf')
+            outputhdf5 = os.path.join( outputfolder, 'Series_2', 'meanmods_across_pts{0}.hdf' .format('_sorted') )
+            inputdataset = 'meanmod'
+            sortbydataset = 'meanmod'
+            outputdataset = 'meanmod'
             sortdata_provider = SortCondByPtDataProvider1(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset, sortbyfile_chlist)
         elif iteration == 2:
             ######
-            ##sort microstates by modelmaps_across_pts_sorted
+            ##sort modelmaps by meanmods_across_pts_sorted
             ######
             inputhdf5 = os.path.join( inputfolder, inputfile_name)
-            sortbyhdf5 = os.path.join( outputfolder, 'Series_2', 'modelmaps_across_pts_sorted.hdf')
+            sortbyhdf5 = os.path.join( outputfolder, 'Series_2', 'meanmods_across_pts_sorted.hdf')
             outputhdf5 = os.path.join( inputfolder, inputfile_name)
             inputdataset = first_input
-            sortbydataset = 'modelmap'
+            sortbydataset = 'meanmod'
             outputdataset = '{0}{1}' .format(first_input, '_Series_2_sorted')
             sortdata_provider = SortRunByCondDataProvider2(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset, sortbyfile_chlist)
         else:
@@ -268,55 +268,55 @@ def get_io_sortmap_for_series(series, iteration, inputfolder, inputfile_name, so
             ######
             ##sort modelmaps across conds by sortbyfile
             ######
-            inputhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_conds.hdf')
+            inputhdf5 = os.path.join( outputfolder, 'Series_3', 'meanmods_across_conds.hdf')
             sortbyhdf5 = os.path.join(sortbyfolder, sortbyfile)
-            outputhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_conds{0}.hdf' .format('_sorted') )
-            inputdataset = 'modelmap'
-            sortbydataset = 'modelmap'
-            outputdataset = 'modelmap'
+            outputhdf5 = os.path.join( outputfolder, 'Series_3', 'meanmods_across_conds{0}.hdf' .format('_sorted') )
+            inputdataset = 'meanmod'
+            sortbydataset = 'meanmod'
+            outputdataset = 'meanmod'
             sortdata_provider = SortAllByNormDataProvider1(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset, sortbyfile_chlist)
         elif iteration == 1:
             ######
-            ##sort modelmaps_across_groups by modelmaps_across_conds
+            ##sort meanmods_across_groups by meanmods_across_conds
             ######
-            inputhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_groups.hdf')
-            sortbyhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_conds_sorted.hdf')
-            outputhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_groups{0}.hdf' .format('_sorted') )
-            inputdataset = 'modelmap'
-            sortbydataset = 'modelmap'
-            outputdataset = 'modelmap'
+            inputhdf5 = os.path.join( outputfolder, 'Series_3', 'meanmods_across_groups.hdf')
+            sortbyhdf5 = os.path.join( outputfolder, 'Series_3', 'meanmods_across_conds_sorted.hdf')
+            outputhdf5 = os.path.join( outputfolder, 'Series_3', 'meanmods_across_groups{0}.hdf' .format('_sorted') )
+            inputdataset = 'meanmod'
+            sortbydataset = 'meanmod'
+            outputdataset = 'meanmod'
             sortdata_provider = SortGroupByAllDataProvider1(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset, sortbyfile_chlist)
         elif iteration == 2:
             ######
-            ##sort modelmaps_across_pts by modelmaps_across_groups_sorted
+            ##sort meanmods_across_pts by meanmods_across_groups_sorted
             ######
-            inputhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_pts.hdf')
-            sortbyhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_groups_sorted.hdf')
-            outputhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_pts{0}.hdf' .format('_sorted') )
-            inputdataset = 'modelmap'
-            sortbydataset = 'modelmap'
-            outputdataset = 'modelmap'
+            inputhdf5 = os.path.join( outputfolder, 'Series_3', 'meanmods_across_pts.hdf')
+            sortbyhdf5 = os.path.join( outputfolder, 'Series_3', 'meanmods_across_groups_sorted.hdf')
+            outputhdf5 = os.path.join( outputfolder, 'Series_3', 'meanmods_across_pts{0}.hdf' .format('_sorted') )
+            inputdataset = 'meanmod'
+            sortbydataset = 'meanmod'
+            outputdataset = 'meanmod'
             sortdata_provider = SortPtByGroupDataProvider2(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset, sortbyfile_chlist)
         elif iteration == 3:
             ######
-            ##sort sort modelmaps_across_runs by modelmaps_across_pts_sorted
+            ##sort sort meanmods_across_runs by meanmods_across_pts_sorted
             ######
-            inputhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_runs.hdf')
-            sortbyhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_pts_sorted.hdf')
-            outputhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_runs{0}.hdf' .format('_sorted') )
-            inputdataset = 'modelmap'
-            sortbydataset = 'modelmap'
-            outputdataset = 'modelmap'
+            inputhdf5 = os.path.join( outputfolder, 'Series_3', 'meanmods_across_runs.hdf')
+            sortbyhdf5 = os.path.join( outputfolder, 'Series_3', 'meanmods_across_pts_sorted.hdf')
+            outputhdf5 = os.path.join( outputfolder, 'Series_3', 'meanmods_across_runs{0}.hdf' .format('_sorted') )
+            inputdataset = 'meanmod'
+            sortbydataset = 'meanmod'
+            outputdataset = 'meanmod'
             sortdata_provider = SortCondByPtDataProvider2(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset, sortbyfile_chlist)
         elif iteration == 4:
             ######
-            ##sort microstates by modelmaps_across_runs_sorted
+            ##sort modelmaps by meanmods_across_runs_sorted
             ######
             inputhdf5 = os.path.join( inputfolder, inputfile_name)
-            sortbyhdf5 = os.path.join( outputfolder, 'Series_3', 'modelmaps_across_runs_sorted.hdf')
+            sortbyhdf5 = os.path.join( outputfolder, 'Series_3', 'meanmods_across_runs_sorted.hdf')
             outputhdf5 = os.path.join( inputfolder, inputfile_name)
             inputdataset = first_input
-            sortbydataset = 'modelmap'
+            sortbydataset = 'meanmod'
             outputdataset = '{0}{1}' .format(first_input, '_Series_3_sorted')
             sortdata_provider = SortRunByCondDataProvider1(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset, sortbyfile_chlist)
         else:
@@ -327,55 +327,55 @@ def get_io_sortmap_for_series(series, iteration, inputfolder, inputfile_name, so
             ######
             ##sort modelmaps across groups by sortbyfile
             ######
-            inputhdf5 = os.path.join( outputfolder, 'Series_4', 'modelmaps_across_groups.hdf')
+            inputhdf5 = os.path.join( outputfolder, 'Series_4', 'meanmods_across_groups.hdf')
             sortbyhdf5 = os.path.join(sortbyfolder, sortbyfile)
-            outputhdf5 = os.path.join( outputfolder, 'Series_4', 'modelmaps_across_groups{0}.hdf' .format('_sorted') )
-            inputdataset = 'modelmap'
-            sortbydataset = 'modelmap'
-            outputdataset = 'modelmap'
+            outputhdf5 = os.path.join( outputfolder, 'Series_4', 'meanmods_across_groups{0}.hdf' .format('_sorted') )
+            inputdataset = 'meanmod'
+            sortbydataset = 'meanmod'
+            outputdataset = 'meanmod'
             sortdata_provider = SortAllByNormDataProvider1(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset, sortbyfile_chlist)
         elif iteration == 1:
             ######
-            ##sort modelmaps_across_conds by modelmaps_across groups
+            ##sort meanmods_across_conds by meanmods_across groups
             ######
-            inputhdf5 = os.path.join( outputfolder, 'Series_4', 'modelmaps_across_conds.hdf')
-            sortbyhdf5 = os.path.join( outputfolder, 'Series_4', 'modelmaps_across_groups_sorted.hdf')
-            outputhdf5 = os.path.join( outputfolder, 'Series_4', 'modelmaps_across_conds{0}.hdf' .format('_sorted') )
-            inputdataset = 'modelmap'
-            sortbydataset = 'modelmap'
-            outputdataset = 'modelmap'
+            inputhdf5 = os.path.join( outputfolder, 'Series_4', 'meanmods_across_conds.hdf')
+            sortbyhdf5 = os.path.join( outputfolder, 'Series_4', 'meanmods_across_groups_sorted.hdf')
+            outputhdf5 = os.path.join( outputfolder, 'Series_4', 'meanmods_across_conds{0}.hdf' .format('_sorted') )
+            inputdataset = 'meanmod'
+            sortbydataset = 'meanmod'
+            outputdataset = 'meanmod'
             sortdata_provider = SortGroupByAllDataProvider1(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset, sortbyfile_chlist)
         elif iteration == 2:
             ######
-            ##sort modelmaps_across_pts by modelmaps_across_conds_sorted
+            ##sort meanmods_across_pts by meanmods_across_conds_sorted
             ######
-            inputhdf5 = os.path.join( outputfolder, 'Series_4', 'modelmaps_across_pts.hdf')
-            sortbyhdf5 = os.path.join( outputfolder, 'Series_4', 'modelmaps_across_conds_sorted.hdf')
-            outputhdf5 = os.path.join( outputfolder, 'Series_4', 'modelmaps_across_pts{0}.hdf' .format('_sorted') )
-            inputdataset = 'modelmap'
-            sortbydataset = 'modelmap'
-            outputdataset = 'modelmap'
+            inputhdf5 = os.path.join( outputfolder, 'Series_4', 'meanmods_across_pts.hdf')
+            sortbyhdf5 = os.path.join( outputfolder, 'Series_4', 'meanmods_across_conds_sorted.hdf')
+            outputhdf5 = os.path.join( outputfolder, 'Series_4', 'meanmods_across_pts{0}.hdf' .format('_sorted') )
+            inputdataset = 'meanmod'
+            sortbydataset = 'meanmod'
+            outputdataset = 'meanmod'
             sortdata_provider = SortPtByGroupDataProvider1(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset, sortbyfile_chlist)
         elif iteration == 3:
             ######
-            ##sort modelmaps_across_runs by modelmaps_across_pts_sorted
+            ##sort meanmods_across_runs by meanmods_across_pts_sorted
             ######
-            inputhdf5 = os.path.join( outputfolder, 'Series_4', 'modelmaps_across_runs.hdf')
-            sortbyhdf5 = os.path.join( outputfolder, 'Series_4', 'modelmaps_across_pts_sorted.hdf')
-            outputhdf5 = os.path.join( outputfolder, 'Series_4', 'modelmaps_across_runs{0}.hdf' .format('_sorted') )
-            inputdataset = 'modelmap'
-            sortbydataset = 'modelmap'
-            outputdataset = 'modelmap'
+            inputhdf5 = os.path.join( outputfolder, 'Series_4', 'meanmods_across_runs.hdf')
+            sortbyhdf5 = os.path.join( outputfolder, 'Series_4', 'meanmods_across_pts_sorted.hdf')
+            outputhdf5 = os.path.join( outputfolder, 'Series_4', 'meanmods_across_runs{0}.hdf' .format('_sorted') )
+            inputdataset = 'meanmod'
+            sortbydataset = 'meanmod'
+            outputdataset = 'meanmod'
             sortdata_provider = SortCondByPtDataProvider2(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset, sortbyfile_chlist)
         elif iteration == 4:
             ######
             ##means across groups
             ######
             inputhdf5 = os.path.join( inputfolder, inputfile_name)
-            sortbyhdf5 = os.path.join( outputfolder, 'Series_4', 'modelmaps_across_runs_sorted.hdf')
+            sortbyhdf5 = os.path.join( outputfolder, 'Series_4', 'meanmods_across_runs_sorted.hdf')
             outputhdf5 = os.path.join( inputfolder, inputfile_name)
             inputdataset = first_input
-            sortbydataset = 'modelmap'
+            sortbydataset = 'meanmod'
             outputdataset = '{0}{1}' .format(first_input, '_Series_4_sorted')
             sortdata_provider = SortRunByCondDataProvider1(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset, sortbyfile_chlist)
         else:
@@ -386,46 +386,46 @@ def get_io_sortmap_for_series(series, iteration, inputfolder, inputfile_name, so
             ######
             ##sort modelmaps across pts by sortbyfile
             ######
-            inputhdf5 = os.path.join( outputfolder, 'Series_5', 'modelmaps_across_pts.hdf')
+            inputhdf5 = os.path.join( outputfolder, 'Series_5', 'meanmods_across_pts.hdf')
             sortbyhdf5 = os.path.join(sortbyfolder, sortbyfile)
-            outputhdf5 = os.path.join( outputfolder, 'Series_5', 'modelmaps_across_pts{0}.hdf' .format('_sorted') )
-            inputdataset = 'modelmap'
-            sortbydataset = 'modelmap'
-            outputdataset = 'modelmap'
+            outputhdf5 = os.path.join( outputfolder, 'Series_5', 'meanmods_across_pts{0}.hdf' .format('_sorted') )
+            inputdataset = 'meanmod'
+            sortbydataset = 'meanmod'
+            outputdataset = 'meanmod'
             sortdata_provider = SortAllByNormDataProvider1(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset, sortbyfile_chlist)
         elif iteration == 1:
             ######
-            ##sort modelmaps_across_groups by modelmaps_across_pts
+            ##sort meanmods_across_groups by meanmods_across_pts
             ######
-            inputhdf5 = os.path.join( outputfolder, 'Series_5', 'modelmaps_across_groups.hdf')
-            sortbyhdf5 = os.path.join( outputfolder, 'Series_5', 'modelmaps_across_pts_sorted.hdf')
-            outputhdf5 = os.path.join( outputfolder, 'Series_5', 'modelmaps_across_groups{0}.hdf' .format('_sorted') )
-            inputdataset = 'modelmap'
-            sortbydataset = 'modelmap'
-            outputdataset = 'modelmap'
+            inputhdf5 = os.path.join( outputfolder, 'Series_5', 'meanmods_across_groups.hdf')
+            sortbyhdf5 = os.path.join( outputfolder, 'Series_5', 'meanmods_across_pts_sorted.hdf')
+            outputhdf5 = os.path.join( outputfolder, 'Series_5', 'meanmods_across_groups{0}.hdf' .format('_sorted') )
+            inputdataset = 'meanmod'
+            sortbydataset = 'meanmod'
+            outputdataset = 'meanmod'
             sortdata_provider = SortGroupByAllDataProvider1(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset, sortbyfile_chlist)
         elif iteration == 2:
             ######
-            ##sort modelmaps_across_conds by modelmaps_across_groups_sorted
+            ##sort meanmods_across_conds by meanmods_across_groups_sorted
             ######
-            inputhdf5 = os.path.join( outputfolder, 'Series_5', 'modelmaps_across_conds.hdf')
-            sortbyhdf5 = os.path.join( outputfolder, 'Series_5', 'modelmaps_across_groups_sorted.hdf')
-            outputhdf5 = os.path.join( outputfolder, 'Series_5', 'modelmaps_across_conds{0}.hdf' .format('_sorted') )
-            inputdataset = 'modelmap'
-            sortbydataset = 'modelmap'
-            outputdataset = 'modelmap'
+            inputhdf5 = os.path.join( outputfolder, 'Series_5', 'meanmods_across_conds.hdf')
+            sortbyhdf5 = os.path.join( outputfolder, 'Series_5', 'meanmods_across_groups_sorted.hdf')
+            outputhdf5 = os.path.join( outputfolder, 'Series_5', 'meanmods_across_conds{0}.hdf' .format('_sorted') )
+            inputdataset = 'meanmod'
+            sortbydataset = 'meanmod'
+            outputdataset = 'meanmod'
             sortdata_provider = SortPtByGroupDataProvider2(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset, sortbyfile_chlist)
 
         elif iteration == 3:
             ######
-            ##sort modelmaps_across_runs by modelmaps_across_conds_sorted
+            ##sort meanmods_across_runs by meanmods_across_conds_sorted
             ######
-            inputhdf5 = os.path.join( outputfolder, 'Series_5', 'modelmaps_across_runs.hdf')
-            sortbyhdf5 = os.path.join( outputfolder, 'Series_5', 'modelmaps_across_conds_sorted.hdf')
-            outputhdf5 = os.path.join( outputfolder, 'Series_5', 'modelmaps_across_runs{0}.hdf' .format('_sorted') )
-            inputdataset = 'modelmap'
-            sortbydataset = 'modelmap'
-            outputdataset = 'modelmap'
+            inputhdf5 = os.path.join( outputfolder, 'Series_5', 'meanmods_across_runs.hdf')
+            sortbyhdf5 = os.path.join( outputfolder, 'Series_5', 'meanmods_across_conds_sorted.hdf')
+            outputhdf5 = os.path.join( outputfolder, 'Series_5', 'meanmods_across_runs{0}.hdf' .format('_sorted') )
+            inputdataset = 'meanmod'
+            sortbydataset = 'meanmod'
+            outputdataset = 'meanmod'
             sortdata_provider = SortCondByPtDataProvider1(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset, sortbyfile_chlist)
 
         elif iteration == 4:
@@ -433,10 +433,10 @@ def get_io_sortmap_for_series(series, iteration, inputfolder, inputfile_name, so
             ##means across groups
             ######
             inputhdf5 = os.path.join( inputfolder, inputfile_name)
-            sortbyhdf5 = os.path.join( outputfolder, 'Series_5', 'modelmaps_across_runs_sorted.hdf')
+            sortbyhdf5 = os.path.join( outputfolder, 'Series_5', 'meanmods_across_runs_sorted.hdf')
             outputhdf5 = os.path.join( inputfolder, inputfile_name)
             inputdataset = first_input
-            sortbydataset = 'modelmap'
+            sortbydataset = 'meanmod'
             outputdataset = '{0}{1}' .format(first_input, '_Series_5_sorted')
             sortdata_provider = SortRunByCondDataProvider1(inputhdf5, sortbyhdf5, outputhdf5, inputdataset, sortbydataset, outputdataset, sortbyfile_chlist)
         else:
@@ -451,18 +451,20 @@ def get_io_sortmap_for_series(series, iteration, inputfolder, inputfile_name, so
 ####--------------------------------------------------------------------------####
 
 
-def run_sort_maps(data_provider, confobj, eeg_info_study_obj):
+def run_sortmaps(data_provider, confobj, eeg_info_study_obj):
     for output_path in data_provider.get_outputs():
+        print('Sorting maps: ', output_path.level0)
+
         input_reduced, input_original = data_provider.get_input_data(output_path, eeg_info_study_obj.chlist)
         sortby = data_provider.get_sortby_data(output_path)
-        output_data, output_attributes = sort_maps(confobj, input_reduced, sortby, input_original)     
+        output_data, output_attributes = sortmaps(confobj, input_reduced, sortby, input_original)     
         if not output_data == []:
             data_provider.write_output_data(output_path, output_data, output_attributes)
 
 ####--------------------------------------------------------------------------####
 
 
-def run_sort_maps_series(series, inputfolder, inputfile_name, sortbyfolder, sortbyfile, sortbyfile_chlist, outputfolder, first_input, confobj, eeg_info_study_obj) :
+def run_sortmaps_series(series, inputfolder, inputfile_name, sortbyfolder, sortbyfile, sortbyfile_chlist, outputfolder, first_input, confobj, eeg_info_study_obj) :
     """
     Runs run_model_maps for each input of the series.
  
@@ -488,10 +490,13 @@ def run_sort_maps_series(series, inputfolder, inputfile_name, sortbyfolder, sort
     outputfolder : str
         path to folder that will contain the output hdf5 file
     first_input : str
-        dataset name that contains the N microstates for each run that the modelmap computation should be based on, e.g. 'microstate'.
+        dataset name that contains the N modelmaps for each run that the meanmod computation should be based on, e.g. 'modelmap'.
     confobj : object of type MstConfiguration
-         Contains the parameters used for microstate computation and visualization. 
+         Contains the parameters used for microstate modelmap computation and visualization. 
     """
+    print('Computing Sortmaps ....')
+    if confobj.original_nr_of_maps != 4:
+        print('Warning: Make sure that the model maps you want to sortby are identical in number to the model maps you computed!')
 
     stop = False
     iteration = 0
@@ -499,8 +504,8 @@ def run_sort_maps_series(series, inputfolder, inputfile_name, sortbyfolder, sort
         sortdata_provider, stop = get_io_sortmap_for_series(series, iteration, inputfolder, inputfile_name, sortbyfolder, sortbyfile, sortbyfile_chlist, outputfolder, first_input)
         if stop:
             break
-
-        run_sort_maps(sortdata_provider, confobj, eeg_info_study_obj)
+        print('computing sortmaps iteration ', iteration)
+        run_sortmaps(sortdata_provider, confobj, eeg_info_study_obj)
 
         iteration = iteration + 1
 

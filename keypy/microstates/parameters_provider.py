@@ -156,7 +156,7 @@ def create_parameter_spss_sheets(confobj, eeg_info_study_obj, outputfolder, outp
                             if parameters_mean[meas][pti][condi][runi][mapnr]:
                                 spss_parameter_file.write("{0:.10f}".format(parameters_mean[meas][pti][condi][runi][mapnr]))
                             else:
-                                print('No data available for {0} {1} {2} {3}'.format(pti, condi, runi, mapnr))
+                                #print('No data available for {0} {1} {2} {3}'.format(pti, condi, runi, mapnr))
                                 spss_parameter_file.write("{0}".format(999))
 
 ####-------------------------------------####
@@ -220,7 +220,7 @@ class ParametersDataProvider(object):
             os.makedirs(outputfolder)
 
         with closing( h5py.File(self._outputfile) ) as k:
-            print('output_paths used for output: {0}'.format(output_path.level0))
+            #print('Computing parameters for: {0}'.format(output_path.level0))
 
             if output_path.level0 in k['/'].keys():
                 group_group = k['{0}' .format(output_path.level0)]
@@ -260,7 +260,7 @@ class ParametersDataProvider(object):
             map_avg_perc=parameter_preprocessing(confobj, epochwise_data['State Match Mean percentage'])  
 
             if 'State Match Mean p' in run_group.keys():
-                print('State Match Mean p already exists. Not recomputed for {0} {1} {2} {3}'.format(output_path.level0, output_path.level1, output_path.level2, output_path.level3))
+                print('State Match Mean already exists. Not recomputed for {0} {1} {2} {3}'.format(output_path.level0, output_path.level1, output_path.level2, output_path.level3))
             else:
                 if map_avg_perc.any():
                     run_group.create_dataset('State Match Mean p', data = map_avg_perc)    
@@ -278,6 +278,7 @@ class ParametersDataProvider(object):
                 else:
                     if runwise_data[dataset_name].any():
                         run_group.create_dataset(dataset_name, data = runwise_data[dataset_name])
+                        #run_group['{0}' .format(runwise_data[dataset_name])].attrs['Warning']='The indiviudal maps are not sorted and were reduced to the overlapping channels of the input data and the sortby maps.'
                     else:
                         run_group.create_dataset(dataset_name, data = 999)
 
@@ -338,6 +339,8 @@ class ParametersDataProvider(object):
 
         create_parameter_spss_sheets(confobj, eeg_info_study_obj, outputfolder, output_data_all)
 
+        output_mstate_label_list(confobj, eeg_info_study_obj, outputfolder, output_data_all)
+
 
 
 ####Sub Class CondDataProvider --> umbenennen
@@ -352,14 +355,14 @@ class ParametersByNormDataProvider1(ParametersDataProvider):
     #ein Aufruf pro Output, gets a list of all modelmaps which are to be sorted by
     def get_sortby_data(self, output_path):
         #loads the channel reordered sortby template (reodering done by reduce_channels function in microstate_helper.py)
-        microstate_run_value = np.loadtxt(os.path.join(os.path.dirname(self._sortbyfile),"{0}_reduced.asc".format(os.path.splitext(os.path.basename(self._sortbyfile))[0])))
+        modelmap_run_value = np.loadtxt(os.path.join(os.path.dirname(self._sortbyfile),"{0}_reduced.asc".format(os.path.splitext(os.path.basename(self._sortbyfile))[0])))
 
        
 
-        if all(microstate_run_value[0,:] == 0):
+        if all(modelmap_run_value[0,:] == 0):
             print('Warning! {0} has all zeros, group, pt, cond ignored.'.format(sortbyhdf5))
         else:
-            model_map=microstate_run_value[:]
+            model_map=modelmap_run_value[:]
         return model_map
 
 
@@ -389,8 +392,8 @@ class ParametersBy1LevelDataProvider1(ParametersDataProvider):
             else:
                 print('Sortbypath not found for {0} {1} {2} {3} in HDF5 file {4}'.format(output_path.level0, output_path.level1, output_path.level2, output_path.level3, self._sortbyfile))
                        
-            microstate_run_value = f['/{0}/{1}' .format(path, self._sortbydataset)] 
-            model_map=microstate_run_value[:]
+            modelmap_run_value = f['/{0}/{1}' .format(path, self._sortbydataset)] 
+            model_map=modelmap_run_value[:]
         
         return model_map
 
@@ -437,8 +440,8 @@ class ParametersBy2LevelsDataProvider1(ParametersDataProvider):
                 print('Sortbypath not found for {0} {1} {2} {3} in HDF5 file {4}'.format(output_path.level0, output_path.level1, output_path.level2, output_path.level3, self._sortbyfile))
 
             path = '/{0}/{1}' .format(firstlevel, secondlevel)
-            microstate_run_value = f['/{0}/{1}' .format(path, self._sortbydataset)] 
-            model_map=microstate_run_value[:]
+            modelmap_run_value = f['/{0}/{1}' .format(path, self._sortbydataset)] 
+            model_map=modelmap_run_value[:]
         
         return model_map
 
@@ -497,8 +500,8 @@ class ParametersBy3LevelsDataProvider1(ParametersDataProvider):
 
 
             path = '/{0}/{1}/{2}' .format(firstlevel, secondlevel, thirdlevel)
-            microstate_run_value = f['/{0}/{1}' .format(path, self._sortbydataset)] 
-            model_map=microstate_run_value[:]
+            modelmap_run_value = f['/{0}/{1}' .format(path, self._sortbydataset)] 
+            model_map=modelmap_run_value[:]
         
         return model_map
 
@@ -566,11 +569,131 @@ class ParametersBy4LevelsDataProvider1(ParametersDataProvider):
                 print('Sortbypath not found for {0} {1} {2} {3} in HDF5 file {4}'.format(output_path.level0, output_path.level1, output_path.level2, output_path.level3, self._sortbyfile))
 
             path = '/{0}/{1}/{2}/{3}' .format(firstlevel, secondlevel, thirdlevel, fourthlevel)
-            microstate_run_value = f['/{0}/{1}' .format(path, self._sortbydataset)] 
-            model_map=microstate_run_value[:]
+            modelmap_run_value = f['/{0}/{1}' .format(path, self._sortbydataset)] 
+            model_map=modelmap_run_value[:]
         
         return model_map
 
 ####-------------------------------------####
 ####-------------------------------------####
 ####-------------------------------------####
+
+
+
+def output_mstate_label_list(confobj, eeg_info_study_obj, outputfolder, output_data_all):
+
+    sf=eeg_info_study_obj.sf
+
+    import csv
+    measure_of_interest=['Start state array']
+    short_names_measures = {}
+    short_names_measures['Start state array']='map'
+
+
+    #get maximal number of epochs across all group pt cond run
+    max_len=0
+    for output_data_path, output_data_per_path in output_data_all.iteritems():
+        runwise_data, epochwise_data, mapwise_data = output_data_per_path
+        #count number of epochs
+        curr_len=len(mapwise_data['Occurrance per s'])
+        if max_len < curr_len:
+            max_len = curr_len
+
+
+    #get list of all Pts
+    pt_set = Set()
+    cond_set = Set()
+    run_set = Set()
+
+    for output_data_path in output_data_all.keys():
+        #in order to ensure that all participants are included, the participant is characterized by its name and its group
+        pt_set.add("{0} {1}" .format(output_data_path.level0, output_data_path.level1))
+        cond_set.add(output_data_path.level2)
+        run_set.add(output_data_path.level3)
+
+    pt_list=sorted(pt_set)
+    cond_list=sorted(cond_set)
+    run_list=sorted(run_set)
+
+      
+    #########
+    ###File with mean across epochs for each measure
+    #########
+
+    #create dictionary with key levels: measure, pti, cond, run
+    labels_dict=dict.fromkeys(measure_of_interest)
+    for meas in measure_of_interest:
+        labels_dict[meas]=dict.fromkeys(pt_list)
+        for pti in pt_list:
+            labels_dict[meas][pti]=dict.fromkeys(cond_list)
+            for condi in cond_list:
+                labels_dict[meas][pti][condi]=dict.fromkeys(run_list)
+                for runi in run_list:
+                    labels_dict[meas][pti][condi][runi]=[]
+
+
+    for meas in measure_of_interest:           
+        for pti in pt_list:
+            for condi in cond_list:
+                for runi in run_list:
+                    for output_data_path, output_data_per_path in output_data_all.iteritems():
+                        runwise_data, epochwise_data, mapwise_data = output_data_per_path
+                        if "{0} {1}" .format(output_data_path.level0, output_data_path.level1) == pti and output_data_path.level2 == condi and output_data_path.level3 == runi:
+                            if epochwise_data[meas]:
+                                label_list=[]
+                                if not epochwise_data[meas].keys():
+                                    continue
+                                    print ('Warning', meas, pti, condi, runi, 'epochwise_data[meas].keys() =', epochwise_data[meas].keys())
+
+                                else:
+                                    for epochnr in range(len(epochwise_data[meas].keys())):   
+                                        for tfnr in range(eeg_info_study_obj.tf):
+                                            if (pti=='group_All_Pts pt_01_' and  condi == 'cond_O1' and  runi=='run_1' and  epochnr == 5 and  tfnr == 468):
+                                                print ('now')
+                             
+                                            ms_time=tfnr*(1000./sf)
+                                            start_ms_list=epochwise_data[meas][epochnr][:,0]
+                                            #get first index in list that is greater than ms_time --> and then take one index below
+                                            if ms_time>=epochwise_data['Start state array'][epochnr][-1,0]:
+                                                label_list.append(999)
+                                            else:
+                                                #print (pti, condi, runi, epochnr, tfnr)
+                                                index_begin_state=next(x[0] for x in enumerate(start_ms_list) if x[1] > ms_time)-1
+                                                if index_begin_state == -1:
+                                                    label_list.append(999)
+                                                else:
+                                                    label_list.append(epochwise_data[meas][epochnr][index_begin_state,1])
+
+                                    labels_dict[meas][pti][condi][runi]=label_list
+
+    ###Seperate file for each measure
+    for meas in measure_of_interest:
+        for condi in cond_list:
+            for runi in run_list:
+                mstate_label_list_csv = op.join( outputfolder, 'mstate_label_list_{0}_{1}.csv' .format(condi, runi))
+
+                header = []
+                header.append('Pt')
+                header.append('Group')
+
+                for epochnr in range(max_len):
+                    for tfnr in range(eeg_info_study_obj.tf):
+                        header.append('{0}_{1}{2}_ep{3}_tf{4}'.format(short_names_measures[meas], condi.split('_')[1], runi.split('_')[1], epochnr, tfnr))
+
+                with open(mstate_label_list_csv, 'wb') as labels_file:
+                    writer = csv.writer(labels_file)
+                    writer.writerow(header)
+                    for pti in pt_list:
+                        label_list=labels_dict[meas][pti][condi][runi]
+                        pt_row = []
+                        pt_row.append(pti.split()[1])
+                        pt_row.append(pti.split()[0])
+                    
+                        for ele in label_list:
+                            pt_row.append(ele)
+
+                        writer.writerow(pt_row)
+                    
+
+
+                            

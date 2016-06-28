@@ -112,11 +112,11 @@ class SortAllByNormDataProvider1(SortDataProvider):
     def get_input_data(self, output_path, own_chlist):
         with closing( h5py.File(self._file, 'r') ) as g:            
             path = '{0}' .format(output_path.level0)
-            microstate_run_value = g['/{0}/{1}' .format(path, self._inputdataset)] 
-            if all(microstate_run_value[0,:] == 0):
+            modelmap_run_value = g['/{0}/{1}' .format(path, self._inputdataset)] 
+            if all(modelmap_run_value[0,:] == 0):
                 print('Error!', path, 'has all zeros', 'group, pt, cond ignored.')    
             else:
-                model_map=microstate_run_value[:]
+                model_map=modelmap_run_value[:]
 
             #reduce channels of input model_map to match sortby modelmap PPPP
             sortbyfolder = os.path.dirname(self._sortbyfile)
@@ -129,21 +129,20 @@ class SortAllByNormDataProvider1(SortDataProvider):
     #ein Aufruf pro Output, gets a list of all modelmaps which are to be sorted by
     def get_sortby_data(self, output_path):
         #old
-        #microstate_run_value = np.loadtxt(self._sortbyfile)
+        #modelmap_run_value = np.loadtxt(self._sortbyfile)
         #loads directly reduced external file as computed by reduce_channels function in microstates_helper.py
-        microstate_run_value = np.loadtxt(os.path.join(os.path.dirname(self._sortbyfile),"{0}_reduced.asc".format(os.path.splitext(os.path.basename(self._sortbyfile))[0])))
+        modelmap_run_value = np.loadtxt(os.path.join(os.path.dirname(self._sortbyfile),"{0}_reduced.asc".format(os.path.splitext(os.path.basename(self._sortbyfile))[0])))
 
-        if all(microstate_run_value[0,:] == 0):
+        if all(modelmap_run_value[0,:] == 0):
             print('Error!', sortbyhdf5, 'has all zeros', 'group, pt, cond ignored.')    
         else:
-            model_map=microstate_run_value[:]
+            model_map=modelmap_run_value[:]
 
         return model_map
        
     #writes output into new hdf5 at correct location
     def write_output_data(self, output_path, output_data, output_attributes):
         with closing( h5py.File(self._outputfile, 'a') ) as k:
-            print('output_paths used for output', output_path.level0)
 
             if output_path.level0 in k['/'].keys():
                 all_group = k['{0}' .format(output_path.level0)]
@@ -155,7 +154,7 @@ class SortAllByNormDataProvider1(SortDataProvider):
                 all_group.attrs['{0}' .format(key)] = value
 
             if self._outputdataset in all_group.keys():
-                print('group, participant, condition already in outputfile, not recomputed', all_group, output_path.level0)
+                print('group, participant, condition already in outputfile, not recomputed')
             else:
                 all_group.create_dataset('{0}' .format(self._outputdataset), data = output_data)
 
@@ -181,29 +180,28 @@ class SortGroupByAllDataProvider1(SortDataProvider):
     def get_input_data(self, output_path, own_chlist):
         with closing( h5py.File(self._file, 'r') ) as g:            
             path = '{0}' .format(output_path.level0)
-            microstate_run_value = g['/{0}/{1}' .format(path, self._inputdataset)] 
-            if all(microstate_run_value[0,:] == 0):
+            modelmap_run_value = g['/{0}/{1}' .format(path, self._inputdataset)] 
+            if all(modelmap_run_value[0,:] == 0):
                 print('Error!', path, 'has all zeros', 'group, pt, cond ignored.')    
             else:
-                model_map=microstate_run_value[:]
+                model_map=modelmap_run_value[:]
         return model_map, model_map
 
     ### group pt cond
     #ein Aufruf pro Output, gets a list of all modelmaps which are to be sorted by
     def get_sortby_data(self, output_path):
         with closing( h5py.File(self._sortbyfile, 'r') ) as h:
-            microstate_run_value = h['/{0}/{1}' .format('all', self._sortbydataset)] 
+            modelmap_run_value = h['/{0}/{1}' .format('all', self._sortbydataset)] 
 
-            if all(microstate_run_value[0,:] == 0):
+            if all(modelmap_run_value[0,:] == 0):
                 print('Error!', sortbyhdf5, 'has all zeros', 'group, pt, cond ignored.')    
             else:
-                model_map=microstate_run_value[:]
+                model_map=modelmap_run_value[:]
         return model_map
        
     #writes output into new hdf5 at correct location
     def write_output_data(self, output_path, output_data, output_attributes):
         with closing( h5py.File(self._outputfile, 'a') ) as k:
-            print('output_paths used for output', output_path.level0)
 
             if output_path.level0 in k['/'].keys():
                 group_group = k['{0}' .format(output_path.level0)]
@@ -215,7 +213,7 @@ class SortGroupByAllDataProvider1(SortDataProvider):
                 group_group.attrs['{0}' .format(key)] = value
 
             if self._outputdataset in group_group.keys():
-                print('group, participant, condition already in outputfile, not recomputed', group_group, output_path.level0)
+                print('group, participant, condition already in outputfile, not recomputed')
             else:
                 group_group.create_dataset('{0}' .format(self._outputdataset), data = output_data)
 
@@ -239,29 +237,28 @@ class SortPtByGroupDataProvider1(SortDataProvider):
     def get_input_data(self, output_path, own_chlist):
         with closing( h5py.File(self._file, 'r') ) as g:            
             path = '{0}/{1}' .format(output_path.level0, output_path.level1)
-            microstate_run_value = g['/{0}/{1}' .format(path, self._inputdataset)] 
-            if all(microstate_run_value[0,:] == 0):
+            modelmap_run_value = g['/{0}/{1}' .format(path, self._inputdataset)] 
+            if all(modelmap_run_value[0,:] == 0):
                 print('Error!', path, 'has all zeros', 'group, pt, cond ignored.')    
             else:
-                model_map=microstate_run_value[:]
+                model_map=modelmap_run_value[:]
         return model_map, model_map
 
     ### group pt cond
     #ein Aufruf pro Output, gets a list of all modelmaps which are to be sorted by
     def get_sortby_data(self, output_path):
         with closing( h5py.File(self._sortbyfile, 'r') ) as h:
-            microstate_run_value = h['/{0}/{1}' .format(output_path.level0, self._sortbydataset)] 
+            modelmap_run_value = h['/{0}/{1}' .format(output_path.level0, self._sortbydataset)] 
 
-            if all(microstate_run_value[0,:] == 0):
+            if all(modelmap_run_value[0,:] == 0):
                 print('Error!', sortbyhdf5, 'has all zeros', 'group, pt, cond ignored.')    
             else:
-                model_map=microstate_run_value[:]
+                model_map=modelmap_run_value[:]
         return model_map
        
     #writes output into new hdf5 at correct location
     def write_output_data(self, output_path, output_data, output_attributes):
         with closing( h5py.File(self._outputfile, 'a') ) as k:
-            print('output_paths used for output', output_path.level0)
 
             if output_path.level0 in k['/'].keys():
                 group_group = k['{0}' .format(output_path.level0)]
@@ -280,7 +277,7 @@ class SortPtByGroupDataProvider1(SortDataProvider):
                 pt_group.attrs['{0}' .format(key)] = value
 
             if self._outputdataset in pt_group.keys():
-                print('group, participant, condition already in outputfile, not recomputed', pt_group, output_path.level0, output_path.level1)
+                print('group, participant, condition already in outputfile, not recomputed')
             else:
                 pt_group.create_dataset('{0}' .format(self._outputdataset), data = output_data)
 
@@ -306,29 +303,28 @@ class SortCondByPtDataProvider1(SortDataProvider):
     def get_input_data(self, output_path, own_chlist):
         with closing( h5py.File(self._file, 'r') ) as g:            
             path = '{0}/{1}/{2}' .format(output_path.level0, output_path.level1, output_path.level2)
-            microstate_run_value = g['/{0}/{1}' .format(path, self._inputdataset)] 
-            if all(microstate_run_value[0,:] == 0):
+            modelmap_run_value = g['/{0}/{1}' .format(path, self._inputdataset)] 
+            if all(modelmap_run_value[0,:] == 0):
                 print('Error!', path, 'has all zeros', 'group, pt, cond ignored.')    
             else:
-                model_map=microstate_run_value[:]
+                model_map=modelmap_run_value[:]
         return model_map, model_map
 
     ### group pt cond
     #ein Aufruf pro Output, gets a list of all modelmaps which are to be sorted by
     def get_sortby_data(self, output_path):
         with closing( h5py.File(self._sortbyfile, 'r') ) as h:
-            microstate_run_value = h['/{0}/{1}/{2}' .format(output_path.level0, output_path.level1, self._sortbydataset)] 
+            modelmap_run_value = h['/{0}/{1}/{2}' .format(output_path.level0, output_path.level1, self._sortbydataset)] 
 
-            if all(microstate_run_value[0,:] == 0):
+            if all(modelmap_run_value[0,:] == 0):
                 print('Error!', sortbyhdf5, 'has all zeros', 'group, pt, cond ignored.')    
             else:
-                model_map=microstate_run_value[:]
+                model_map=modelmap_run_value[:]
         return model_map
        
     #writes output into new hdf5 at correct location
     def write_output_data(self, output_path, output_data, output_attributes):
         with closing( h5py.File(self._outputfile, 'a') ) as k:
-            print('output_paths used for output', output_path.level0)
 
             if output_path.level0 in k['/'].keys():
                 group_group = k['{0}' .format(output_path.level0)]
@@ -350,7 +346,7 @@ class SortCondByPtDataProvider1(SortDataProvider):
                 cond_group.attrs['{0}' .format(key)] = value
 
             if self._outputdataset in cond_group.keys():
-                print('group, participant, condition already in outputfile, not recomputed', pt_group, output_path.level0, output_path.level1, output_path.level2)
+                print('group, participant, condition already in outputfile, not recomputed')
             else:
                 cond_group.create_dataset('{0}' .format(self._outputdataset), data = output_data)
 
@@ -379,29 +375,28 @@ class SortRunByCondDataProvider1(SortDataProvider):
     def get_input_data(self, output_path, own_chlist):
         with closing( h5py.File(self._file, 'r') ) as g:            
             path = '{0}/{1}/{2}/{3}' .format(output_path.level0, output_path.level1, output_path.level2, output_path.level3)
-            microstate_run_value = g['/{0}/{1}' .format(path, self._inputdataset)] 
-            if all(microstate_run_value[0,:] == 0):
+            modelmap_run_value = g['/{0}/{1}' .format(path, self._inputdataset)] 
+            if all(modelmap_run_value[0,:] == 0):
                 print('Error!', path, 'has all zeros', 'group, pt, cond ignored.')    
             else:
-                model_map=microstate_run_value[:]
+                model_map=modelmap_run_value[:]
         return model_map, model_map
 
     ### group pt cond
     #ein Aufruf pro Output, gets a list of all modelmaps which are to be sorted by
     def get_sortby_data(self, output_path):
         with closing( h5py.File(self._sortbyfile, 'r') ) as h:
-            microstate_run_value = h['/{0}/{1}/{2}/{3}' .format(output_path.level0, output_path.level1, output_path.level2, self._sortbydataset)] 
+            modelmap_run_value = h['/{0}/{1}/{2}/{3}' .format(output_path.level0, output_path.level1, output_path.level2, self._sortbydataset)] 
 
-            if all(microstate_run_value[0,:] == 0):
+            if all(modelmap_run_value[0,:] == 0):
                 print('Error!', sortbyhdf5, 'has all zeros', 'group, pt, cond ignored.')    
             else:
-                model_map=microstate_run_value[:]
+                model_map=modelmap_run_value[:]
         return model_map
        
     #writes output into new hdf5 at correct location
     def write_output_data(self, output_path, output_data, output_attributes):
         with closing( h5py.File(self._outputfile, 'a') ) as k:
-            print('output_paths used for output', output_path.level0)
 
             if output_path.level0 in k['/'].keys():
                 group_group = k['{0}' .format(output_path.level0)]
@@ -428,7 +423,7 @@ class SortRunByCondDataProvider1(SortDataProvider):
                 run_group.attrs['{0}' .format(key)] = value
 
             if self._outputdataset in run_group.keys():
-                print('group, participant, condition already in outputfile, not recomputed', pt_group, output_path.level0, output_path.level1, output_path.level2, output_path.level3)
+                print('group, participant, condition already in outputfile, not recomputed')
             else:
                 run_group.create_dataset('{0}' .format(self._outputdataset), data = output_data)
 
@@ -452,29 +447,28 @@ class SortPtByGroupDataProvider2(SortDataProvider):
     def get_input_data(self, output_path, own_chlist):
         with closing( h5py.File(self._file, 'r') ) as g:            
             path = '{0}/{1}' .format(output_path.level0, output_path.level1)
-            microstate_run_value = g['/{0}/{1}' .format(path, self._inputdataset)] 
-            if all(microstate_run_value[0,:] == 0):
+            modelmap_run_value = g['/{0}/{1}' .format(path, self._inputdataset)] 
+            if all(modelmap_run_value[0,:] == 0):
                 print('Error!', path, 'has all zeros', 'group, pt, cond ignored.')    
             else:
-                model_map=microstate_run_value[:]
+                model_map=modelmap_run_value[:]
         return model_map, model_map
 
     ### group pt cond
     #ein Aufruf pro Output, gets a list of all modelmaps which are to be sorted by
     def get_sortby_data(self, output_path):
         with closing( h5py.File(self._sortbyfile, 'r') ) as h:
-            microstate_run_value = h['/{0}/{1}' .format(output_path.level0, self._sortbydataset)] 
+            modelmap_run_value = h['/{0}/{1}' .format(output_path.level0, self._sortbydataset)] 
 
-            if all(microstate_run_value[0,:] == 0):
+            if all(modelmap_run_value[0,:] == 0):
                 print('Error!', sortbyhdf5, 'has all zeros', 'group, pt, cond ignored.')    
             else:
-                model_map=microstate_run_value[:]
+                model_map=modelmap_run_value[:]
         return model_map
        
     #writes output into new hdf5 at correct location
     def write_output_data(self, output_path, output_data, output_attributes):
         with closing( h5py.File(self._outputfile, 'a') ) as k:
-            print('output_paths used for output', output_path.level0)
 
             if output_path.level0 in k['/'].keys():
                 group_group = k['{0}' .format(output_path.level0)]
@@ -493,7 +487,7 @@ class SortPtByGroupDataProvider2(SortDataProvider):
                 pt_group.attrs['{0}' .format(key)] = value
 
             if self._outputdataset in pt_group.keys():
-                print('group, participant, condition already in outputfile, not recomputed', pt_group, output_path.level0, output_path.level1)
+                print('group, participant, condition already in outputfile, not recomputed')
             else:
                 pt_group.create_dataset('{0}' .format(self._outputdataset), data = output_data)
 
@@ -519,29 +513,28 @@ class SortCondByPtDataProvider2(SortDataProvider):
     def get_input_data(self, output_path, own_chlist):
         with closing( h5py.File(self._file, 'r') ) as g:            
             path = '{0}/{1}/{2}' .format(output_path.level0, output_path.level1, output_path.level2)
-            microstate_run_value = g['/{0}/{1}' .format(path, self._inputdataset)] 
-            if all(microstate_run_value[0,:] == 0):
+            modelmap_run_value = g['/{0}/{1}' .format(path, self._inputdataset)] 
+            if all(modelmap_run_value[0,:] == 0):
                 print('Error!', path, 'has all zeros', 'group, pt, cond ignored.')    
             else:
-                model_map=microstate_run_value[:]
+                model_map=modelmap_run_value[:]
         return model_map, model_map
 
     ### group pt cond
     #ein Aufruf pro Output, gets a list of all modelmaps which are to be sorted by
     def get_sortby_data(self, output_path):
         with closing( h5py.File(self._sortbyfile, 'r') ) as h:
-            microstate_run_value = h['/{0}/{1}/{2}' .format(output_path.level0, output_path.level2, self._sortbydataset)] 
+            modelmap_run_value = h['/{0}/{1}/{2}' .format(output_path.level0, output_path.level2, self._sortbydataset)] 
 
-            if all(microstate_run_value[0,:] == 0):
+            if all(modelmap_run_value[0,:] == 0):
                 print('Error!', sortbyhdf5, 'has all zeros', 'group, pt, cond ignored.')    
             else:
-                model_map=microstate_run_value[:]
+                model_map=modelmap_run_value[:]
         return model_map
        
     #writes output into new hdf5 at correct location
     def write_output_data(self, output_path, output_data, output_attributes):
         with closing( h5py.File(self._outputfile, 'a') ) as k:
-            print('output_paths used for output', output_path.level0)
 
             if output_path.level0 in k['/'].keys():
                 group_group = k['{0}' .format(output_path.level0)]
@@ -563,7 +556,7 @@ class SortCondByPtDataProvider2(SortDataProvider):
                 cond_group.attrs['{0}' .format(key)] = value
 
             if self._outputdataset in cond_group.keys():
-                print('group, participant, condition already in outputfile, not recomputed', pt_group, output_path.level0, output_path.level1, output_path.level2)
+                print('group, participant, condition already in outputfile, not recomputed')
             else:
                 cond_group.create_dataset('{0}' .format(self._outputdataset), data = output_data)
 
@@ -587,11 +580,11 @@ class SortAllByNormDataProvider2(SortDataProvider):
     def get_input_data(self, output_path, own_chlist):
         with closing( h5py.File(self._file, 'r') ) as g:            
             path = '{0}/{1}' .format(output_path.level0, output_path.level1)
-            microstate_run_value = g['/{0}/{1}' .format(path, self._inputdataset)] 
-            if all(microstate_run_value[0,:] == 0):
+            modelmap_run_value = g['/{0}/{1}' .format(path, self._inputdataset)] 
+            if all(modelmap_run_value[0,:] == 0):
                 print('Error!', path, 'has all zeros', 'group, pt, cond ignored.')    
             else:
-                model_map=microstate_run_value[:]
+                model_map=modelmap_run_value[:]
 
             #reduce channels of input model_map to match sortby modelmap
             sortbyfolder = os.path.dirname(self._sortbyfile)
@@ -604,18 +597,17 @@ class SortAllByNormDataProvider2(SortDataProvider):
     ### group pt cond
     #ein Aufruf pro Output, gets a list of all modelmaps which are to be sorted by
     def get_sortby_data(self, output_path):
-        microstate_run_value = np.loadtxt(os.path.join(os.path.dirname(self._sortbyfile),"{0}_reduced.asc".format(os.path.splitext(os.path.basename(self._sortbyfile))[0])))
+        modelmap_run_value = np.loadtxt(os.path.join(os.path.dirname(self._sortbyfile),"{0}_reduced.asc".format(os.path.splitext(os.path.basename(self._sortbyfile))[0])))
 
-        if all(microstate_run_value[0,:] == 0):
+        if all(modelmap_run_value[0,:] == 0):
             print('Error!', sortbyhdf5, 'has all zeros', 'group, pt, cond ignored.')    
         else:
-            model_map=microstate_run_value[:]
+            model_map=modelmap_run_value[:]
         return model_map
        
     #writes output into new hdf5 at correct location
     def write_output_data(self, output_path, output_data, output_attributes):
         with closing( h5py.File(self._outputfile, 'a') ) as k:
-            print('output_paths used for output', output_path.level0)
 
             if output_path.level0 in k['/'].keys():
                 group_group = k['{0}' .format(output_path.level0)]
@@ -634,7 +626,7 @@ class SortAllByNormDataProvider2(SortDataProvider):
                 pt_group.attrs['{0}' .format(key)] = value
 
             if self._outputdataset in pt_group.keys():
-                print('group, participant, condition already in outputfile, not recomputed', pt_group, output_path.level0, output_path.level1)
+                print('group, participant, condition already in outputfile, not recomputed')
             else:
                 pt_group.create_dataset('{0}' .format(self._outputdataset), data = output_data)
 
@@ -660,29 +652,28 @@ class SortRunByCondDataProvider2(SortDataProvider):
     def get_input_data(self, output_path, own_chlist):
         with closing( h5py.File(self._file, 'r') ) as g:            
             path = '{0}/{1}/{2}/{3}' .format(output_path.level0, output_path.level1, output_path.level2, output_path.level3)
-            microstate_run_value = g['/{0}/{1}' .format(path, self._inputdataset)] 
-            if all(microstate_run_value[0,:] == 0):
+            modelmap_run_value = g['/{0}/{1}' .format(path, self._inputdataset)] 
+            if all(modelmap_run_value[0,:] == 0):
                 print('Error!', path, 'has all zeros', 'group, pt, cond ignored.')    
             else:
-                model_map=microstate_run_value[:]
+                model_map=modelmap_run_value[:]
         return model_map, model_map
 
     ### group pt cond
     #ein Aufruf pro Output, gets a list of all modelmaps which are to be sorted by
     def get_sortby_data(self, output_path):
         with closing( h5py.File(self._sortbyfile, 'r') ) as h:
-            microstate_run_value = h['/{0}/{1}/{2}/{3}' .format(output_path.level0, output_path.level2, output_path.level3, self._sortbydataset)] 
+            modelmap_run_value = h['/{0}/{1}/{2}/{3}' .format(output_path.level0, output_path.level2, output_path.level3, self._sortbydataset)] 
 
-            if all(microstate_run_value[0,:] == 0):
+            if all(modelmap_run_value[0,:] == 0):
                 print('Error!', sortbyhdf5, 'has all zeros', 'group, pt, cond ignored.')    
             else:
-                model_map=microstate_run_value[:]
+                model_map=modelmap_run_value[:]
         return model_map
        
     #writes output into new hdf5 at correct location
     def write_output_data(self, output_path, output_data, output_attributes):
         with closing( h5py.File(self._outputfile, 'a') ) as k:
-            print('output_paths used for output', output_path.level0)
 
             if output_path.level0 in k['/'].keys():
                 group_group = k['{0}' .format(output_path.level0)]
@@ -709,7 +700,7 @@ class SortRunByCondDataProvider2(SortDataProvider):
                 run_group.attrs['{0}' .format(key)] = value
 
             if self._outputdataset in run_group.keys():
-                print('group, participant, condition already in outputfile, not recomputed', pt_group, output_path.level0, output_path.level1, output_path.level2, output_path.level3)
+                print('group, participant, condition already in outputfile, not recomputed')
             else:
                 run_group.create_dataset('{0}' .format(self._outputdataset), data = output_data)
 
@@ -733,29 +724,28 @@ class SortPtByGroupDataProvider2(SortDataProvider):
     def get_input_data(self, output_path, own_chlist):
         with closing( h5py.File(self._file, 'r') ) as g:            
             path = '{0}/{1}' .format(output_path.level0, output_path.level1)
-            microstate_run_value = g['/{0}/{1}' .format(path, self._inputdataset)] 
-            if all(microstate_run_value[0,:] == 0):
+            modelmap_run_value = g['/{0}/{1}' .format(path, self._inputdataset)] 
+            if all(modelmap_run_value[0,:] == 0):
                 print('Error!', path, 'has all zeros', 'group, pt, cond ignored.')    
             else:
-                model_map=microstate_run_value[:]
+                model_map=modelmap_run_value[:]
         return model_map, model_map
 
     ### group pt cond
     #ein Aufruf pro Output, gets a list of all modelmaps which are to be sorted by
     def get_sortby_data(self, output_path):
         with closing( h5py.File(self._sortbyfile, 'r') ) as h:
-            microstate_run_value = h['/{0}/{1}' .format(output_path.level1, self._sortbydataset)] 
+            modelmap_run_value = h['/{0}/{1}' .format(output_path.level1, self._sortbydataset)] 
 
-            if all(microstate_run_value[0,:] == 0):
+            if all(modelmap_run_value[0,:] == 0):
                 print('Error!', sortbyhdf5, 'has all zeros', 'group, pt, cond ignored.')    
             else:
-                model_map=microstate_run_value[:]
+                model_map=modelmap_run_value[:]
         return model_map
        
     #writes output into new hdf5 at correct location
     def write_output_data(self, output_path, output_data, output_attributes):
         with closing( h5py.File(self._outputfile, 'a') ) as k:
-            print('output_paths used for output', output_path.level0)
 
             if output_path.level0 in k['/'].keys():
                 group_group = k['{0}' .format(output_path.level0)]
@@ -774,6 +764,6 @@ class SortPtByGroupDataProvider2(SortDataProvider):
                 pt_group.attrs['{0}' .format(key)] = value
 
             if self._outputdataset in pt_group.keys():
-                print('group, participant, condition already in outputfile, not recomputed', pt_group, output_path.level0, output_path.level1)
+                print('group, participant, condition already in outputfile, not recomputed')
             else:
                 pt_group.create_dataset('{0}' .format(self._outputdataset), data = output_data)

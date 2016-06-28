@@ -16,10 +16,10 @@ from keypy.microstates.microstates_helper import *
 ##########################
 
 ###########################
-#######  Modelmaps ########
+#######  Meanmods ########
 ###########################
 
-####Only for internal use for modelmap computation
+####Only for internal use for meanmod computation
 
 class ConditionPath(object):
     """
@@ -183,7 +183,7 @@ class DataProvider(object):
                 and output_attributes which are additional attributes stored with the output data.
                 The method should be implemented to store the data in the data container.
 
-        The data provider is meant to be used for the run_model_maps function. See the documentation
+        The data provider is meant to be used for the run_meanmods function. See the documentation
         of this function for an example of how to use data provider instances.
     """
 
@@ -221,18 +221,18 @@ class CondDataProvider1(DataProvider):
         model_maps_all = []
         with closing( h5py.File(self._file, 'r') ) as f:            
             path = '/{0}/{1}/{2}' .format(output_path.group, output_path.pt, output_path.cond)
-            for microstate_run in f[path].keys():
-                microstate_run_value = f['/{0}/{1}/{2}' .format(path, microstate_run, self._inputdataset)] 
-                if all(microstate_run_value[0,:] == 0):
-                    print('Error!', path, microstate_run, 'has all zeros', 'group, pt, cond ignored.')    
+            for modelmap_run in f[path].keys():
+                modelmap_run_value = f['/{0}/{1}/{2}' .format(path, modelmap_run, self._inputdataset)] 
+                if all(modelmap_run_value[0,:] == 0):
+                    print('Error!', path, modelmap_run, 'has all zeros', 'group, pt, cond ignored.')    
                 else:
-                    model_maps_all.append(microstate_run_value[:])
+                    model_maps_all.append(modelmap_run_value[:])
         return model_maps_all
        
     #writes output into new hdf5 at correct location
     def write_output_data(self, output_path, output_data, output_attributes):
         with closing( h5py.File(self._outputfile) ) as h:
-            print('output_paths used for output', output_path.group, output_path.cond, output_path.pt)
+            print('Computing mean models for: ', output_path.group, output_path.cond, output_path.pt)
 
             if output_path.group in h['/'].keys():
                 group_group = h['{0}' .format(output_path.group)]
@@ -254,7 +254,7 @@ class CondDataProvider1(DataProvider):
                 cond_group.attrs['{0}' .format(key)] = value
 
             if self._outputdataset in cond_group.keys():
-                print('group, participant, condition already in outputfile, not recomputed', group_group, output_path.pt, output_path.cond)
+                print('group, participant, condition already in outputfile, not recomputed')
             else:
                 cond_group.create_dataset('{0}' .format(self._outputdataset), data = output_data)
 
@@ -284,18 +284,18 @@ class PtDataProvider1(DataProvider):
                 path = '/{0}/{1}/{2}' .format(output_path.group, output_path.pt, cond)
 
                 if path in f:
-                    microstate_run_value = f['/{0}/{1}' .format(path, self._inputdataset)] 
-                    if all(microstate_run_value[0,:] == 0):
+                    modelmap_run_value = f['/{0}/{1}' .format(path, self._inputdataset)] 
+                    if all(modelmap_run_value[0,:] == 0):
                         print('Warning!', path, cond, 'has all zeros', 'group, pt, cond ignored.')    
                     else:
-                        model_maps_all.append(microstate_run_value[:])
+                        model_maps_all.append(modelmap_run_value[:])
                 else:
                     print('Error!', path, cond, 'does not exist', 'group, pt, cond ignored.')    
         return model_maps_all
 
     def write_output_data(self, output_path, output_data, output_attributes):
         with closing( h5py.File(self._outputfile) ) as h:
-            print('output_paths used for output', output_path.group, output_path.pt)
+            print('Computing mean models for: ', output_path.group, output_path.pt)
 
             if output_path.group in h['/'].keys():
                 group_group = h['{0}' .format(output_path.group)]
@@ -312,7 +312,7 @@ class PtDataProvider1(DataProvider):
                 pt_group.attrs['{0}' .format(key)] = value
 
             if self._outputdataset in pt_group.keys():
-                print('group, participant, condition already in outputfile, not recomputed', group_group, output_path.pt)
+                print('group, participant, condition already in outputfile, not recomputed')
             else:
                 pt_group.create_dataset('{0}' .format(self._outputdataset), data = output_data)
                 
@@ -336,20 +336,20 @@ class GroupDataProvider1(DataProvider):
         model_maps_all = []
         with closing( h5py.File(self._file, 'r') ) as f:            
             path = '/{0}' .format(output_path.group)
-            for microstate_cond in f[path].keys():
-                if '/{0}/{1}/{2}' .format(path, microstate_cond, self._inputdataset) in f:
-                    microstate_cond_value = f['/{0}/{1}/{2}' .format(path, microstate_cond, self._inputdataset)] 
-                    if all(microstate_cond_value[0,:] == 0):
+            for modelmap_cond in f[path].keys():
+                if '/{0}/{1}/{2}' .format(path, modelmap_cond, self._inputdataset) in f:
+                    modelmap_cond_value = f['/{0}/{1}/{2}' .format(path, modelmap_cond, self._inputdataset)] 
+                    if all(modelmap_cond_value[0,:] == 0):
                         print('Error!', path, current_run, 'has all zeros', 'group, pt, cond ignored.')    
                     else:
-                        model_maps_all.append(microstate_cond_value[:])
+                        model_maps_all.append(modelmap_cond_value[:])
                 else:
-                    print('Error!', path, microstate_cond, 'does not exist', 'group, pt, cond ignored.')    
+                    print('Error!', path, modelmap_cond, 'does not exist', 'group, pt, cond ignored.')    
         return model_maps_all
 
     def write_output_data(self, output_path, output_data, output_attributes):
         with closing( h5py.File(self._outputfile) ) as h:
-            print('output_paths used for output', output_path.group)
+            print('Computing mean models for: ', output_path.group)
 
             if output_path.group in h['/'].keys():
                 group_group = h['{0}' .format(output_path.group)]
@@ -361,7 +361,7 @@ class GroupDataProvider1(DataProvider):
                 group_group.attrs['{0}' .format(key)] = value
 
             if self._outputdataset in group_group.keys():
-                print('group, participant, condition already in outputfile, not recomputed', group_group)
+                print('group, participant, condition already in outputfile, not recomputed')
             else:
                 group_group.create_dataset('{0}' .format(self._outputdataset), data = output_data)
 
@@ -381,20 +381,20 @@ class AllDataProvider1(DataProvider):
     def get_input_data(self, output_path):
         model_maps_all = []
         with closing( h5py.File(self._file, 'r') ) as f:            
-            for microstate_group in f.keys():
-                if '/{0}/{1}' .format(microstate_group, self._inputdataset) in f:
-                    microstate_group_value = f['/{0}/{1}' .format(microstate_group, self._inputdataset)] 
-                    if all(microstate_group_value[0,:] == 0):
-                        print('Error!', microstate_group, 'has all zeros', 'group, pt, cond ignored.')    
+            for modelmap_group in f.keys():
+                if '/{0}/{1}' .format(modelmap_group, self._inputdataset) in f:
+                    modelmap_group_value = f['/{0}/{1}' .format(modelmap_group, self._inputdataset)] 
+                    if all(modelmap_group_value[0,:] == 0):
+                        print('Error!', modelmap_group, 'has all zeros', 'group, pt, cond ignored.')    
                     else:
-                        model_maps_all.append(microstate_group_value[:])
+                        model_maps_all.append(modelmap_group_value[:])
                 else:
-                    print('Error!', microstate_group, 'does not exist', 'group, pt, cond ignored.')    
+                    print('Error!', modelmap_group, 'does not exist', 'group, pt, cond ignored.')    
         return model_maps_all
 
     def write_output_data(self, output_path, output_data, output_attributes):
         with closing( h5py.File(self._outputfile) ) as h:
-            print('output_paths used for output', output_path.all)
+            print('Computing mean models for: ', output_path.all)
 
             if output_path.all in h['/'].keys():
                 group_group = h['{0}' .format(output_path.all)]
@@ -406,7 +406,7 @@ class AllDataProvider1(DataProvider):
                 group_group.attrs['{0}' .format(key)] = value
 
             if self._outputdataset in group_group.keys():
-                print('group already in outputfile, not recomputed', group_group)
+                print('group already in outputfile, not recomputed')
             else:
                 group_group.create_dataset('{0}' .format(self._outputdataset), data = output_data)
 
@@ -440,18 +440,18 @@ class RunDataProvider1(DataProvider):
                 path = '/{0}/{1}/{2}/{3}' .format(output_path.group, pt, output_path.cond, output_path.run)
 
                 if path in f:
-                    microstate_run_value = f['/{0}/{1}' .format(path, self._inputdataset)] 
-                    if all(microstate_run_value[0,:] == 0):
+                    modelmap_run_value = f['/{0}/{1}' .format(path, self._inputdataset)] 
+                    if all(modelmap_run_value[0,:] == 0):
                         print('Warning!', path, pt, 'has all zeros', 'group, pt, cond ignored.')    
                     else:
-                        model_maps_all.append(microstate_run_value[:])
+                        model_maps_all.append(modelmap_run_value[:])
                 else:
                     print('Error!', path, pt, 'does not exist', 'group, pt, cond ignored.')    
         return model_maps_all
 
     def write_output_data(self, output_path, output_data, output_attributes):
         with closing( h5py.File(self._outputfile) ) as h:
-            print('output_paths used for output', output_path.group, output_path.cond)
+            print('Computing mean models for: ', output_path.group, output_path.cond)
 
             if output_path.group in h['/'].keys():
                 group_group = h['{0}' .format(output_path.group)]
@@ -473,7 +473,7 @@ class RunDataProvider1(DataProvider):
                 run_group.attrs['{0}' .format(key)] = value
 
             if self._outputdataset in run_group.keys():
-                print('group, participant, condition already in outputfile, not recomputed', run_group, output_path.run)
+                print('group, participant, condition already in outputfile, not recomputed')
             else:
                 run_group.create_dataset('{0}' .format(self._outputdataset), data = output_data)
 
@@ -498,20 +498,20 @@ class CondDataProvider5(DataProvider):
         model_maps_all = []
         with closing( h5py.File(self._file, 'r') ) as f:            
             path = '/{0}/{1}' .format(output_path.group, output_path.cond)
-            for microstate_run in f[path].keys():
-                if '/{0}/{1}/{2}' .format(path, microstate_run, self._inputdataset) in f:
-                    microstate_run_value = f['/{0}/{1}/{2}' .format(path, microstate_run, self._inputdataset)] 
-                    if all(microstate_run_value[0,:] == 0):
+            for modelmap_run in f[path].keys():
+                if '/{0}/{1}/{2}' .format(path, modelmap_run, self._inputdataset) in f:
+                    modelmap_run_value = f['/{0}/{1}/{2}' .format(path, modelmap_run, self._inputdataset)] 
+                    if all(modelmap_run_value[0,:] == 0):
                         print('Error!', path, current_run, 'has all zeros', 'group, pt, cond ignored.')    
                     else:
-                        model_maps_all.append(microstate_run_value[:])
+                        model_maps_all.append(modelmap_run_value[:])
                 else:
-                    print('key', microstate_run, 'in', f[path].keys(), 'no run group, not considered')
+                    print('key', modelmap_run, 'in', f[path].keys(), 'no run group, not considered')
         return model_maps_all
 
     def write_output_data(self, output_path, output_data, output_attributes):
         with closing( h5py.File(self._outputfile) ) as h:
-            print('output_paths used for output', output_path.group, output_path.cond)
+            print('Computing mean models for: ', output_path.group, output_path.cond)
 
             if output_path.group in h['/'].keys():
                 group_group = h['{0}' .format(output_path.group)]
@@ -527,7 +527,7 @@ class CondDataProvider5(DataProvider):
                 cond_group.attrs['{0}' .format(key)] = value
 
             if self._outputdataset in cond_group.keys():
-                print('group, participant, condition already in outputfile, not recomputed', group_group, output_path.cond)
+                print('group, participant, condition already in outputfile, not recomputed')
             else:
                 cond_group.create_dataset('{0}' .format(self._outputdataset), data = output_data)
 
@@ -559,18 +559,18 @@ class CondDataProvider2(DataProvider):
                 path = '/{0}/{1}/{2}' .format(output_path.group, pt, output_path.cond)
 
                 if path in f:
-                    microstate_run_value = f['/{0}/{1}' .format(path, self._inputdataset)] 
-                    if all(microstate_run_value[0,:] == 0):
+                    modelmap_run_value = f['/{0}/{1}' .format(path, self._inputdataset)] 
+                    if all(modelmap_run_value[0,:] == 0):
                         print('Warning!', path, pt, 'has all zeros', 'group, pt, cond ignored.')    
                     else:
-                        model_maps_all.append(microstate_run_value[:])
+                        model_maps_all.append(modelmap_run_value[:])
                 else:
                     print('Error!', path, pt, 'does not exist', 'group, pt, cond ignored.')    
         return model_maps_all
 
     def write_output_data(self, output_path, output_data, output_attributes):
         with closing( h5py.File(self._outputfile) ) as h:
-            print('output_paths used for output', output_path.group, output_path.cond)
+            print('Computing mean models for: ', output_path.group, output_path.cond)
 
             if output_path.group in h['/'].keys():
                 group_group = h['{0}' .format(output_path.group)]
@@ -587,7 +587,7 @@ class CondDataProvider2(DataProvider):
                 cond_group.attrs['{0}' .format(key)] = value
 
             if self._outputdataset in cond_group.keys():
-                print('group, condition already in outputfile, not recomputed', group_group, output_path.cond)
+                print('group, condition already in outputfile, not recomputed')
             else:
                 cond_group.create_dataset('{0}' .format(self._outputdataset), data = output_data)
 
@@ -616,11 +616,11 @@ class CondDataProvider3(DataProvider):
                 path = '/{0}/{1}' .format(group, output_path.cond)
 
                 if path in f:
-                    microstate_run_value = f['/{0}/{1}' .format(path, self._inputdataset)] 
-                    if all(microstate_run_value[0,:] == 0):
+                    modelmap_run_value = f['/{0}/{1}' .format(path, self._inputdataset)] 
+                    if all(modelmap_run_value[0,:] == 0):
                         print('Warning!', path, pt, 'has all zeros', 'group, pt, cond ignored.')    
                     else:
-                        model_maps_all.append(microstate_run_value[:])
+                        model_maps_all.append(modelmap_run_value[:])
                 else:
                     print('Error!', path, group, 'does not exist', 'group, pt, cond ignored.')    
 
@@ -628,7 +628,7 @@ class CondDataProvider3(DataProvider):
 
     def write_output_data(self, output_path, output_data, output_attributes):
         with closing( h5py.File(self._outputfile) ) as h:
-            print('output_paths used for output', output_path.cond)
+            print('Computing mean models for: ', output_path.cond)
 
             if output_path.cond in h['/'].keys():
                 cond_group = h['{0}' .format(output_path.cond)]
@@ -640,7 +640,7 @@ class CondDataProvider3(DataProvider):
                 cond_group.attrs['{0}' .format(key)] = value
 
             if self._outputdataset in cond_group.keys():
-                print('group, condition already in outputfile, not recomputed', output_path.cond)
+                print('group, condition already in outputfile, not recomputed')
             else:
                 cond_group.create_dataset('{0}' .format(self._outputdataset), data = output_data)
 
@@ -649,7 +649,7 @@ class CondDataProvider3(DataProvider):
 
 
 ##################################
-#######  find_model_maps  ########
+#######  find_meanmods  ########
 ##################################
 
 def get_data_provider_class(computation_version):

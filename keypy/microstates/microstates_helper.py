@@ -282,7 +282,7 @@ def compute_gfp_peaks(gfp_curve, use_gfp_peaks, use_smoothing, gfp_type_smoothin
     if use_gfp_peaks:
         #we need to do this for each epoch seperately, as not to introduce artificial peaks at the transitions between epochs
         #for faster computing we delete the indices that were between epochs afterwards
-        #this is done in microstates.py after retrieval of the indices
+        #this is done in modelmaps.py after retrieval of the indices
         if use_smoothing:
             gfp_curve=gfp_smoothing(gfp_curve, gfp_type_smoothing, smoothing_window)
         if use_fancy_peaks:
@@ -363,6 +363,7 @@ def reduce_channels(eeg_own, eeg_ext_path, own_chlist, external_chlist_path):
 
     #at the time this saving procedure is done repeatedly for each EEG to be sorted, ideally this should only happen once
     np.savetxt(os.path.join(os.path.dirname(eeg_ext_path),"{0}_reduced.asc".format(os.path.splitext(os.path.basename(eeg_ext_path))[0])), eeg_ext_new)
+    np.savetxt(os.path.join(os.path.dirname(eeg_ext_path),"{0}_chlist_reduced.asc".format(os.path.splitext(os.path.basename(eeg_ext_path))[0])), np.array(list(common_list)), delimiter=" ", fmt="%s")
 
     return eeg_own_new, eeg_ext_new
 ####-------------------------------------####
@@ -382,7 +383,7 @@ def normalize_maps(maps, modelmaps_normalization_type):
 
         #assert that maps all have GFP = 1
         if not compute_gfp(maps).all() == 1:
-            raise AssertionError('Problem with GFP normalization of model_maps_foundation or microstate maps / input models.')
+            raise AssertionError('Problem with GFP normalization of meanmods_foundation or input models.')
 
     elif modelmaps_normalization_type == 'vector_norm_1':
         #set vector_length of maps to 1   
@@ -394,7 +395,7 @@ def normalize_maps(maps, modelmaps_normalization_type):
 
         #assert that maps all have vector_length = 1
         if not (LA.norm(maps[ri,:], axis=0)).all() == 1:
-            raise AssertionError('Problem with vector_length normalization of model_maps_foundation or microstate maps / input models.')
+            raise AssertionError('Problem with vector_length normalization of meanmods_foundation or input models.')
 
     return maps
 ####-------------------------------------####
