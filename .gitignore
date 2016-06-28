@@ -19,10 +19,6 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-# Other
-mean_models_koenig_et_al_2002.asc
-mean_models_koenig_et_al_2002_chlist.asc
-*koenig*
 
 # =========================
 # Operating System Files
