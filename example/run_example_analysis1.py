@@ -97,8 +97,8 @@ map_number = 4
 
 ### Specify the number of reruns for clustering
 
-# the more reruns the better, we suggest at least 3 times the number of GFP peaks you would like to compute your microstates based on (default: 200)
-user_defined_reruns_modmaps = 100
+# the more reruns the better, we suggest at least 3 times the number of GFP peaks you would like to compute your modelmaps based on (default: 200)
+user_defined_reruns_modmaps = 200
 
 # the more reruns the better (but slows computation down), we suggest approximately 4 times your number of participants (default: 50)
 user_defined_reruns_meanmods = 50
