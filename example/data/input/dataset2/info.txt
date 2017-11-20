@@ -9,7 +9,7 @@ tel  ++41-44-388-4939
 e-mail: patricia.milz@key.uzh.ch
 
 
-Each file (*.asc) is an EEG file in plain text format, with 4 seconds worth of data.
+Each file (*.asc) is an EEG file in plain text format, with 2 seconds worth of data.
 nch=61 (number of electrodes)
 tf=512 (number of time frames)
 sf=256 (sampling rate in Hz)
