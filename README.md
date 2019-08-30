@@ -27,6 +27,9 @@ If you use this package, please cite:
 
 Development
 -----------
+
+This repository is no longer maintained. Should you or your institute be interested in taking over the project, please contact the institute coordinator of the KEY Institute for Brain-Mind Research at pfaber@key.uzh.ch.
+
 If you want to contribute to the source code, you find the repository on GitHub:
 
 https://github.com/keyinst/keypy
