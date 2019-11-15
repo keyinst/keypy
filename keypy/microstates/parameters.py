@@ -296,12 +296,24 @@ def compute_mstate_parameters(confobj, eeg, maps, eeg_info_study_obj):
         loading=abs(covm).max(axis=1)
         loading_all=abs(covm_all).max(axis=1)
 
-        b_loading=loading/sqrt(model.shape[1])
-        b_loading_all=loading_all/sqrt(model.shape[1])
-        		
-        exp_var=sum(b_loading)/sum(epoch[gfp_peak_indices].std(axis=1))
-        exp_var_tot=sum(b_loading_all)/sum(epoch.std(axis=1))
+#        b_loading=loading/sqrt(model.shape[1])
+#        b_loading_all=loading_all/sqrt(model.shape[1])
+# calculate square        		
+        b_loading=numpy.square(loading)/model.shape[1]
+        b_loading_all=numpy.square(loading_all)/model.shape[1]
+        
+#        exp_var=sum(b_loading)/sum(epoch[gfp_peak_indices].std(axis=1))
+#        exp_var_tot=sum(b_loading_all)/sum(epoch.std(axis=1))
+# use var instead of std
 
+        exp_var=sum(b_loading)/sum(epoch[gfp_peak_indices].var(axis=1))
+        print ('explained variance of all gfp peaks is %.6f \n' % (exp_var))
+
+        exp_var_tot=sum(b_loading_all)/sum(epoch.var(axis=1))
+        print ('explained variance of all eeg timeframes is %.6f \n' % (exp_var_tot))
+
+        
+        
         ###Compute Percentage of Correspondance between tf & labelby map
         state_match_percentage=dict.fromkeys(list(range(confobj.original_nr_of_maps)))
         state_match_percentage_std=dict.fromkeys(list(range(confobj.original_nr_of_maps)))
