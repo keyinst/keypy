@@ -2,14 +2,13 @@
 #######  run_mstate_paramters  ########
 ##################################
 
-from __future__ import print_function
+
 
 from scipy.stats import pearsonr
 from keypy.microstates.microstates_helper import *
 from numpy import sqrt, nanmean
 import os.path as op
 import os
-from sets import Set
 import numpy as np
 from keypy.microstates.parameters_provider import *
 
@@ -103,7 +102,7 @@ def compute_mstate_parameters(confobj, eeg, maps, eeg_info_study_obj):
 
         #get index of mstate map that correlates highest with gfp_peak_index
 
-        for key in attribution_matrix.keys():
+        for key in list(attribution_matrix.keys()):
             tf=epoch[key]
             corr_list = []
             for mapnr in range(len(maps)):
@@ -114,7 +113,7 @@ def compute_mstate_parameters(confobj, eeg, maps, eeg_info_study_obj):
                     #Dissimilarity
                     pr = dissim(maps[mapnr,:], tf, confobj.method_GFPpeak)
                 else:
-                    print('Error confobj.similarity_measure must be correlation or dissimilarity but it is {0}'.format(confobj.similarity_measure))
+                    print(('Error confobj.similarity_measure must be correlation or dissimilarity but it is {0}'.format(confobj.similarity_measure)))
 
                 #abs specific for EEG / continuous data where polarity is disregarded
                 corr_list.append(abs(pr))
@@ -135,7 +134,7 @@ def compute_mstate_parameters(confobj, eeg, maps, eeg_info_study_obj):
                 else:
                     attribution_matrix_indices[key]=[999, min(corr_list)] 
             else:
-                print('Error confobj.similarity_measure must be correlation or dissimilarity but it is {0}'.format(confobj.similarity_measure))
+                print(('Error confobj.similarity_measure must be correlation or dissimilarity but it is {0}'.format(confobj.similarity_measure)))
 
 
         #tf_begin is determined as, the first gfp peak where the mstate changes from one to another, e.g. A A A (B) B B (A) (B) B
@@ -182,7 +181,7 @@ def compute_mstate_parameters(confobj, eeg, maps, eeg_info_study_obj):
 
             if (dur_state is None):
                 if confobj.debug:
-                    print(outti, inni, dur_state)
+                    print((outti, inni, dur_state))
 
 
         #ignore last value pair from start_state_list because you don't know when this state ends
@@ -203,7 +202,7 @@ def compute_mstate_parameters(confobj, eeg, maps, eeg_info_study_obj):
         freq_dict=dict.fromkeys(list(range(confobj.original_nr_of_maps)))
         for mapnr in range(confobj.original_nr_of_maps):
             if dur_state[mapnr] == None:
-                print('In epoch ', epochnr, ', mapnr ', mapnr, 'does not occur. Frequency set to 0.')
+                print(('In epoch ', epochnr, ', mapnr ', mapnr, 'does not occur. Frequency set to 0.'))
                 freq_dict[mapnr] = 0
             else:
                 #freq corrected by smaller epoch size (returns # of occurrences per second based on info from whole epoch)
@@ -306,7 +305,7 @@ def compute_mstate_parameters(confobj, eeg, maps, eeg_info_study_obj):
         state_match_percentage=dict.fromkeys(list(range(confobj.original_nr_of_maps)))
         state_match_percentage_std=dict.fromkeys(list(range(confobj.original_nr_of_maps)))
 
-        for keyli in state_match_percentage.keys():
+        for keyli in list(state_match_percentage.keys()):
             state_match_percentage[keyli]=[]
             for ele in start_state_list:
                 if ele[1] == float(keyli):
@@ -560,7 +559,7 @@ def run_parameters(data_provider, confobj, eeg_info_study_obj):
     output_data_all = {}
 
     for output_path in data_provider.get_outputs():
-        print('computing parameters', output_path.level0, output_path.level1, output_path.level2, output_path.level3)
+        print(('computing parameters', output_path.level0, output_path.level1, output_path.level2, output_path.level3))
         input = data_provider.get_input_data(output_path, eeg_info_study_obj.chlist)
         sortby = data_provider.get_sortby_data(output_path)
         #compute_mstate_parameters demands that input and sortby are in the same data format (equal nch)

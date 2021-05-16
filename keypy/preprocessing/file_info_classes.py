@@ -57,4 +57,4 @@ class EegInfo(object):
 class StudyInfo(object):
     def __init__(self, group_dict):
         self.group_dict = group_dict
-        self.group_list = group_dict.keys()
+        self.group_list = list(group_dict.keys())

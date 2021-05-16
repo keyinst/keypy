@@ -3,7 +3,7 @@
 #######  Import Packages  ########
 ##################################
 
-from __future__ import print_function
+
 
 import os.path
 import math
@@ -78,16 +78,16 @@ def sortmaps(confobj, input, sortby, input_original):
         mean_correlations[ithperm] = mean_correlationo
         
 
-    bestpermi=max(mean_correlations.iteritems(), key=operator.itemgetter(1))[0]
+    bestpermi=max(iter(list(mean_correlations.items())), key=operator.itemgetter(1))[0]
 
     if confobj.debug:
-        print('bestpermi', bestpermi, 'mean_correlations[bestpermi]', mean_correlations[bestpermi])
+        print(('bestpermi', bestpermi, 'mean_correlations[bestpermi]', mean_correlations[bestpermi]))
 
     bestpermi_corr = mean_correlations[bestpermi]                       
     attribution_matrix = list(itertools.permutations((list(range(original_nr_of_maps)))))[bestpermi]
 
     if confobj.debug:
-        print('attribution_matrix', attribution_matrix)
+        print(('attribution_matrix', attribution_matrix))
 
     ######
     ###Check if inversion is necessary and save whole EEG into newraw
@@ -103,13 +103,13 @@ def sortmaps(confobj, input, sortby, input_original):
 
         if pr < 0:
             if confobj.debug:
-                print('r=', pr, 'modelmap', mapi, 'reversed')
+                print(('r=', pr, 'modelmap', mapi, 'reversed'))
             newraw[attribution_matrix[mapi],:]=modelmaps_original[mapi,:]*-1
             map_corr_list.append(abs(pr))
 
         else:
             if confobj.debug:
-                print('r=', pr,'modelmap', mapi, 'not reversed')
+                print(('r=', pr,'modelmap', mapi, 'not reversed'))
             newraw[attribution_matrix[mapi],:]=modelmaps_original[mapi,:]
             map_corr_list.append(pr)
 
@@ -442,7 +442,7 @@ def get_io_sortmap_for_series(series, iteration, inputfolder, inputfile_name, so
         else:
             stop = True
     else:
-        print('series not defined:', series)
+        print(('series not defined:', series))
 
     return sortdata_provider, stop
 
@@ -453,7 +453,7 @@ def get_io_sortmap_for_series(series, iteration, inputfolder, inputfile_name, so
 
 def run_sortmaps(data_provider, confobj, eeg_info_study_obj):
     for output_path in data_provider.get_outputs():
-        print('Sorting maps: ', output_path.level0)
+        print(('Sorting maps: ', output_path.level0))
 
         input_reduced, input_original = data_provider.get_input_data(output_path, eeg_info_study_obj.chlist)
         sortby = data_provider.get_sortby_data(output_path)
@@ -504,7 +504,7 @@ def run_sortmaps_series(series, inputfolder, inputfile_name, sortbyfolder, sortb
         sortdata_provider, stop = get_io_sortmap_for_series(series, iteration, inputfolder, inputfile_name, sortbyfolder, sortbyfile, sortbyfile_chlist, outputfolder, first_input)
         if stop:
             break
-        print('computing sortmaps iteration ', iteration)
+        print(('computing sortmaps iteration ', iteration))
         run_sortmaps(sortdata_provider, confobj, eeg_info_study_obj)
 
         iteration = iteration + 1

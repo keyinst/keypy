@@ -5,7 +5,7 @@
 ##filter_settings{'mstate1': {'high': 20, 'low': 2.0}, 'mstate2': {'high': 30, 'low': 1.5}}
 #############################################################################
 
-from __future__ import print_function
+
 
 from contextlib import closing
 
@@ -37,20 +37,20 @@ def boxkeyfilter(inputhdf5, eeg_info_study_obj, filter_input, filter_settings, e
 
     print('Filter signals ...')
     with closing( h5py.File(inputhdf5) ) as f:
-        for groupi in f['/'].keys():
-            for pti in f['/%s' % (groupi)].keys():
-                for cond in f['/%s/%s' % (groupi, pti)].keys():
-                    for run in f['/%s/%s/%s' % (groupi, pti, cond)].keys():
+        for groupi in list(f['/'].keys()):
+            for pti in list(f['/%s' % (groupi)].keys()):
+                for cond in list(f['/%s/%s' % (groupi, pti)].keys()):
+                    for run in list(f['/%s/%s/%s' % (groupi, pti, cond)].keys()):
                         try:
                             timeframe_channel_dset = f['/{0}/{1}/{2}/{3}/{4}' .format(groupi, pti, cond, run, filter_input)]
                         except:
-                            print('not found',  ['/{0}/{1}/{2}/{3}/{4}' .format(groupi, pti, cond, run, filter_input)])
+                            print(('not found',  ['/{0}/{1}/{2}/{3}/{4}' .format(groupi, pti, cond, run, filter_input)]))
                             continue
                     
                         path = f['/{0}/{1}/{2}/{3}' .format(groupi, pti, cond, run)]   
                         dset = path[filter_input].value                
 
-                        for filter_state in filter_settings.keys():
+                        for filter_state in list(filter_settings.keys()):
                             x_all_channels = numpy.zeros( dset.shape, dtype=dset.dtype )
                             frequency_bins=numpy.fft.fftfreq(eeg_info_study_obj.tf, 1./eeg_info_study_obj.sf)
                 
@@ -70,7 +70,7 @@ def boxkeyfilter(inputhdf5, eeg_info_study_obj, filter_input, filter_settings, e
                                     x_all_channels[i*eeg_info_study_obj.tf:(i+1)*eeg_info_study_obj.tf,ch] = numpy.real(epoch_reverse_filtered)
                                                    
                             #to do: add the filter_settings parameters as attributes to the HDF5 dataset
-                            if not filter_state in path.keys():
+                            if not filter_state in list(path.keys()):
                                 path.create_dataset(filter_state, data=x_all_channels )
                             else:
                                 path[filter_state][:] = x_all_channels

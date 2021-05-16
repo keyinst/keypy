@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import print_function
+
 
 from contextlib import closing
 import os
@@ -174,7 +174,7 @@ def loaddata(inputfolder, outputhdf5, loaddata_output, file_name_obj, folder_str
             if filename.endswith(file_name_obj.file_ending):
                 allfiles_list.append((filename, result[0][len(inputfolder)+1:].split(os.path.sep), result[0]))
             else:
-                print('File named ', filename, ' ignored. Did not have file ending ', file_name_obj.file_ending, ' which was specified by the user.')
+                print(('File named ', filename, ' ignored. Did not have file ending ', file_name_obj.file_ending, ' which was specified by the user.'))
 
     with closing( h5py.File(outputhdf5, 'w') ) as f:
         #retrieves info about group, pt, cond, run for each file
@@ -219,22 +219,22 @@ def loaddata(inputfolder, outputhdf5, loaddata_output, file_name_obj, folder_str
                 print('fatal error')
 
             #write data to hdf5 file
-            if not 'group_{0}' .format(group) in f['/'].keys():
+            if not 'group_{0}' .format(group) in list(f['/'].keys()):
                 participant_group = f.create_group('group_{0}' .format(group))
             else:
                 participant_group = f['group_{0}' .format(group)]
 
-            if not ('pt_{0}' .format(pt)) in f['/group_%s' % (group)].keys():
+            if not ('pt_{0}' .format(pt)) in list(f['/group_%s' % (group)].keys()):
                 pti_group = participant_group.create_group( 'pt_{0}' .format(pt) )   
             else:
                 pti_group = f['/group_%s/pt_%s' % (group, pt)]
 
-            if not 'cond_{0}' .format(cond) in f['/group_%s/pt_%s' % (group, pt)].keys():
+            if not 'cond_{0}' .format(cond) in list(f['/group_%s/pt_%s' % (group, pt)].keys()):
                 cond_group = pti_group.create_group( 'cond_{0}' .format(cond) )   
             else:
                 cond_group = f['/group_%s/pt_%s/cond_%s' % (group, pt, cond)]
 
-            if not 'run_{0}' .format(run) in f['/group_%s/pt_%s/cond_%s' % (group, pt, cond)].keys():
+            if not 'run_{0}' .format(run) in list(f['/group_%s/pt_%s/cond_%s' % (group, pt, cond)].keys()):
                 run_group = cond_group.create_group( 'run_{0}' .format(run) )   
             else:
                 run_group = f['/group_%s/pt_%s/cond_%s/run_%s' % (group, pt, cond, run)]

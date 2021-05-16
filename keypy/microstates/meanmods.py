@@ -4,7 +4,7 @@
 #######  Import Packages  ########
 ##################################
 
-from __future__ import print_function
+
 
 import os.path
 import math
@@ -254,7 +254,7 @@ def get_io_meanmod_for_series(series, iteration, inputfolder, hdf5_filename, out
         else:
             stop = True
     else:
-        print('series not defined:', series)
+        print(('series not defined:', series))
 
     return inputhdf5, outputhdf5, meanmod_input, meanmod_output, computation_version, stop
 
@@ -294,7 +294,7 @@ def find_meanmods(confobj, meanmods_foundation):
     max_number_of_iterations=confobj.max_number_of_iterations
 
     if number_of_basic_maps < original_nr_of_maps:
-        print('Attention, you have only', number_of_basic_maps ,'groups/participants/conditions/runs to select your', original_nr_of_maps ,'random maps from')
+        print(('Attention, you have only', number_of_basic_maps ,'groups/participants/conditions/runs to select your', original_nr_of_maps ,'random maps from'))
 
     #get number of channel from first modelmap in meanmods_foundation list
     nch = meanmods_foundation[0].shape[1]
@@ -403,7 +403,7 @@ def find_meanmods(confobj, meanmods_foundation):
                     
                         mean_correlations[ithperm] = mean_correlationo
                 
-                    bestpermi=max(mean_correlations.iteritems(), key=operator.itemgetter(1))[0]
+                    bestpermi=max(iter(list(mean_correlations.items())), key=operator.itemgetter(1))[0]
                 
                     attribution_matrix[number] = list(itertools.permutations((list(range(original_nr_of_maps)))))[bestpermi]
         
@@ -453,7 +453,7 @@ def find_meanmods(confobj, meanmods_foundation):
                 if (delta_correlation >0):
                     #print 'delta correlation bigger than zero, append to best result'
                     #update mean_correlation of current iteration
-                    mean_correlation=numpy.mean(bestcorr.values())
+                    mean_correlation=numpy.mean(list(bestcorr.values()))
                     best_results[iii][ii]=[mean_correlation, randmap, attribution_matrix]     
                 
                 ii += 1
@@ -464,12 +464,12 @@ def find_meanmods(confobj, meanmods_foundation):
         #extract the best randmap and attribution_matrix for each seed       
         best_mean_correlation = 0.1
 
-        for seednr in best_results.keys():
-            for iterationnr in best_results[seednr].keys():
+        for seednr in list(best_results.keys()):
+            for iterationnr in list(best_results[seednr].keys()):
 
                 if len(best_results[seednr][iterationnr]) == 0:
                     if confobj.debug:
-                        print('value is zero: seed', seednr, ' iterationnr', iterationnr)          
+                        print(('value is zero: seed', seednr, ' iterationnr', iterationnr))          
                 else:
                     corr, resmm, attrmatrix = best_results[seednr][iterationnr]
                       
@@ -488,7 +488,7 @@ def find_meanmods(confobj, meanmods_foundation):
                 pass
         else:
             if confobj.debug:
-                print('for SEED', iii, 'not found best')
+                print(('for SEED', iii, 'not found best'))
         #save attributes in dictionary
         attributes_dict = {}
         attributes_dict['Mean Correlation'] = best_mean_correlation
@@ -573,7 +573,7 @@ def run_meanmods_series(series, inputfolder, hdf5_filename, outputfolder, first_
             break
         selected_provider_class = get_data_provider_class(computation_version)
         data_provider = selected_provider_class(inputhdf5, outputhdf5, meanmod_input, meanmod_output)
-        print('computing meanmods for series, iteration: ', iteration)
+        print(('computing meanmods for series, iteration: ', iteration))
         run_meanmods(data_provider, find_meanmods, confobj)
         iteration = iteration + 1
 
