@@ -55,7 +55,7 @@ def run_modmaps(confobj, eeg_info_study_obj, inputhdf5, modmaps_input = 'mstate1
         random.seed(fixed_seed)   
 
     #gets data, preprocesses and computes mstate modelmaps for each input map
-    with closing( h5py.File(inputhdf5) ) as f:
+    with closing( h5py.File(inputhdf5, 'a') ) as f:
         print('Computing Modelmaps ....')
         for groupi in list(f['/'].keys()):
             group_group = f['/%s' % (groupi)]
@@ -74,7 +74,7 @@ def run_modmaps(confobj, eeg_info_study_obj, inputhdf5, modmaps_input = 'mstate1
 
                         print(('computing modelmaps', groupi, pti, condi, runi, modmaps_input))
                         path = '/%s/%s/%s/%s/%s' % (groupi, pti, condi, runi, modmaps_input)  
-                        eeg = f[path].value
+                        eeg = f[path][()]
 
                         if modmaps_output in list(f['/%s/%s/%s/%s' % (groupi, pti, condi, runi)].keys()):
                             print((groupi, pti, condi, runi, 'modelmaps not recomputed'))
