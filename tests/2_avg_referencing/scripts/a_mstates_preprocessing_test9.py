@@ -117,7 +117,6 @@ class Test_a_mstates_preprocessing_test9(unittest.TestCase):
 
             averageref(inputhdf5, average_input, average_output )
 
-
             #################################
             ###  Filter for microstates   ###
             #################################
@@ -145,7 +144,6 @@ class Test_a_mstates_preprocessing_test9(unittest.TestCase):
                 }
             }
 
-
             ######
             ###HDF5 File Preparation
             ######
@@ -161,10 +159,10 @@ class Test_a_mstates_preprocessing_test9(unittest.TestCase):
 
             boxkeyfilter(inputhdf5, eeg_info_study_obj, filter_input, filter_settings, enable_detrending)
 
-            self.assertTrue(out.getvalue().startswith("File named  vp02.asc  ignored. Did not have file ending  txt  which was specified by the user."))
-
+            # deprecated
+            # self.assertTrue(out.getvalue().startswith("File named  vp02.asc  ignored. Did not have file ending  txt  which was specified by the user."))
             dataset = None
-            with closing (h5py.File(outputhdf5, 'r')) as f:
+            with closing(h5py.File(outputhdf5, 'r')) as f:
                 g1 = f['/group_All_PTs']
                 g2 = g1['pt_PT']
                 g3 = g2['cond_Cond']

@@ -27,7 +27,7 @@ def averageref(inputhdf5, average_input, average_output ):
     """
 
     print('Compute average reference ....')
-    with closing( h5py.File(inputhdf5) ) as f:
+    with closing( h5py.File(inputhdf5, 'a') ) as f:
         for groupi in list(f['/'].keys()):
             for pti in list(f['/%s' % (groupi)].keys()):
                 for cond in list(f['/%s/%s' % (groupi, pti)].keys()):
@@ -44,10 +44,10 @@ def averageref(inputhdf5, average_input, average_output ):
                         timeframe_channel_dset = f[path]
                 
                         if not average_output in list(f['/{0}/{1}/{2}/{3}' .format(groupi, pti, cond, run)].keys()):
-                            i_averageref = f['/{0}/{1}/{2}/{3}' .format(groupi, pti, cond, run)].create_dataset(average_output, data = timeframe_channel_dset.value)
+                            i_averageref = f['/{0}/{1}/{2}/{3}' .format(groupi, pti, cond, run)].create_dataset(average_output, data = timeframe_channel_dset[()])
                         else:
                             i_averageref = f['/{0}/{1}/{2}/{3}' .format(groupi, pti, cond, run, average_output)]
                 
-                        timeframe_channel=timeframe_channel_dset.value
+                        timeframe_channel=timeframe_channel_dset[()]
                         computed_mean = timeframe_channel.mean(axis=1)
                         i_averageref[:] = timeframe_channel - computed_mean[:, np.newaxis] 

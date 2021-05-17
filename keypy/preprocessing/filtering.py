@@ -48,7 +48,7 @@ def boxkeyfilter(inputhdf5, eeg_info_study_obj, filter_input, filter_settings, e
                             continue
                     
                         path = f['/{0}/{1}/{2}/{3}' .format(groupi, pti, cond, run)]   
-                        dset = path[filter_input].value                
+                        dset = path[filter_input][()] 
 
                         for filter_state in list(filter_settings.keys()):
                             x_all_channels = numpy.zeros( dset.shape, dtype=dset.dtype )
