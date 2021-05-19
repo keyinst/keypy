@@ -528,7 +528,7 @@ def run_meanmods(data_provider, find_meanmods, confobj):
         #print 'output_paths in list', output_path.all
         inputs = data_provider.get_input_data(output_path)
         output_data, output_attributes = find_meanmods(confobj, inputs)
-        if not output_data == []:
+        if len(output_data) > 0:
             data_provider.write_output_data(output_path, output_data, output_attributes)
 
 ####--------------------------------------------------------------------------####

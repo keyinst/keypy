@@ -188,8 +188,8 @@ class DataProvider(object):
     """
 
     def __init__(self, inputhdf5, outputhdf5, inputdataset, outputdataset):
-        self._file = inputhdf5
-        self._outputfile = outputhdf5
+        self._file = inputhdf5.replace('\\', '/')
+        self._outputfile = outputhdf5.replace('\\', '/')
         self._inputdataset = inputdataset
         self._outputdataset = outputdataset
 
@@ -231,7 +231,7 @@ class CondDataProvider1(DataProvider):
        
     #writes output into new hdf5 at correct location
     def write_output_data(self, output_path, output_data, output_attributes):
-        with closing( h5py.File(self._outputfile) ) as h:
+        with closing( h5py.File(self._outputfile, 'a') ) as h:
             print(('Computing mean models for: ', output_path.group, output_path.cond, output_path.pt))
 
             if output_path.group in list(h['/'].keys()):
@@ -294,7 +294,7 @@ class PtDataProvider1(DataProvider):
         return model_maps_all
 
     def write_output_data(self, output_path, output_data, output_attributes):
-        with closing( h5py.File(self._outputfile) ) as h:
+        with closing( h5py.File(self._outputfile, 'a') ) as h:
             print(('Computing mean models for: ', output_path.group, output_path.pt))
 
             if output_path.group in list(h['/'].keys()):
@@ -348,7 +348,7 @@ class GroupDataProvider1(DataProvider):
         return model_maps_all
 
     def write_output_data(self, output_path, output_data, output_attributes):
-        with closing( h5py.File(self._outputfile) ) as h:
+        with closing( h5py.File(self._outputfile, 'a') ) as h:
             print(('Computing mean models for: ', output_path.group))
 
             if output_path.group in list(h['/'].keys()):
@@ -393,7 +393,7 @@ class AllDataProvider1(DataProvider):
         return model_maps_all
 
     def write_output_data(self, output_path, output_data, output_attributes):
-        with closing( h5py.File(self._outputfile) ) as h:
+        with closing( h5py.File(self._outputfile, 'a') ) as h:
             print(('Computing mean models for: ', output_path.all))
 
             if output_path.all in list(h['/'].keys()):
@@ -450,7 +450,7 @@ class RunDataProvider1(DataProvider):
         return model_maps_all
 
     def write_output_data(self, output_path, output_data, output_attributes):
-        with closing( h5py.File(self._outputfile) ) as h:
+        with closing( h5py.File(self._outputfile, 'a') ) as h:
             print(('Computing mean models for: ', output_path.group, output_path.cond))
 
             if output_path.group in list(h['/'].keys()):
@@ -510,7 +510,7 @@ class CondDataProvider5(DataProvider):
         return model_maps_all
 
     def write_output_data(self, output_path, output_data, output_attributes):
-        with closing( h5py.File(self._outputfile) ) as h:
+        with closing( h5py.File(self._outputfile, 'a') ) as h:
             print(('Computing mean models for: ', output_path.group, output_path.cond))
 
             if output_path.group in list(h['/'].keys()):
@@ -569,7 +569,7 @@ class CondDataProvider2(DataProvider):
         return model_maps_all
 
     def write_output_data(self, output_path, output_data, output_attributes):
-        with closing( h5py.File(self._outputfile) ) as h:
+        with closing( h5py.File(self._outputfile, 'a') ) as h:
             print(('Computing mean models for: ', output_path.group, output_path.cond))
 
             if output_path.group in list(h['/'].keys()):
@@ -627,7 +627,7 @@ class CondDataProvider3(DataProvider):
         return model_maps_all
 
     def write_output_data(self, output_path, output_data, output_attributes):
-        with closing( h5py.File(self._outputfile) ) as h:
+        with closing( h5py.File(self._outputfile, 'a') ) as h:
             print(('Computing mean models for: ', output_path.cond))
 
             if output_path.cond in list(h['/'].keys()):
