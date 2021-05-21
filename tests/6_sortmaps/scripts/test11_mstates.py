@@ -81,8 +81,8 @@ class Test_test11_mstates(unittest.TestCase):
         ### Specify data folder info ###
         ################################
 
-        inputfolder = os.path.join(library_path, "..\\data\\test7")
-        outputfolder = os.path.join(library_path, "..\\data\\test11_output")
+        inputfolder = os.path.join(library_path, "..","data","test7")
+        outputfolder = os.path.join(library_path, "..","data","test11_output")
 
         if not os.path.exists(outputfolder):
             os.makedirs(outputfolder)
@@ -225,14 +225,14 @@ class Test_test11_mstates(unittest.TestCase):
 
         series_versions = ['Series_1', 'Series_2', 'Series_3', 'Series_4', 'Series_5']
 
-        outputfolder = os.path.join(library_path, "..\\data\\test11_output")
+        outputfolder = os.path.join(library_path, "..","data","test11_output")
         inputfolder = outputfolder
 
         for series in series_versions:
             first_input = 'modelmap'
 
             #create folder with name of series as outputfolder
-            outputfolder_series = os.path.join(library_path, "..\\data\\test11_output\\{0}" .format(series))
+            outputfolder_series = os.path.join(library_path, "..","data","test11_output","{0}" .format(series))
             if not os.path.exists(outputfolder_series):
                 os.makedirs(outputfolder_series)
 
@@ -253,7 +253,7 @@ class Test_test11_mstates(unittest.TestCase):
 
         first_input = 'modelmap'
         sortbyfolder = os.path.join(library_path, "..","data","sortby")
-        outputfolder = os.path.join(library_path, "..\\data\\test11_output")
+        outputfolder = os.path.join(library_path, "..","data","test11_output")
 
         sortbyfile = 'mean_models_koenig_et_al_2002.asc'
         sortbyfile_chlist = 'mean_models_koenig_et_al_2002_chlist.asc'
