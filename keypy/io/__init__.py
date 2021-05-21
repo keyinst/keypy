@@ -62,7 +62,7 @@ def hdf5_to_besa(inputhdf5, outputfolder, database, eeg_info_study_obj, TSB=0.00
     TF = eeg_info_study_obj.tf
     chlist = eeg_info_study_obj.chlist
 
-    with closing( h5py.File(inputhdf5) ) as f:
+    with closing( h5py.File(inputhdf5, 'a') ) as f:
         for groupi in list(f['/'].keys()):
             for pti in list(f['/%s' % (groupi)].keys()):
                 for cond in list(f['/%s/%s' % (groupi, pti)].keys()):
@@ -119,7 +119,7 @@ columns = channels
 
 def hdf5_to_ascii(inputhdf5, database, eeg_info_study_obj, outputfolder, numberofepochs='all', fmt='%10.6f', shortname=False):
     TF = eeg_info_study_obj.tf
-    with closing( h5py.File(inputhdf5) ) as f:
+    with closing( h5py.File(inputhdf5, 'a') ) as f:
         for groupi in list(f['/'].keys()):
             for pti in list(f['/%s' % (groupi)].keys()):
                 for cond in list(f['/%s/%s' % (groupi, pti)].keys()):

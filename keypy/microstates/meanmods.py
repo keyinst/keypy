@@ -523,7 +523,6 @@ def run_meanmods(data_provider, find_meanmods, confobj):
     confobj : object of type MstConfiguration
         Contains the parameters used for microstate computation and visualization. 
     """
-
     for output_path in data_provider.get_outputs():
         #print 'output_paths in list', output_path.all
         inputs = data_provider.get_input_data(output_path)

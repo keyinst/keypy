@@ -30,8 +30,7 @@ def create_study_info_obj_from_data(inputhdf5):
     study_info_obj : object of type StudyInfo
         Contains the following attributes: group_dict (dictionary that contains the whole data set structure: group, participant, cond, run) and group_list (list of strings for each group in the dataset).
     """
-
-    with closing( h5py.File(inputhdf5, 'r') ) as f:
+    with closing( h5py.File(inputhdf5, 'a') ) as f:
         #dictionary of groups
         group_dict = {}
         for group_name in list(f['/'].keys()):
@@ -42,7 +41,6 @@ def create_study_info_obj_from_data(inputhdf5):
                     group_dict[group_name][pt_name][cond_name] = {}
                     for run_name in list(f['/%s/%s/%s' % (group_name, pt_name, cond_name)].keys()):
                         group_dict[group_name][pt_name][cond_name][run_name] = {}
-
         #create object of EEG study information
         study_info_obj = StudyInfo(group_dict)
 
@@ -82,7 +80,7 @@ def del_channels(inputhdf5, ch_to_delete, del_channels_input, del_channels_outpu
     nch = eeg_info_study_obj.nch
     chlist = eeg_info_study_obj.chlist
 
-    with closing( h5py.File(inputhdf5) ) as f:
+    with closing( h5py.File(inputhdf5, 'a') ) as f:
         for groupi in list(f['/'].keys()):
             for pti in list(f['/%s' % (groupi)].keys()):
                 for cond in list(f['/%s/%s' % (groupi, pti)].keys()):
@@ -140,7 +138,7 @@ def del_participants(inputhdf5, pts_to_delete):
         List of participant names which are to be deleted e.g. ['pt01','pt08','pt17'].
     """
 
-    with closing( h5py.File(inputhdf5) ) as f:
+    with closing( h5py.File(inputhdf5, 'a') ) as f:
         for groupi in list(f['/'].keys()):
             for pti in list(f['/%s' % (groupi)].keys()):
                 if pti in pts_to_delete:

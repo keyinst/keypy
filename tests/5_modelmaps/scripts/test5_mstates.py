@@ -79,7 +79,7 @@ class Test_test5_mstates(unittest.TestCase):
         ### Specify data folder info ###
         ################################
 
-        inputfolder = os.path.join(library_path, "..\\data\\test5")
+        inputfolder = os.path.join(library_path, "../data/test5")
         outputfolder = inputfolder
 
         if not os.path.exists(outputfolder):
@@ -225,7 +225,7 @@ class Test_test5_mstates(unittest.TestCase):
             first_input = 'microstate'
 
             #create folder with name of series as outputfolder
-            outputfolder = os.path.join(library_path, "..\\data\\test5_output\\{0}" .format(series))
+            outputfolder = os.path.join(library_path, "../data/test5_output/{0}" .format(series))
             if not os.path.exists(outputfolder):
                 os.makedirs(outputfolder)
 
