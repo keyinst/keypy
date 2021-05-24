@@ -80,8 +80,8 @@ class Test_test10_mstates(unittest.TestCase):
         ### Specify data folder info ###
         ################################
 
-        inputfolder = os.path.join(library_path, "..\\data\\test10")
-        outputfolder = os.path.join(library_path, "..\\data\\test10_output")
+        inputfolder = os.path.join(library_path, "..","data","test10")
+        outputfolder = os.path.join(library_path, "..","data","test10_output")
 
         if not os.path.exists(outputfolder):
             os.makedirs(outputfolder)
@@ -217,14 +217,14 @@ class Test_test10_mstates(unittest.TestCase):
 
         series_versions = ['Series_1', 'Series_2', 'Series_3', 'Series_4', 'Series_5']
 
-        outputfolder = os.path.join(library_path, "..\\data\\test10_output")
+        outputfolder = os.path.join(library_path, "..","data","test10_output")
         inputfolder = outputfolder
 
         for series in series_versions:
             first_input = 'modelmap'
 
             #create folder with name of series as outputfolder
-            outputfolder_series = os.path.join(library_path, "..\\data\\test10_output\\{0}" .format(series))
+            outputfolder_series = os.path.join(library_path, "..","data","test10_output","{0}" .format(series))
             if not os.path.exists(outputfolder_series):
                 os.makedirs(outputfolder_series)
 
@@ -244,13 +244,13 @@ class Test_test10_mstates(unittest.TestCase):
 
         first_input = 'modelmap'
         sortbyfolder = os.path.join(library_path, "..","data","sortby")
-        outputfolder = os.path.join(library_path, "..\\data\\test10_output")
+        outputfolder = os.path.join(library_path, "..","data","test10_output")
         sortbyfile = 'mean_models_koenig_et_al_2002.asc'
         sortbyfile_chlist = 'mean_models_koenig_et_al_2002_chlist.asc'
 
         for series in series_versions:   
             run_sortmaps_series(series, inputfolder, hdf5_filename, sortbyfolder, sortbyfile, sortbyfile_chlist, outputfolder, first_input, confobj, eeg_info_study_obj)
-           
+
         #--------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -263,7 +263,7 @@ class Test_test10_mstates(unittest.TestCase):
         #############################
 
         ##info needed to know which data the parameters are to be computed upon
-        inputfolder = os.path.join(library_path, "..\\data\\test10_output")
+        inputfolder = os.path.join(library_path, "..", "data", "test10_output")
         hdf5_filename = 'all_recordings.hdf'
         inputdataset = 'rawdata'
 
@@ -272,7 +272,7 @@ class Test_test10_mstates(unittest.TestCase):
         ############################
 
         ##info needed to know which data the parameters are to be "sorted" upon (modelmaps)
-        sortbyfolder = os.path.join(library_path, "..","data","sortby")
+        sortbyfolder = os.path.join(library_path, "..", "data", "sortby")
         parameter_type = 'series' #can be external, series, inputhdf
         ###
         #if you use an external asci file to sort your data by
@@ -315,7 +315,6 @@ class Test_test10_mstates(unittest.TestCase):
             'Error, type not correctly specified for parameter computation.'
 
         data_provider=get_data_provider_for_parameter_by(parameter_by, inputfolder, hdf5_filename, inputdataset, sortbyfolder, sortbyfile, sortbydataset, sortbyseries, external_chlist)
-
         run_parameters(data_provider, confobj, eeg_info_study_obj)
         #--------------------------------------------------------------------------------------------------------------------------------------------
 

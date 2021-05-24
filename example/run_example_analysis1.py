@@ -174,7 +174,7 @@ user_defined_individual_level_sort_dataset = 'modelmap_Series_4_sorted'
 # No changes necessary after this point.
 
 if not os.path.exists(outputfolder):
-    print("Create output folder: {0}".format(outputfolder))
+    print(("Create output folder: {0}".format(outputfolder)))
     os.makedirs(outputfolder)
 
 outputhdf5 = os.path.join( outputfolder, hdf5_filename)

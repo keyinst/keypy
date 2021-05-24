@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import print_function
+
 
 from contextlib import closing
 
@@ -30,19 +30,17 @@ def create_study_info_obj_from_data(inputhdf5):
     study_info_obj : object of type StudyInfo
         Contains the following attributes: group_dict (dictionary that contains the whole data set structure: group, participant, cond, run) and group_list (list of strings for each group in the dataset).
     """
-
-    with closing( h5py.File(inputhdf5, 'r') ) as f:
+    with closing( h5py.File(inputhdf5, 'a') ) as f:
         #dictionary of groups
         group_dict = {}
-        for group_name in f['/'].keys():
+        for group_name in list(f['/'].keys()):
             group_dict[group_name] = {}
-            for pt_name in f['/%s' % (group_name)].keys():
+            for pt_name in list(f['/%s' % (group_name)].keys()):
                 group_dict[group_name][pt_name] = {}
-                for cond_name in f['/%s/%s' % (group_name, pt_name)].keys():
+                for cond_name in list(f['/%s/%s' % (group_name, pt_name)].keys()):
                     group_dict[group_name][pt_name][cond_name] = {}
-                    for run_name in f['/%s/%s/%s' % (group_name, pt_name, cond_name)].keys():
+                    for run_name in list(f['/%s/%s/%s' % (group_name, pt_name, cond_name)].keys()):
                         group_dict[group_name][pt_name][cond_name][run_name] = {}
-
         #create object of EEG study information
         study_info_obj = StudyInfo(group_dict)
 
@@ -82,20 +80,20 @@ def del_channels(inputhdf5, ch_to_delete, del_channels_input, del_channels_outpu
     nch = eeg_info_study_obj.nch
     chlist = eeg_info_study_obj.chlist
 
-    with closing( h5py.File(inputhdf5) ) as f:
-        for groupi in f['/'].keys():
-            for pti in f['/%s' % (groupi)].keys():
-                for cond in f['/%s/%s' % (groupi, pti)].keys():
-                    for run in f['/%s/%s/%s' % (groupi, pti, cond)].keys():
+    with closing( h5py.File(inputhdf5, 'a') ) as f:
+        for groupi in list(f['/'].keys()):
+            for pti in list(f['/%s' % (groupi)].keys()):
+                for cond in list(f['/%s/%s' % (groupi, pti)].keys()):
+                    for run in list(f['/%s/%s/%s' % (groupi, pti, cond)].keys()):
                         try:
                             timeframe_channel_dset = f['/{0}/{1}/{2}/{3}/{4}' .format(groupi, pti, cond, run, del_channels_input)]
                         except:
-                            print('not found',  ['/{0}/{1}/{2}/{3}/{4}' .format(groupi, pti, cond, run, del_channels_input)])
+                            print(('not found',  ['/{0}/{1}/{2}/{3}/{4}' .format(groupi, pti, cond, run, del_channels_input)]))
                             continue
                     
                         path = '/{0}/{1}/{2}/{3}/{4}' .format(groupi, pti, cond, run, del_channels_input)
                 
-                        print('deleting channels for ', pti, cond, run)
+                        print(('deleting channels for ', pti, cond, run))
                         timeframe_channel_dset = f[path]    
                
                         timeframe_channel=timeframe_channel_dset.value
@@ -111,7 +109,7 @@ def del_channels(inputhdf5, ch_to_delete, del_channels_input, del_channels_outpu
 
 
                         
-                        if not del_channels_output in f['/{0}/{1}/{2}/{3}' .format(groupi, pti, cond, run)].keys():
+                        if not del_channels_output in list(f['/{0}/{1}/{2}/{3}' .format(groupi, pti, cond, run)].keys()):
                             i_channels_output = f['/{0}/{1}/{2}/{3}' .format(groupi, pti, cond, run)].create_dataset(del_channels_output, data = timeframe_channel)
                         else:
                             i_channels_output = f['/{0}/{1}/{2}/{3}' .format(groupi, pti, cond, run, del_channels_output)]
@@ -140,9 +138,9 @@ def del_participants(inputhdf5, pts_to_delete):
         List of participant names which are to be deleted e.g. ['pt01','pt08','pt17'].
     """
 
-    with closing( h5py.File(inputhdf5) ) as f:
-        for groupi in f['/'].keys():
-            for pti in f['/%s' % (groupi)].keys():
+    with closing( h5py.File(inputhdf5, 'a') ) as f:
+        for groupi in list(f['/'].keys()):
+            for pti in list(f['/%s' % (groupi)].keys()):
                 if pti in pts_to_delete:
-                    print('Deleting ....', group, pti)
+                    print(('Deleting ....', group, pti))
                     del f['/%s/%s' % (groupi, pti)]

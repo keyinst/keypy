@@ -45,7 +45,6 @@ class Test_test4_mstates(unittest.TestCase):
         #name of hdf5 that contains data
         inputhdf5 = os.path.join( inputfolder, 'all_recordings.hdf')
 
-
         #####################################
         # 3.) Create EEG info object      ###
         #####################################
@@ -78,7 +77,7 @@ class Test_test4_mstates(unittest.TestCase):
         ### Specify data folder info ###
         ################################
 
-        inputfolder = os.path.join(library_path, "..\\data\\test4")
+        inputfolder = os.path.join(library_path, "../data/test4")
         outputfolder = inputfolder
 
         if not os.path.exists(outputfolder):
@@ -135,7 +134,6 @@ class Test_test4_mstates(unittest.TestCase):
         ################################################
 
         study_info_obj=create_study_info_obj_from_data(inputhdf5)
-
 
         #######################################
         # 5.) Create Configuration Object   ###
@@ -225,7 +223,7 @@ class Test_test4_mstates(unittest.TestCase):
             first_input = 'microstate'
 
             #create folder with name of series as outputfolder
-            outputfolder = os.path.join(library_path, "..\\data\\test4_output\\{0}" .format(series))
+            outputfolder = os.path.join(library_path, "../data/test4_output/{0}" .format(series))
             if not os.path.exists(outputfolder):
                 os.makedirs(outputfolder)
 

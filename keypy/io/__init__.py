@@ -62,15 +62,15 @@ def hdf5_to_besa(inputhdf5, outputfolder, database, eeg_info_study_obj, TSB=0.00
     TF = eeg_info_study_obj.tf
     chlist = eeg_info_study_obj.chlist
 
-    with closing( h5py.File(inputhdf5) ) as f:
-        for groupi in f['/'].keys():
-            for pti in f['/%s' % (groupi)].keys():
-                for cond in f['/%s/%s' % (groupi, pti)].keys():
-                    for run in f['/%s/%s/%s' % (groupi, pti, cond)].keys():
+    with closing( h5py.File(inputhdf5, 'a') ) as f:
+        for groupi in list(f['/'].keys()):
+            for pti in list(f['/%s' % (groupi)].keys()):
+                for cond in list(f['/%s/%s' % (groupi, pti)].keys()):
+                    for run in list(f['/%s/%s/%s' % (groupi, pti, cond)].keys()):
                         try:
                             timeframe_channel_dset = f['/{0}/{1}/{2}/{3}/{4}' .format(groupi, pti, cond, run, database)]
                         except:
-                            print('not found',  ['/{0}/{1}/{2}/{3}/{4}' .format(groupi, pti, cond, run, database)])
+                            print(('not found',  ['/{0}/{1}/{2}/{3}/{4}' .format(groupi, pti, cond, run, database)]))
                             continue
                     
                         path = '/{0}/{1}/{2}/{3}/{4}' .format(groupi, pti, cond, run, database)
@@ -80,11 +80,11 @@ def hdf5_to_besa(inputhdf5, outputfolder, database, eeg_info_study_obj, TSB=0.00
                         timeframe_channel=timeframe_channel_dset.value
                         dset = timeframe_channel
 
-                        print 'writing to besa', '{0} {1} {2} {3}' .format(groupi, pti, cond, run), 'shape', dset.shape
+                        print(('writing to besa', '{0} {1} {2} {3}' .format(groupi, pti, cond, run), 'shape', dset.shape))
 
                         #test if nch user matches nch file
                         if nch != len(dset[0]):
-                            print 'Channel number mismatch between inputhdf and manually specified number of channels'
+                            print('Channel number mismatch between inputhdf and manually specified number of channels')
                         #number of timeframes in the whole file
                         nodp=len(dset)
                         #Line 1
@@ -119,20 +119,20 @@ columns = channels
 
 def hdf5_to_ascii(inputhdf5, database, eeg_info_study_obj, outputfolder, numberofepochs='all', fmt='%10.6f', shortname=False):
     TF = eeg_info_study_obj.tf
-    with closing( h5py.File(inputhdf5) ) as f:
-        for groupi in f['/'].keys():
-            for pti in f['/%s' % (groupi)].keys():
-                for cond in f['/%s/%s' % (groupi, pti)].keys():
-                    for run in f['/%s/%s/%s' % (groupi, pti, cond)].keys():
+    with closing( h5py.File(inputhdf5, 'a') ) as f:
+        for groupi in list(f['/'].keys()):
+            for pti in list(f['/%s' % (groupi)].keys()):
+                for cond in list(f['/%s/%s' % (groupi, pti)].keys()):
+                    for run in list(f['/%s/%s/%s' % (groupi, pti, cond)].keys()):
                         try:
                             timeframe_channel_dset = f['/{0}/{1}/{2}/{3}/{4}' .format(groupi, pti, cond, run, database)]
                         except:
-                            print('not found',  ['/{0}/{1}/{2}/{3}/{4}' .format(groupi, pti, cond, run, database)])
+                            print(('not found',  ['/{0}/{1}/{2}/{3}/{4}' .format(groupi, pti, cond, run, database)]))
                             continue
                     
                         path = '/{0}/{1}/{2}/{3}/{4}' .format(groupi, pti, cond, run, database)
                 
-                        print('writing to asci ', groupi, pti, cond, run)
+                        print(('writing to asci ', groupi, pti, cond, run))
                         timeframe_channel_dset = f[path]    
                
                         timeframe_channel=timeframe_channel_dset.value
@@ -143,7 +143,7 @@ def hdf5_to_ascii(inputhdf5, database, eeg_info_study_obj, outputfolder, numbero
                             if len(dset)>TF*numberofepochs:
                                 dset = dset[0:TF*numberofepochs,:]
                             else:
-                                print 'inputhdf: ', inputhdf, 'processing stage: ', database, 'did only contain: ', len(dset), 'timeframes. ', 'when a minimum of number of time frames per epoch times epoch length was expected: ', TF*numberofepochs 
+                                print(('inputhdf: ', inputhdf, 'processing stage: ', database, 'did only contain: ', len(dset), 'timeframes. ', 'when a minimum of number of time frames per epoch times epoch length was expected: ', TF*numberofepochs)) 
                                     
                         if shortname:
                             filename = '%s' % (pti)

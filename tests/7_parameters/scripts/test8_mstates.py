@@ -81,8 +81,8 @@ class Test_test8_mstates(unittest.TestCase):
         ### Specify data folder info ###
         ################################
 
-        inputfolder = os.path.join(library_path, "..\\data\\test8")
-        outputfolder = os.path.join(library_path, "..\\data\\test8_output")
+        inputfolder = os.path.join(library_path, "..","data","test8")
+        outputfolder = os.path.join(library_path, "..","data","test8_output")
 
         if not os.path.exists(outputfolder):
             os.makedirs(outputfolder)
@@ -222,14 +222,14 @@ class Test_test8_mstates(unittest.TestCase):
 
         series_versions = ['Series_1', 'Series_2', 'Series_3', 'Series_4', 'Series_5']
 
-        outputfolder = os.path.join(library_path, "..\\data\\test8_output")
+        outputfolder = os.path.join(library_path, "..","data","test8_output")
         inputfolder = outputfolder
 
         for series in series_versions:
             first_input = 'microstate'
 
             #create folder with name of series as outputfolder
-            outputfolder_series = os.path.join(library_path, "..\\data\\test8_output\\{0}" .format(series))
+            outputfolder_series = os.path.join(library_path, "..","data","test8_output","{0}" .format(series))
             if not os.path.exists(outputfolder_series):
                 os.makedirs(outputfolder_series)
 
@@ -248,7 +248,7 @@ class Test_test8_mstates(unittest.TestCase):
 
         first_input = 'microstate'
         sortbyfolder = os.path.join(library_path, "..","data","sortby")
-        outputfolder = os.path.join(library_path, "..\\data\\test8_output")
+        outputfolder = os.path.join(library_path, "..","data","test8_output")
 
         for series in series_versions:
             
@@ -266,7 +266,7 @@ class Test_test8_mstates(unittest.TestCase):
         #############################
 
         ##info needed to know which data the parameters are to be computed upon
-        inputfolder = os.path.join(library_path, "..\\data\\test8_output")
+        inputfolder = os.path.join(library_path, "..","data","test8_output")
         hdf5_filename = 'all_recordings.hdf'
         inputdataset = 'rawdata'
 
@@ -335,18 +335,18 @@ class Test_test8_mstates(unittest.TestCase):
             map_01 = g5['map_01']
             map_02 = g5['map_02']
             map_03 = g5['map_03']
-            cov_dataset_0 = map_00['Coverage in percent'].value
-            cov_dataset_1 = map_01['Coverage in percent'].value
-            cov_dataset_2 = map_02['Coverage in percent'].value
-            cov_dataset_3 = map_03['Coverage in percent'].value
-            dur_dataset_0 = map_00['Mean duration in ms'].value
-            dur_dataset_1 = map_01['Mean duration in ms'].value
-            dur_dataset_2 = map_02['Mean duration in ms'].value
-            dur_dataset_3 = map_03['Mean duration in ms'].value
-            occ_dataset_0 = map_00['Occurrance per s'].value
-            occ_dataset_1 = map_01['Occurrance per s'].value
-            occ_dataset_2 = map_02['Occurrance per s'].value
-            occ_dataset_3 = map_03['Occurrance per s'].value
+            cov_dataset_0 = map_00['Coverage in percent'][()]
+            cov_dataset_1 = map_01['Coverage in percent'][()]
+            cov_dataset_2 = map_02['Coverage in percent'][()]
+            cov_dataset_3 = map_03['Coverage in percent'][()]
+            dur_dataset_0 = map_00['Mean duration in ms'][()]
+            dur_dataset_1 = map_01['Mean duration in ms'][()]
+            dur_dataset_2 = map_02['Mean duration in ms'][()]
+            dur_dataset_3 = map_03['Mean duration in ms'][()]
+            occ_dataset_0 = map_00['Occurrance per s'][()]
+            occ_dataset_1 = map_01['Occurrance per s'][()]
+            occ_dataset_2 = map_02['Occurrance per s'][()]
+            occ_dataset_3 = map_03['Occurrance per s'][()]
 
             #load correct solutions
             individu_correct_solution = np.loadtxt(os.path.join(inputfolder, 'solutions', 'Individual_States_HEA01Rest00.asc'))
