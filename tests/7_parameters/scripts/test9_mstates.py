@@ -84,8 +84,8 @@ class Test_test9_mstates(unittest.TestCase):
         ### Specify data folder info ###
         ################################
 
-        inputfolder = os.path.join(library_path, "..\\data\\test9")
-        outputfolder = os.path.join(library_path, "..\\data\\test9_output")
+        inputfolder = os.path.join(library_path, "..","data","test9")
+        outputfolder = os.path.join(library_path, "..","data","test9_output")
 
         if not os.path.exists(outputfolder):
             os.makedirs(outputfolder)
@@ -225,14 +225,14 @@ class Test_test9_mstates(unittest.TestCase):
 
         series_versions = ['Series_1', 'Series_2', 'Series_3', 'Series_4', 'Series_5']
 
-        outputfolder = os.path.join(library_path, "..\\data\\test9_output")
+        outputfolder = os.path.join(library_path, "..","data","test9_output")
         inputfolder = outputfolder
 
         for series in series_versions:
             first_input = 'microstate'
 
             #create folder with name of series as outputfolder
-            outputfolder_series = os.path.join(library_path, "..\\data\\test9_output\\{0}" .format(series))
+            outputfolder_series = os.path.join(library_path, "..","data","test9_output","{0}" .format(series))
             if not os.path.exists(outputfolder_series):
                 os.makedirs(outputfolder_series)
 
@@ -251,7 +251,7 @@ class Test_test9_mstates(unittest.TestCase):
 
         first_input = 'microstate'
         sortbyfolder = os.path.join(library_path, "..","data","sortby")
-        outputfolder = os.path.join(library_path, "..\\data\\test9_output")
+        outputfolder = os.path.join(library_path, "..","data","test9_output")
 
         for series in series_versions:
             
@@ -269,7 +269,7 @@ class Test_test9_mstates(unittest.TestCase):
         #############################
 
         ##info needed to know which data the parameters are to be computed upon
-        inputfolder = os.path.join(library_path, "..\\data\\test9_output")
+        inputfolder = os.path.join(library_path, "..","data","test9_output")
         hdf5_filename = 'all_recordings.hdf'
         inputdataset = 'rawdata'
 
@@ -326,7 +326,7 @@ class Test_test9_mstates(unittest.TestCase):
         #--------------------------------------------------------------------------------------------------------------------------------------------
         
         dataset = None
-        with closing (h5py.File(os.path.join(sortbyfolder, 'mean_models_koenig_et_al_2002', 'mstate_parameters.hdf5'), 'r')) as f:
+        with closing (h5py.File(os.path.join(sortbyfolder, 'mean_models_koenig_et_al_2002', 'mstate_parameters.hdf5'), 'a')) as f:
             g1 = f['/group_HEA']
             g2 = g1['pt_01']
             g3 = g2['cond_Rest']
@@ -341,30 +341,30 @@ class Test_test9_mstates(unittest.TestCase):
             map_01 = g5['map_01']
             map_02 = g5['map_02']
             map_03 = g5['map_03']
-            cov_dataset_0 = map_00['Coverage in percent'].value
-            cov_dataset_1 = map_01['Coverage in percent'].value
-            cov_dataset_2 = map_02['Coverage in percent'].value
-            cov_dataset_3 = map_03['Coverage in percent'].value
-            dur_dataset_0 = map_00['Mean duration in ms'].value
-            dur_dataset_1 = map_01['Mean duration in ms'].value
-            dur_dataset_2 = map_02['Mean duration in ms'].value
-            dur_dataset_3 = map_03['Mean duration in ms'].value
-            occ_dataset_0 = map_00['Occurrance per s'].value
-            occ_dataset_1 = map_01['Occurrance per s'].value
-            occ_dataset_2 = map_02['Occurrance per s'].value
-            occ_dataset_3 = map_03['Occurrance per s'].value
-            gfp_mean_across_all_tfs_0 = map_00['GFP Mean across all tfs'].value
-            gfp_mean_across_all_tfs_1 = map_01['GFP Mean across all tfs'].value
-            gfp_mean_across_all_tfs_2 = map_02['GFP Mean across all tfs'].value
-            gfp_mean_across_all_tfs_3 = map_03['GFP Mean across all tfs'].value
-            SD_dur_in_ms_0 = map_00['SD duration in ms'].value
-            SD_dur_in_ms_1 = map_01['SD duration in ms'].value
-            SD_dur_in_ms_2 = map_02['SD duration in ms'].value
-            SD_dur_in_ms_3 = map_03['SD duration in ms'].value    
-            numb_of_ms_for_each_state_0 = map_00['number of ms for each state'].value
-            numb_of_ms_for_each_state_1 = map_01['number of ms for each state'].value 
-            numb_of_ms_for_each_state_2 = map_02['number of ms for each state'].value 
-            numb_of_ms_for_each_state_3 = map_03['number of ms for each state'].value     
+            cov_dataset_0 = map_00['Coverage in percent'][()]
+            cov_dataset_1 = map_01['Coverage in percent'][()]
+            cov_dataset_2 = map_02['Coverage in percent'][()]
+            cov_dataset_3 = map_03['Coverage in percent'][()]
+            dur_dataset_0 = map_00['Mean duration in ms'][()]
+            dur_dataset_1 = map_01['Mean duration in ms'][()]
+            dur_dataset_2 = map_02['Mean duration in ms'][()]
+            dur_dataset_3 = map_03['Mean duration in ms'][()]
+            occ_dataset_0 = map_00['Occurrance per s'][()]
+            occ_dataset_1 = map_01['Occurrance per s'][()]
+            occ_dataset_2 = map_02['Occurrance per s'][()]
+            occ_dataset_3 = map_03['Occurrance per s'][()]
+            gfp_mean_across_all_tfs_0 = map_00['GFP Mean across all tfs'][()]
+            gfp_mean_across_all_tfs_1 = map_01['GFP Mean across all tfs'][()]
+            gfp_mean_across_all_tfs_2 = map_02['GFP Mean across all tfs'][()]
+            gfp_mean_across_all_tfs_3 = map_03['GFP Mean across all tfs'][()]
+            SD_dur_in_ms_0 = map_00['SD duration in ms'][()]
+            SD_dur_in_ms_1 = map_01['SD duration in ms'][()]
+            SD_dur_in_ms_2 = map_02['SD duration in ms'][()]
+            SD_dur_in_ms_3 = map_03['SD duration in ms'][()]
+            numb_of_ms_for_each_state_0 = map_00['number of ms for each state'][()]
+            numb_of_ms_for_each_state_1 = map_01['number of ms for each state'][()] 
+            numb_of_ms_for_each_state_2 = map_02['number of ms for each state'][()] 
+            numb_of_ms_for_each_state_3 = map_03['number of ms for each state'][()]     
 
             #epoch 1
             g6 = g4['ep_001']
@@ -374,22 +374,22 @@ class Test_test9_mstates(unittest.TestCase):
             map_01_ep01 = g6['map_01']
             map_02_ep01 = g6['map_02']
             map_03_ep01 = g6['map_03'] 
-            cov_dataset_0_ep01 = map_00_ep01['Coverage in percent'].value
-            cov_dataset_1_ep01 = map_01_ep01['Coverage in percent'].value
-            cov_dataset_2_ep01 = map_02_ep01['Coverage in percent'].value
-            cov_dataset_3_ep01 = map_03_ep01['Coverage in percent'].value
-            dur_dataset_0_ep01 = map_00_ep01['Mean duration in ms'].value
-            dur_dataset_1_ep01 = map_01_ep01['Mean duration in ms'].value
-            dur_dataset_2_ep01 = map_02_ep01['Mean duration in ms'].value
-            dur_dataset_3_ep01 = map_03_ep01['Mean duration in ms'].value
-            occ_dataset_0_ep01 = map_00_ep01['Occurrance per s'].value
-            occ_dataset_1_ep01 = map_01_ep01['Occurrance per s'].value
-            occ_dataset_2_ep01 = map_02_ep01['Occurrance per s'].value
-            occ_dataset_3_ep01 = map_03_ep01['Occurrance per s'].value
-            gfp_mean_across_all_tfs_0_ep01 = map_00_ep01['GFP Mean across all tfs'].value
-            gfp_mean_across_all_tfs_1_ep01 = map_01_ep01['GFP Mean across all tfs'].value
-            gfp_mean_across_all_tfs_2_ep01 = map_02_ep01['GFP Mean across all tfs'].value
-            gfp_mean_across_all_tfs_3_ep01 = map_03_ep01['GFP Mean across all tfs'].value         
+            cov_dataset_0_ep01 = map_00_ep01['Coverage in percent'][()]
+            cov_dataset_1_ep01 = map_01_ep01['Coverage in percent'][()]
+            cov_dataset_2_ep01 = map_02_ep01['Coverage in percent'][()]
+            cov_dataset_3_ep01 = map_03_ep01['Coverage in percent'][()]
+            dur_dataset_0_ep01 = map_00_ep01['Mean duration in ms'][()]
+            dur_dataset_1_ep01 = map_01_ep01['Mean duration in ms'][()]
+            dur_dataset_2_ep01 = map_02_ep01['Mean duration in ms'][()]
+            dur_dataset_3_ep01 = map_03_ep01['Mean duration in ms'][()]
+            occ_dataset_0_ep01 = map_00_ep01['Occurrance per s'][()]
+            occ_dataset_1_ep01 = map_01_ep01['Occurrance per s'][()]
+            occ_dataset_2_ep01 = map_02_ep01['Occurrance per s'][()]
+            occ_dataset_3_ep01 = map_03_ep01['Occurrance per s'][()]
+            gfp_mean_across_all_tfs_0_ep01 = map_00_ep01['GFP Mean across all tfs'][()]
+            gfp_mean_across_all_tfs_1_ep01 = map_01_ep01['GFP Mean across all tfs'][()]
+            gfp_mean_across_all_tfs_2_ep01 = map_02_ep01['GFP Mean across all tfs'][()]
+            gfp_mean_across_all_tfs_3_ep01 = map_03_ep01['GFP Mean across all tfs'][()]         
             
             #epoch 2
             g7 = g4['ep_002']
@@ -399,22 +399,22 @@ class Test_test9_mstates(unittest.TestCase):
             map_01_ep02 = g7['map_01']
             map_02_ep02 = g7['map_02']
             map_03_ep02 = g7['map_03'] 
-            cov_dataset_0_ep02 = map_00_ep02['Coverage in percent'].value
-            cov_dataset_1_ep02 = map_01_ep02['Coverage in percent'].value
-            cov_dataset_2_ep02 = map_02_ep02['Coverage in percent'].value
-            cov_dataset_3_ep02 = map_03_ep02['Coverage in percent'].value
-            dur_dataset_0_ep02 = map_00_ep02['Mean duration in ms'].value
-            dur_dataset_1_ep02 = map_01_ep02['Mean duration in ms'].value
-            dur_dataset_2_ep02 = map_02_ep02['Mean duration in ms'].value
-            dur_dataset_3_ep02 = map_03_ep02['Mean duration in ms'].value
-            occ_dataset_0_ep02 = map_00_ep02['Occurrance per s'].value
-            occ_dataset_1_ep02 = map_01_ep02['Occurrance per s'].value
-            occ_dataset_2_ep02 = map_02_ep02['Occurrance per s'].value
-            occ_dataset_3_ep02 = map_03_ep02['Occurrance per s'].value
-            gfp_mean_across_all_tfs_0_ep02 = map_00_ep02['GFP Mean across all tfs'].value
-            gfp_mean_across_all_tfs_1_ep02 = map_01_ep02['GFP Mean across all tfs'].value
-            gfp_mean_across_all_tfs_2_ep02 = map_02_ep02['GFP Mean across all tfs'].value
-            gfp_mean_across_all_tfs_3_ep02 = map_03_ep02['GFP Mean across all tfs'].value                
+            cov_dataset_0_ep02 = map_00_ep02['Coverage in percent'][()]
+            cov_dataset_1_ep02 = map_01_ep02['Coverage in percent'][()]
+            cov_dataset_2_ep02 = map_02_ep02['Coverage in percent'][()]
+            cov_dataset_3_ep02 = map_03_ep02['Coverage in percent'][()]
+            dur_dataset_0_ep02 = map_00_ep02['Mean duration in ms'][()]
+            dur_dataset_1_ep02 = map_01_ep02['Mean duration in ms'][()]
+            dur_dataset_2_ep02 = map_02_ep02['Mean duration in ms'][()]
+            dur_dataset_3_ep02 = map_03_ep02['Mean duration in ms'][()]
+            occ_dataset_0_ep02 = map_00_ep02['Occurrance per s'][()]
+            occ_dataset_1_ep02 = map_01_ep02['Occurrance per s'][()]
+            occ_dataset_2_ep02 = map_02_ep02['Occurrance per s'][()]
+            occ_dataset_3_ep02 = map_03_ep02['Occurrance per s'][()]
+            gfp_mean_across_all_tfs_0_ep02 = map_00_ep02['GFP Mean across all tfs'][()]
+            gfp_mean_across_all_tfs_1_ep02 = map_01_ep02['GFP Mean across all tfs'][()]
+            gfp_mean_across_all_tfs_2_ep02 = map_02_ep02['GFP Mean across all tfs'][()]
+            gfp_mean_across_all_tfs_3_ep02 = map_03_ep02['GFP Mean across all tfs'][()]                
               
             #epoch 3
             g8 = g4['ep_003']
@@ -424,22 +424,22 @@ class Test_test9_mstates(unittest.TestCase):
             map_01_ep03 = g8['map_01']
             map_02_ep03 = g8['map_02']
             map_03_ep03 = g8['map_03'] 
-            cov_dataset_0_ep03 = map_00_ep03['Coverage in percent'].value
-            cov_dataset_1_ep03 = map_01_ep03['Coverage in percent'].value
-            cov_dataset_2_ep03 = map_02_ep03['Coverage in percent'].value
-            cov_dataset_3_ep03 = map_03_ep03['Coverage in percent'].value
-            dur_dataset_0_ep03 = map_00_ep03['Mean duration in ms'].value
-            dur_dataset_1_ep03 = map_01_ep03['Mean duration in ms'].value
-            dur_dataset_2_ep03 = map_02_ep03['Mean duration in ms'].value
-            dur_dataset_3_ep03 = map_03_ep03['Mean duration in ms'].value
-            occ_dataset_0_ep03 = map_00_ep03['Occurrance per s'].value
-            occ_dataset_1_ep03 = map_01_ep03['Occurrance per s'].value
-            occ_dataset_2_ep03 = map_02_ep03['Occurrance per s'].value
-            occ_dataset_3_ep03 = map_03_ep03['Occurrance per s'].value
-            gfp_mean_across_all_tfs_0_ep03 = map_00_ep03['GFP Mean across all tfs'].value
-            gfp_mean_across_all_tfs_1_ep03 = map_01_ep03['GFP Mean across all tfs'].value
-            gfp_mean_across_all_tfs_2_ep03 = map_02_ep03['GFP Mean across all tfs'].value
-            gfp_mean_across_all_tfs_3_ep03 = map_03_ep03['GFP Mean across all tfs'].value   
+            cov_dataset_0_ep03 = map_00_ep03['Coverage in percent'][()]
+            cov_dataset_1_ep03 = map_01_ep03['Coverage in percent'][()]
+            cov_dataset_2_ep03 = map_02_ep03['Coverage in percent'][()]
+            cov_dataset_3_ep03 = map_03_ep03['Coverage in percent'][()]
+            dur_dataset_0_ep03 = map_00_ep03['Mean duration in ms'][()]
+            dur_dataset_1_ep03 = map_01_ep03['Mean duration in ms'][()]
+            dur_dataset_2_ep03 = map_02_ep03['Mean duration in ms'][()]
+            dur_dataset_3_ep03 = map_03_ep03['Mean duration in ms'][()]
+            occ_dataset_0_ep03 = map_00_ep03['Occurrance per s'][()]
+            occ_dataset_1_ep03 = map_01_ep03['Occurrance per s'][()]
+            occ_dataset_2_ep03 = map_02_ep03['Occurrance per s'][()]
+            occ_dataset_3_ep03 = map_03_ep03['Occurrance per s'][()]
+            gfp_mean_across_all_tfs_0_ep03 = map_00_ep03['GFP Mean across all tfs'][()]
+            gfp_mean_across_all_tfs_1_ep03 = map_01_ep03['GFP Mean across all tfs'][()]
+            gfp_mean_across_all_tfs_2_ep03 = map_02_ep03['GFP Mean across all tfs'][()]
+            gfp_mean_across_all_tfs_3_ep03 = map_03_ep03['GFP Mean across all tfs'][()]   
             
                         
             #load correct solutions
@@ -448,7 +448,6 @@ class Test_test9_mstates(unittest.TestCase):
             numb_ms_each_state_solution = np.loadtxt(os.path.join(inputfolder, 'solutions', 'number of ms for each state_HEA01Rest00.asc'))
             gfp_curve_solution = np.loadtxt(os.path.join(inputfolder, 'solutions', 'GFP Curve_HEA01Rest00.asc'))
             start_state_array_solution = np.loadtxt(os.path.join(inputfolder, 'solutions', 'Start state array_HEA01Rest00.asc'))
-
 
             #Asserts that coverage, duration, and occurrence measures are as expected based on the simulated data
             #coverage
@@ -537,19 +536,19 @@ class Test_test9_mstates(unittest.TestCase):
             #epoch1          
             self.assertAlmostEqual(gfp_mean_across_all_tfs_0_ep01, 0.19265109706641267)
             self.assertAlmostEqual(gfp_mean_across_all_tfs_1_ep01, 0.18550619594198267)
-            self.assertAlmostEqual(gfp_mean_across_all_tfs_2_ep01, '-')
-            self.assertAlmostEqual(gfp_mean_across_all_tfs_3_ep01, '-')
+            self.assertAlmostEqual(gfp_mean_across_all_tfs_2_ep01, '-'.encode())
+            self.assertAlmostEqual(gfp_mean_across_all_tfs_3_ep01, '-'.encode())
 
             #epoch2            
             self.assertAlmostEqual(gfp_mean_across_all_tfs_0_ep02, 0.19245490948822006)
             self.assertAlmostEqual(gfp_mean_across_all_tfs_1_ep02, 0.18544981706632832)
             self.assertAlmostEqual(gfp_mean_across_all_tfs_2_ep02, 0.20396915368158294)
-            self.assertAlmostEqual(gfp_mean_across_all_tfs_3_ep02, '-')
+            self.assertAlmostEqual(gfp_mean_across_all_tfs_3_ep02, '-'.encode())
 
             #epoch3            
-            self.assertAlmostEqual(gfp_mean_across_all_tfs_0_ep03, '-')
-            self.assertAlmostEqual(gfp_mean_across_all_tfs_1_ep03, '-')
-            self.assertAlmostEqual(gfp_mean_across_all_tfs_2_ep03, '-')
+            self.assertAlmostEqual(gfp_mean_across_all_tfs_0_ep03, '-'.encode())
+            self.assertAlmostEqual(gfp_mean_across_all_tfs_1_ep03, '-'.encode())
+            self.assertAlmostEqual(gfp_mean_across_all_tfs_2_ep03, '-'.encode())
             self.assertAlmostEqual(gfp_mean_across_all_tfs_3_ep03, 0.18450303759077272)
 
 
@@ -567,7 +566,7 @@ class Test_test9_mstates(unittest.TestCase):
             self.assertAlmostEqual(numb_of_ms_for_each_state_0.all(), numb_ms_each_state_solution.all())
             self.assertAlmostEqual(GFP_curve.all(), gfp_curve_solution.all())
             self.assertAlmostEqual(numb_of_ms_for_each_state_0.all(), numb_ms_each_state_solution.all())
-            
+
             #Mstate Label List Check
             correct_solution_R0 = os.path.join(inputfolder, 'solutions', 'mstate_label_list_cond_Rest_run_0_solution.csv')
             correct_solution_R1 = os.path.join(inputfolder, 'solutions', 'mstate_label_list_cond_Rest_run_1_solution.csv')

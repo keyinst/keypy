@@ -227,7 +227,7 @@ class ParametersDataProvider(object):
             print(("Create output folder: {0}".format(outputfolder)))
             os.makedirs(outputfolder)
 
-        with closing( h5py.File(self._outputfile) ) as k:
+        with closing( h5py.File(self._outputfile, 'a') ) as k:
             #print('Computing parameters for: {0}'.format(output_path.level0))
 
             if output_path.level0 in list(k['/'].keys()):
@@ -679,7 +679,6 @@ def output_mstate_label_list(confobj, eeg_info_study_obj, outputfolder, output_d
         for condi in cond_list:
             for runi in run_list:
                 mstate_label_list_csv = op.join( outputfolder, 'mstate_label_list_{0}_{1}.csv' .format(condi, runi))
-
                 header = []
                 header.append('Pt')
                 header.append('Group')
@@ -688,7 +687,7 @@ def output_mstate_label_list(confobj, eeg_info_study_obj, outputfolder, output_d
                     for tfnr in range(eeg_info_study_obj.tf):
                         header.append('{0}_{1}{2}_ep{3}_tf{4}'.format(short_names_measures[meas], condi.split('_')[1], runi.split('_')[1], epochnr, tfnr))
 
-                with open(mstate_label_list_csv, 'wb') as labels_file:
+                with open(mstate_label_list_csv, 'w') as labels_file:
                     writer = csv.writer(labels_file)
                     writer.writerow(header)
                     for pti in pt_list:

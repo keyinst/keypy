@@ -21,21 +21,23 @@ def compute_mstate_parameters(confobj, eeg, maps, eeg_info_study_obj):
     TF = eeg_info_study_obj.tf
     Fs = eeg_info_study_obj.sf
 
+    keys = list(range(int(len(eeg)/TF)))
+
     #####Create Dictionaries for parameters across all epochs
-    dur_state_all_epochs = dict.fromkeys(list(range(len(eeg)/TF)))
-    freq_dict_all_epochs = dict.fromkeys(list(range(len(eeg)/TF)))
-    dur_dict_all_epochs = dict.fromkeys(list(range(len(eeg)/TF)))
-    cov_dict_all_epochs = dict.fromkeys(list(range(len(eeg)/TF)))
-    gfp_peak_nr_all_epochs = dict.fromkeys(list(range(len(eeg)/TF)))
-    mean_gfp_all_epochs = dict.fromkeys(list(range(len(eeg)/TF)))
-    gfp_mean_all_epochs = dict.fromkeys(list(range(len(eeg)/TF)))
-    durstd_dict_all_epochs= dict.fromkeys(list(range(len(eeg)/TF)))
-    start_state_list_all_epochs= dict.fromkeys(list(range(len(eeg)/TF)))
-    exp_var_all_epochs= dict.fromkeys(list(range(len(eeg)/TF)))
-    exp_var_tot_all_epochs= dict.fromkeys(list(range(len(eeg)/TF)))
-    state_match_percentage_all_epochs= dict.fromkeys(list(range(len(eeg)/TF)))
-    state_match_percentage_std_all_epochs= dict.fromkeys(list(range(len(eeg)/TF)))
-    gfp_curves_all_epochs= dict.fromkeys(list(range(len(eeg)/TF)))
+    dur_state_all_epochs = dict.fromkeys(keys)
+    freq_dict_all_epochs = dict.fromkeys(keys)
+    dur_dict_all_epochs = dict.fromkeys(keys)
+    cov_dict_all_epochs = dict.fromkeys(keys)
+    gfp_peak_nr_all_epochs = dict.fromkeys(keys)
+    mean_gfp_all_epochs = dict.fromkeys(keys)
+    gfp_mean_all_epochs = dict.fromkeys(keys)
+    durstd_dict_all_epochs= dict.fromkeys(keys)
+    start_state_list_all_epochs= dict.fromkeys(keys)
+    exp_var_all_epochs= dict.fromkeys(keys)
+    exp_var_tot_all_epochs= dict.fromkeys(keys)
+    state_match_percentage_all_epochs= dict.fromkeys(keys)
+    state_match_percentage_std_all_epochs= dict.fromkeys(keys)
+    gfp_curves_all_epochs= dict.fromkeys(keys)
 
     #################  
     # 3.) LOOP ACROSS 2 Sec Segments
@@ -47,7 +49,7 @@ def compute_mstate_parameters(confobj, eeg, maps, eeg_info_study_obj):
 
     individu_mstate = np.zeros((confobj.original_nr_of_maps, int(eeg.shape[1])))
 
-    for epochnr in range(len(eeg)/TF):
+    for epochnr in keys:
         epoch = eeg[epochnr*TF:(epochnr+1)*TF]
   
         #################   
@@ -564,7 +566,7 @@ def run_parameters(data_provider, confobj, eeg_info_study_obj):
         sortby = data_provider.get_sortby_data(output_path)
         #compute_mstate_parameters demands that input and sortby are in the same data format (equal nch)
         output_data, output_attributes = compute_mstate_parameters(confobj, input, sortby, eeg_info_study_obj)
-        if not output_data == []:
+        if len(output_data) > 0:
             data_provider.write_output_data(confobj, output_path, output_data, output_attributes)
 
         #add data for output_path to dictionary

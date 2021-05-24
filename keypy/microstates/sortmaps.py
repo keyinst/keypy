@@ -458,7 +458,7 @@ def run_sortmaps(data_provider, confobj, eeg_info_study_obj):
         input_reduced, input_original = data_provider.get_input_data(output_path, eeg_info_study_obj.chlist)
         sortby = data_provider.get_sortby_data(output_path)
         output_data, output_attributes = sortmaps(confobj, input_reduced, sortby, input_original)     
-        if not output_data == []:
+        if len(output_data) > 0:
             data_provider.write_output_data(output_path, output_data, output_attributes)
 
 ####--------------------------------------------------------------------------####

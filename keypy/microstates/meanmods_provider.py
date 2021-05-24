@@ -488,7 +488,6 @@ class CondDataProvider5(DataProvider):
 
     def get_outputs(self):
         out_paths_set = set()
-        print('MOSS', self._file)
         with closing( h5py.File(self._file, 'r') ) as f:
             for current_group in list(f['/'].keys()):
                 group_group = f['/{0}' .format(current_group)]
