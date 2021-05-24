@@ -16,6 +16,14 @@ On Windows, install the executable file from PyPi:
 	https://pypi.python.org/pypi/keypy
 
 
+Python3 Setup
+-------------
+To get the additional required libraries, please run the following command in your virtual environment:
+```
+pip install -r requirements.txt
+```
+
+
 Citation
 --------
 	
