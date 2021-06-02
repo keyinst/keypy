@@ -297,8 +297,8 @@ def compute_mstate_parameters(confobj, eeg, maps, eeg_info_study_obj):
         loading=abs(covm).max(axis=1)
         loading_all=abs(covm_all).max(axis=1)
 
-        b_loading=loading/sqrt(model.shape[1])
-        b_loading_all=loading_all/sqrt(model.shape[1])
+        b_loading=np.square(loading/sqrt(model.shape[1]))
+        b_loading_all=np.square(loading_all/sqrt(model.shape[1]))
         		
         exp_var=sum(b_loading)/sum(epoch[gfp_peak_indices].std(axis=1))
         exp_var_tot=sum(b_loading_all)/sum(epoch.std(axis=1))
