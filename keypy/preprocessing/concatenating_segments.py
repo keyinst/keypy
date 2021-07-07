@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import glob, os
-from sets import Set
 import numpy as np
 
 
@@ -51,7 +50,7 @@ def concatenate(mydir, ntf, nch, id_start, id_end, ending_in, ending_out):
     ##concatenate all epochs (in epoch order)
     ##export as *.asc file
 
-    for idi in file_list_by_id.keys():
+    for idi in list(file_list_by_id.keys()):
         conc_file = np.zeros((len(file_list_by_id[idi])*ntf, nch))
         for filenr, file in enumerate(file_list_by_id[idi]):
             file_content=np.loadtxt(file)
@@ -108,7 +107,7 @@ def concatenate_various(mydir, ntf, nch, id_start, id_end, ending_in, ending_out
 
     
 
-    for idi in file_list_by_id.keys():
+    for idi in list(file_list_by_id.keys()):
         file_len=[]
         for filenr, file in enumerate(file_list_by_id[idi]):
             file_content=np.loadtxt(file)
@@ -120,10 +119,10 @@ def concatenate_various(mydir, ntf, nch, id_start, id_end, ending_in, ending_out
                 conc_file = file_content
 
         assert(np.sum(file_len)==conc_file.shape[0])
-        print 'Concatenating', idi, ' File length: ', np.sum(file_len)
+        print(('Concatenating', idi, ' File length: ', np.sum(file_len)))
 
         np.savetxt('{0}.{1}' .format(idi, ending_out), conc_file)
 
-    print 'Concatenating succesfully completed.'
+    print('Concatenating succesfully completed.')
 
 
