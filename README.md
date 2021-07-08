@@ -1,6 +1,9 @@
-The KEY Institute for Brain-Mind Research
-EEG Analysis Toolbox
-============================================================
+**Note: This package has a new home and maintainer. Please follow along to the [new address.](https://github.com/uwaicl/keypy)**
+
+---
+
+## The KEY Institute for Brain-Mind Research EEG Analysis Toolbox
+
 This package contains functionality for EEG preprocessing,
 microstate analysis, spectral analysis, and statistics.
 
