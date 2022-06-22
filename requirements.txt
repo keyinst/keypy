@@ -27,5 +27,5 @@ keyrings.alt==3.0
 language-selector==0.1
 MarkupSafe==1.0
 netifaces==0.10.4
-numpy==1.19.5
+numpy==1.22.0
 oauthlib==2.0.6
